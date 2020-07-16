@@ -1,0 +1,20 @@
+<!--miniprogram/pages/admin/scan/scan.wxml-->
+<view class="body">
+	<view class="logo">
+		<!-- <image src="https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png" mode="aspectFit" class="logo"></image> -->
+    <image class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+	</view>
+	<view class="form">
+		<text space>MAC: </text>
+		<input type="tetx" placeholder="输入mac" maxlength="12" focus confirm-type="提交" value="{{mac}}"></input>
+		<view class="iconfont icon-saomiao ml-auto" style="font-size:22px" bindtap="scanMac"></view>
+	</view>
+	<view class="form">
+		<text>ICCID:</text>
+		<input type="tetx" placeholder="输入iccd" maxlength="20" value="{{iccd}}"></input>
+		<view class="iconfont icon-saomiao ml-auto" style="font-size:22px" bindtap="scanICCD"></view>
+	</view>
+  <view>
+    <button type="primary">提交验证</button>
+  </view>
+</view>

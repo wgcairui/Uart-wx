@@ -1,0 +1,4 @@
+/* miniprogram/pages/admin/scan/scan.wxss */
+text{
+  margin-right: 25rpx;
+}

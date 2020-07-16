@@ -1,0 +1,1 @@
+export const webUrl = "https://uart.ladishb.com"
