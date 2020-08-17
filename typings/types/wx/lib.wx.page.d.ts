@@ -21,7 +21,7 @@ SOFTWARE.
 ***************************************************************************** */
 
 declare namespace WechatMiniprogram {
-    namespace Page {
+    namespace Page { 
         type Instance<
             TData extends DataOption,
             TCustom extends CustomOption
@@ -148,7 +148,10 @@ declare namespace WechatMiniprogram {
              *
              * 渲染层可以通过 `WXML` 对数据进行绑定。
              */
-            data: D
+            data: D,/* 
+            computed:any,
+            watch:any,
+            behaviors:[any] */
         }
 
         interface ICustomShareContent {

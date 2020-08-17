@@ -1,5 +1,7 @@
 // index.ts
+import { login } from "../../utils/util"
 // 获取应用实例
+const app = getApp<IAppOption>()
 Page({
   data: {
     motto: 'Hello World',
@@ -11,35 +13,45 @@ Page({
   bindViewTap() {
   },
   onLoad() {
-    if (app.globalData.userInfo) {
-      this.setData({
-        userInfo: app.globalData.userInfo,
-        hasUserInfo: true,
-      })
-    } else if (this.data.canIUse) {
-      // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-      // 所以此处加入 callback 以防止这种情况
-      app.userInfoReadyCallback = res => {
-        this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true,
-        })
-      }
-    } else {
-      // 在没有 open-type=getUserInfo 版本的兼容处理
-      wx.getUserInfo({
-        success: res => {
-          app.globalData.userInfo = res.userInfo
-          this.setData({
-            userInfo: res.userInfo,
-            hasUserInfo: true,
+    wx.login({
+      success: res => {
+        // 获取用户头像昵称
+        {
+          wx.getUserInfo({
+            success: res => {
+              app.globalData.userInfo = res.userInfo
+              this.setData({
+                userInfo: res.userInfo,
+                hasUserInfo: true,
+              })
+              if (app.userInfoReadyCallback) {
+                app.userInfoReadyCallback(res)
+              }
+            },
+            fail: () => {
+              wx.showModal({
+                title: '授权错误',
+                content: "小程序登录需要微信昵称头像"
+              })
+            }
           })
-        },
-      })
-    }
+        }
+        // 发送网络请求，获取在线账户
+        {
+          login({ js_code: res.code }).then(res => {
+            if (res.ok) {
+              app.globalData.user = res.arg.user
+              app.globalData.userGroup = res.arg.userGroup
+            } else {
+              app.globalData.openid = res.arg.openid
+              wx.showToast({ title: res.msg, icon: "none", duration: 3000 })
+            }
+          })
+        }
+      }
+    })
   },
   getUserInfo(e: any) {
-    console.log(e)
     app.globalData.userInfo = e.detail.userInfo
     this.setData({
       userInfo: e.detail.userInfo,

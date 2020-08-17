@@ -1,6 +1,12 @@
 // app.ts
 App<IAppOption>({
-  globalData: {},
+  globalData: {
+    apiUrl:"https://uart.ladishb.com/api/wx/",
+    userInfo: {},
+    user: '',
+    userGroup: '',
+    openid: '',
+  },
   onLaunch() {
 
   },

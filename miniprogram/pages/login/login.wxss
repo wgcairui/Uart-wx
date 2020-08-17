@@ -1,1 +1,6 @@
 /* miniprogram/pages/login/login.wxss */
+.avanter{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
