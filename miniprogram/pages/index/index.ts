@@ -42,9 +42,12 @@ Page({
             if (res.ok) {
               app.globalData.user = res.arg.user
               app.globalData.userGroup = res.arg.userGroup
+              console.log(res.arg);
+              
             } else {
               app.globalData.openid = res.arg.openid
               wx.showToast({ title: res.msg, icon: "none", duration: 3000 })
+              wx.navigateTo({url:"/pages/login/login"})
             }
           })
         }
