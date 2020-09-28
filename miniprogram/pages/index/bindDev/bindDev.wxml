@@ -1,0 +1,25 @@
+<!--miniprogram/pages/index/bindDev/bindDev.wxml-->
+<view class="container">
+  <view class="form mt-5">
+    <text>IMEI</text>
+    <input type="text" class="pl-2" placeholder="输入或扫描DTU的编号" model:value="{{mac}}" />
+    <view class="iconfont icon-saomiao ml-auto" style="font-size:22px" bindtap="scanMac"></view>
+  </view>
+  <view id="scanRequst">
+    <button bindtap="scanRequst" disabled="{{!mac}}" type="primary">查询设备</button>
+  </view>
+  <view class="info" wx:if="{{terminal.name}}">
+    <text>Mac:{{mac}}</text>
+    <text>DTU名称:{{terminal.name}}</text>
+    <text>接入节点:{{terminal.mountNode}}</text>
+    <text>挂载设备:</text>
+    <view>
+      <swiper id="mountDevs">
+        <swiper-item wx:for="{{terminal.mountDevs}}" wx:key="*this">
+          <text>{{item.mountDev}}</text>
+        </swiper-item>
+      </swiper>
+    </view>
+    <button type="primary" bindtap="bindDev">绑定DTU</button>
+  </view>
+</view>

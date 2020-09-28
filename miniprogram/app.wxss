@@ -7,7 +7,9 @@
   /* padding: 200rpx 0; */
   box-sizing: border-box;
 } 
-
+.container>view{
+  margin-top: 12px;
+}
 .body{
   padding: 5%;
 }
@@ -44,6 +46,9 @@
 .ml-auto{
   margin-left: auto
 }
-
-@import "./iconfont.wxss";
-@import "./bootstrap.wxss"
+page {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica,
+    Segoe UI, Arial, Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft Yahei',
+    sans-serif;
+}
+@import './miniprogram_npm/@vant/weapp/common/index.wxss';

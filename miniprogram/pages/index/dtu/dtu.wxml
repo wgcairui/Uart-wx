@@ -1,0 +1,13 @@
+<!--miniprogram/pages/index/dtu/dtu.wxml-->
+<view class="container">
+  <view class=" terminal-list">
+    <van-cell-group title="{{terminal.name}}">
+      <van-cell title="DTU" value="{{terminal.name}}" />
+      <van-cell title="IMEI" value="{{terminal.DevMac}}" />
+      <van-cell title="IP" value="{{terminal.ip}}" />
+      <van-cell title="端口" value="{{terminal.port}}" />
+      <van-cell title="通讯" value="{{terminal.uart}}" />
+      <van-cell title="更新时间" value="{{terminal.uptime}}" />
+    </van-cell-group>
+  </view>
+</view>

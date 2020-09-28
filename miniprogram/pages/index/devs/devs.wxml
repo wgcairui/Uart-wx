@@ -1,0 +1,6 @@
+<!--miniprogram/pages/index/devs/devs.wxml-->
+<view class="container">
+  <van-cell-group>
+    <van-cell wx:for="{{result.result}}" title="{{item.name}}" value="{{item.value+item.unit}}" />
+  </van-cell-group>
+</view>

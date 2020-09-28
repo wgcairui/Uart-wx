@@ -1,64 +1,72 @@
 // index.ts
-import { login } from "../../utils/util"
+import api from "../../utils/api";
 // 获取应用实例
-const app = getApp<IAppOption>()
+const { globalData } = getApp<IAppOption>()
 Page({
   data: {
-    motto: 'Hello World',
-    userInfo: {},
-    hasUserInfo: false,
-    canIUse: wx.canIUse('button.open-type.getUserInfo'),
-  },
-  // 事件处理函数
-  bindViewTap() {
+    // DTU设备信息
+    DTUs: [] as Terminal[]
   },
   onLoad() {
     wx.login({
       success: res => {
-        // 获取用户头像昵称
-        {
-          wx.getUserInfo({
-            success: res => {
-              app.globalData.userInfo = res.userInfo
-              this.setData({
-                userInfo: res.userInfo,
-                hasUserInfo: true,
-              })
-              if (app.userInfoReadyCallback) {
-                app.userInfoReadyCallback(res)
-              }
-            },
-            fail: () => {
-              wx.showModal({
-                title: '授权错误',
-                content: "小程序登录需要微信昵称头像"
-              })
-            }
-          })
-        }
         // 发送网络请求，获取在线账户
         {
-          login({ js_code: res.code }).then(res => {
+          api.login({ js_code: res.code }).then(res => {
+            console.log(res);
             if (res.ok) {
-              app.globalData.user = res.arg.user
-              app.globalData.userGroup = res.arg.userGroup
-              console.log(res.arg);
-              
+              globalData.user = res.arg.user
+              globalData.userGroup = res.arg.userGroup
+              globalData.userAvanter = res.arg.avanter
+              globalData.userName = res.arg.name
+              globalData.userTel = res.arg.tel
+              this.bindDev()
             } else {
-              app.globalData.openid = res.arg.openid
-              wx.showToast({ title: res.msg, icon: "none", duration: 3000 })
-              wx.navigateTo({url:"/pages/login/login"})
+              wx.navigateTo({ url: "/pages/login/login?openid=" + res.arg.openid })
             }
           })
         }
       }
     })
   },
-  getUserInfo(e: any) {
-    app.globalData.userInfo = e.detail.userInfo
-    this.setData({
-      userInfo: e.detail.userInfo,
-      hasUserInfo: true,
-    })
+  // 获取用户绑定设备
+  async bindDev() {
+    const { ok, arg } = await api.getuserMountDev()
+    if (ok) {
+      this.setData({
+        DTUs: arg.UTs
+      })
+      this.data.DTUs.forEach(el => {
+        wx.setStorage({
+          key: el._id,
+          data: el
+        })
+      })
+    } else {
+      wx.showModal({
+        title: '添加设备',
+        content: '您还没有添加任何设备，请先添加设备',
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/pages/index/bindDev/bindDev' })
+          }
+        }
+      })
+    }
   },
+  // 显示用户DTU参数
+  showDTUInfo(event: vantEvent) {
+    const dtus = this.data.DTUs
+    const index = dtus.findIndex(el => el._id === event.target.id)
+    const dtu = dtus[index]
+    wx.navigateTo({ url: `/pages/index/dtu/dtu?id=${dtu._id}` })
+  },
+  // 查看设备数据
+  showMountDevData(event: vantEvent) {
+    const [id, pid] = event.target.id.split("-")
+    const { DevMac } = wx.getStorageSync(id) as Terminal
+    wx.navigateTo({
+      url: '/pages/index/devs/devs?mac=' + DevMac + '&pid=' + pid
+    })
+  }
 })

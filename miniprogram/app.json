@@ -1,9 +1,14 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/index/bindDev/bindDev",
     "pages/login/login",
     "pages/admin/scan/scan",
-    "component/head/head"
+    "component/head/head",
+    "pages/index/user/user",
+    "pages/index/alarm/alarm",
+    "pages/index/dtu/dtu",
+    "pages/index/devs/devs"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -11,6 +16,36 @@
     "navigationBarTitleText": "雷迪司透传平台",
     "navigationBarTextStyle": "black"
   },
-  "style": "v2",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "usingComponents": {
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index"
+  },
+  "tabBar": {
+    "color": "#000",
+    "selectedColor": "#000",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "position": "bottom",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "设备",
+        "iconPath": "assert/Devs.png",
+        "selectedIconPath": "assert/Devs.png"
+      },
+      {
+        "pagePath": "pages/index/alarm/alarm",
+        "text": "告警",
+        "iconPath": "assert/alarm.png",
+        "selectedIconPath": "assert/alarm.png"
+      },
+      {
+        "pagePath": "pages/index/user/user",
+        "text": "我",
+        "iconPath": "assert/user.png",
+        "selectedIconPath": "assert/user.png"
+      }
+    ]
+  }
 }

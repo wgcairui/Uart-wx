@@ -1,13 +1,21 @@
 <!--index.wxml-->
 <view class="container">
-  <view class="userinfo">
-    <button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
-    <block wx:else>
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-      <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-    </block>
-  </view>
-  <view class="usermotto">
-    <text class="user-motto">{{motto}}</text>
+  <view class="content">
+    <van-panel wx:for="{{DTUs}}" wx:key="_id" title="{{item.name}}" desc="{{item.DevMac}}" status="{{item.AT}}"
+      use-footer-slot>
+      <view>
+        <van-cell is-link icon="setting" wx:for="{{item.mountDevs}}" wx:for-item="item2" wx:key="pid"
+          bind:click="showMountDevData" id="{{item._id+'-'+item2.pid}}">
+          <view slot="title">
+            <view class="van-cell-text">{{item2.mountDev}}</view>
+            <van-tag type="primary">{{item2.Type}}</van-tag>
+          </view>
+        </van-cell>
+      </view>
+      <view slot="footer">
+        <van-button id="{{item._id}}" size="small" round plain type="primary" bind:click="showDTUInfo">DTU状态
+        </van-button>
+      </view>
+    </van-panel>
   </view>
 </view>

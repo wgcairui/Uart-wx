@@ -1,0 +1,9 @@
+/* miniprogram/pages/index/alarm/alarm.wxss */
+.van-swipe-cellright{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 65px;
+  height: 100%;
+  background-color: tomato;
+}

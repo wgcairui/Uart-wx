@@ -1,22 +1,13 @@
-/// <reference path="./types/index.d.ts" />
+/// <reference path="../node_modules/@types/wechat-miniprogram/index.d.ts" />
 
 interface IAppOption {
   globalData: {
     userInfo?: Partial<WechatMiniprogram.UserInfo>,
-    apiUrl:string
     user: string,
     userGroup: string,
-    openid: string,
-    [x:string]:any
+    userName: string,
+    userAvanter: string,
+    userTel: string
   }
   userInfoReadyCallback?: WechatMiniprogram.GetUserInfoSuccessCallback,
-}
-
-interface ApolloMongoResult {
-  msg: string
-  ok: number
-  n: number
-  nModified: number
-  upserted: any,
-  arg?: any
 }

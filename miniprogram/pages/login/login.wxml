@@ -8,14 +8,11 @@
 			<image class="userinfo-avatar" src="{{userInfo.avatarUrl}}"></image>
 			<text>{{userInfo.nickName}}</text>
 		</view>
-		<view wx:if="{{isregister}}">
+		<view >
 			<text class="d-block m-3">注册</text>
 			<view class="form">
 				<input placeholder="输入手机号码" model:value="{{tel}}"></input>
 				<button type="primary" open-type="getPhoneNumber" bindgetphonenumber="getphonenumber" size="mini" class="d-inline">授权获取手机号码</button>
-			</view>
-			<view class="form">
-				<input placeholder="输入邮箱号码" model:value="{{mail}}">11</input>
 			</view>
 			<button type="primary" loading="{{registerloading}}" class="mt-3" bindtap="register" disabled="{{!isR}}">注册</button>
 		</view>
