@@ -1,25 +1,28 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/index/line/line",
     "pages/index/bindDev/bindDev",
     "pages/login/login",
     "pages/admin/scan/scan",
-    "component/head/head",
     "pages/index/user/user",
     "pages/index/alarm/alarm",
     "pages/index/dtu/dtu",
-    "pages/index/devs/devs"
+    "pages/index/devs/devs",
+    "component/line/line"
   ],
   "window": {
-    "backgroundTextStyle": "light",
+    "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "雷迪司透传平台",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": true
   },
   "sitemapLocation": "sitemap.json",
   "usingComponents": {
     "van-cell": "@vant/weapp/cell/index",
-    "van-cell-group": "@vant/weapp/cell-group/index"
+    "van-cell-group": "@vant/weapp/cell-group/index",
+    "van-hr": "@vant/weapp/divider/index"
   },
   "tabBar": {
     "color": "#000",

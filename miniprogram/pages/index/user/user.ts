@@ -13,7 +13,7 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+  onLoad: function (_options) {
     const {globalData} = getApp<IAppOption>()
     this.setData({
       name:globalData.userName,

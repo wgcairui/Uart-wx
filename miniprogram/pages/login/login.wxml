@@ -14,7 +14,7 @@
 				<input placeholder="输入手机号码" model:value="{{tel}}"></input>
 				<button type="primary" open-type="getPhoneNumber" bindgetphonenumber="getphonenumber" size="mini" class="d-inline">授权获取手机号码</button>
 			</view>
-			<button type="primary" loading="{{registerloading}}" class="mt-3" bindtap="register" disabled="{{!isR}}">注册</button>
+			<button type="primary" loading="{{registerloading}}" class="mt-3" bindtap="register">注册</button>
 		</view>
 	</view>
 

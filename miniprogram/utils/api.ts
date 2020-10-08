@@ -6,6 +6,7 @@ type url = 'getuserMountDev'
   | 'bindDev'
   | 'getAlarm'
   | 'getDevsRunInfo'
+  | 'getDevsHistoryInfo'
 class api {
   readonly url: string
   token: string
@@ -50,25 +51,37 @@ class api {
   getDevsRunInfo(mac: string, pid: string) {
     return this.RequestUart<queryResult>({ url: "getDevsRunInfo", data: { mac, pid } })
   }
+  // 获取设备历史运行数据
+  getDevsHistoryInfo(mac: string, pid: string, name: string, datatime: string = '') {
+    return this.RequestUart<any>({ url: 'getDevsHistoryInfo', data: { mac, pid, name, datatime } })
+  }
   private async RequestUart<T>(object: { url: url, data: Object, method?: "GET" | "POST" }) {
-    wx.showLoading({ title: '正在查询' })
+    //wx.showLoading({ title: '正在查询' })
+    wx.showNavigationBarLoading()
     return await new Promise<ApolloMongoResult<T>>((resolve, reject) => {
       wx.request({
         url: this.url + object.url,
         data: Object.assign({ token: this.token }, object.data),
         method: object.method || "GET",
         success: res => {
-          console.log(res);
-          wx.hideLoading()
-          if(res.statusCode !== 200){
-            wx.showModal({title:String(res.statusCode),content:res.errMsg})
+          //console.log(res);
+          //wx.hideLoading()
+          if (res.statusCode !== 200) {
+            wx.showModal({ title: String(res.statusCode), content: res.errMsg })
             reject(res)
-          }else resolve(res.data as any)
+          } else {
+            setTimeout(() => {
+              resolve(res.data as any)
+            }, 0)
+          }
         },
         fail: e => {
-          wx.hideLoading()
+          wx.showModal({ title: '服务器错误', content: e.errMsg })
           reject(e)
         },
+        complete:()=>{
+          wx.hideNavigationBarLoading()
+        }
       })
     })
   }

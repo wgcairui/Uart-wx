@@ -13,7 +13,6 @@ Page({
         // 发送网络请求，获取在线账户
         {
           api.login({ js_code: res.code }).then(res => {
-            console.log(res);
             if (res.ok) {
               globalData.user = res.arg.user
               globalData.userGroup = res.arg.userGroup
@@ -21,6 +20,9 @@ Page({
               globalData.userName = res.arg.name
               globalData.userTel = res.arg.tel
               this.bindDev()
+              wx.navigateTo({
+                url:"/pages/index/user/user"
+              })
             } else {
               wx.navigateTo({ url: "/pages/login/login?openid=" + res.arg.openid })
             }
@@ -63,10 +65,15 @@ Page({
   },
   // 查看设备数据
   showMountDevData(event: vantEvent) {
-    const [id, pid] = event.target.id.split("-")
+    const [id, pid, mountDev] = event.target.id.split("-")
     const { DevMac } = wx.getStorageSync(id) as Terminal
     wx.navigateTo({
-      url: '/pages/index/devs/devs?mac=' + DevMac + '&pid=' + pid
+      url: '/pages/index/devs/devs?mac=' + DevMac + '&pid=' + pid + '&mountDev=' + mountDev
     })
+  },
+  //
+  async onPullDownRefresh() {
+    await this.bindDev()
+    wx.stopPullDownRefresh()
   }
 })

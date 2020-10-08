@@ -1,9 +1,7 @@
 // miniprogram/pages/login/login.js
 const app = getApp<IAppOption>()
-import * as computed from "miniprogram-computed"
 import api from "../../utils/api";
 Page({
-  behaviors: [computed],
   /**
    * 页面的初始数据
    */
@@ -22,12 +20,6 @@ Page({
     })
   },
 
-  computed: {
-    isR(data: any) {
-      const istel = /^1(3|4|5|7|8)\d{9}$/.test(data.tel)
-      return istel
-    }
-  },
   /**
    * 生命周期函数--监听页面加载
    */

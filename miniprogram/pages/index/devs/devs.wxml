@@ -1,6 +1,9 @@
 <!--miniprogram/pages/index/devs/devs.wxml-->
 <view class="container">
+  <van-search model:value="{{filter}}" placeholder="请输入参数搜索" show-action bind:search="onSearch" bind:cancel="onCancel">
+  </van-search>
   <van-cell-group>
-    <van-cell wx:for="{{result.result}}" title="{{item.name}}" value="{{item.value+item.unit}}" />
+    <van-cell is-link bind:click="onLine" wx:for="{{result.result}}" title="{{item.name}}" id="{{item.name}}"
+      value="{{item.value+item.unit}}" wx:key="name" />
   </van-cell-group>
 </view>

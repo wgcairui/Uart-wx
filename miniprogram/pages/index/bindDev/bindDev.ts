@@ -22,7 +22,7 @@ Page({
     const { ok, arg } = await api.getDTUInfo(this.data.mac)
     if (ok) {
       this.setData({
-        terminal: arg.terminal
+        terminal: arg
       })
       console.log(this.data.terminal);
 
@@ -52,5 +52,9 @@ Page({
         content: `绑定DTU:${this.data.mac} 失败，tip:${msg}`,
       })
     }
+  },
+  //
+  onClickIcon(event:vantEvent){
+    
   }
 })

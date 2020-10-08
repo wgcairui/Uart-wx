@@ -1,12 +1,13 @@
 <!--miniprogram/pages/index/bindDev/bindDev.wxml-->
 <view class="container">
-  <view class="form mt-5">
-    <text>IMEI</text>
-    <input type="text" class="pl-2" placeholder="输入或扫描DTU的编号" model:value="{{mac}}" />
-    <view class="iconfont icon-saomiao ml-auto" style="font-size:22px" bindtap="scanMac"></view>
+  <view>
+    <van-cell-group>
+      <van-field model:value="{{mac}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描DTU的编号"
+        bind:click-icon="scanMac" />
+    </van-cell-group>
   </view>
-  <view id="scanRequst">
-    <button bindtap="scanRequst" disabled="{{!mac}}" type="primary">查询设备</button>
+  <view>
+    <van-button round type="info" bind:click="scanRequst">查询设备</van-button>
   </view>
   <view class="info" wx:if="{{terminal.name}}">
     <text>Mac:{{mac}}</text>

@@ -20,7 +20,9 @@
     "strictPropertyInitialization": true,
     "lib": ["es6"],
     "typeRoots": [
-      "./typings"
+      "./typings",
+      "@types/echarts",
+      "typescript"
     ],
     "baseUrl": ".",
     "paths": {
@@ -31,6 +33,6 @@
     "./**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    
   ]
 }

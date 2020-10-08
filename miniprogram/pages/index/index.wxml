@@ -5,7 +5,7 @@
       use-footer-slot>
       <view>
         <van-cell is-link icon="setting" wx:for="{{item.mountDevs}}" wx:for-item="item2" wx:key="pid"
-          bind:click="showMountDevData" id="{{item._id+'-'+item2.pid}}">
+          bind:click="showMountDevData" id="{{item._id+'-'+item2.pid+'-'+item2.mountDev}}">
           <view slot="title">
             <view class="van-cell-text">{{item2.mountDev}}</view>
             <van-tag type="primary">{{item2.Type}}</van-tag>

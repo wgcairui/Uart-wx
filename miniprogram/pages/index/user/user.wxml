@@ -6,4 +6,18 @@
       <text class="userinfo-nickname">{{name}}</text>
     </block>
   </view>
+  <view>
+    <text>常用操作</text>
+    <van-hr />
+  </view>
+  <view class="grid">
+    <van-grid clickable gutter="{{ 10 }}">
+      <van-grid-item icon="friends" icon-color="#29d" text="用户信息" url="" />
+      <van-grid-item icon="cluster" icon-color="#29d" text="管理DTU" url="" />
+      <van-grid-item icon="scan" icon-color="#29d" text="查询DTU" url="/pages/index/bindDev/bindDev" />
+      <van-grid-item icon="browsing-history" icon-color="#29d" text="告警设置" url="" />
+      <van-grid-item icon="setting" icon-color="#29d" text="微信权限" url="" />
+      <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="" />
+    </van-grid>
+  </view>
 </view>
