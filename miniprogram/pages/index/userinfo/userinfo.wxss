@@ -1,4 +1,4 @@
-/* miniprogram/pages/index/user/user.wxss */
+/* miniprogram/pages/index/userinfo/userinfo.wxss */
 .userinfo {
   display: flex;
   flex-direction: column;

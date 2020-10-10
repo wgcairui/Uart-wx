@@ -7,6 +7,9 @@ type url = 'getuserMountDev'
   | 'getAlarm'
   | 'getDevsRunInfo'
   | 'getDevsHistoryInfo'
+  | 'userlogin'
+  | 'getUserInfo'
+  | 'unbindwx'
 class api {
   readonly url: string
   token: string
@@ -14,15 +17,23 @@ class api {
     this.url = "https://test.ladishb.com/api/wx/"
     this.token = ""
   }
-  // 登录
+  // 登录-用于小程序启动关联微信自动登录
   async login(data: { js_code: string }) {
     const el = await this.RequestUart<any>({ url: "code2Session", data })
     if (el.ok)
       this.token = el.arg.token
     return el
   }
+  //  登录-用于小程序登录页面登录
+  userlogin(data: { openid: string, avanter: string, user: string, passwd: string }) {
+    return this.RequestUart<any>({ url: 'userlogin', data })
+  }
+  // 用于解绑微信和透传账号的绑定关系
+  unbindwx() {
+    return this.RequestUart<any>({ url: 'unbindwx', data: {} })
+  }
   // 解密电话字符串
-  getphonenumber<T>(data: { encryptedData: string, iv: string }) {
+  getphonenumber<T>(data: { openid: string, encryptedData: string, iv: string }) {
     return this.RequestUart<T>({ url: "getphonenumber", data })
   }
   // 注册
@@ -36,6 +47,10 @@ class api {
   // 获取DTU信息
   getDTUInfo(mac: string) {
     return this.RequestUart<Terminal>({ url: 'getDTUInfo', data: { mac } })
+  }
+  // 获取用户信息
+  getUserInfo() {
+    return this.RequestUart<UserInfo>({ url: 'getUserInfo', data: {} })
   }
 
   // 绑定DTU
@@ -67,7 +82,7 @@ class api {
           //console.log(res);
           //wx.hideLoading()
           if (res.statusCode !== 200) {
-            wx.showModal({ title: String(res.statusCode), content: res.errMsg })
+            wx.showModal({ title: String(res.statusCode), content: res.data.toString() || res.errMsg })
             reject(res)
           } else {
             setTimeout(() => {
@@ -79,7 +94,7 @@ class api {
           wx.showModal({ title: '服务器错误', content: e.errMsg })
           reject(e)
         },
-        complete:()=>{
+        complete: () => {
           wx.hideNavigationBarLoading()
         }
       })

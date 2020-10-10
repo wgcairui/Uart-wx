@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowUnreachableCode": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
     "module": "CommonJS",
@@ -18,11 +19,12 @@
     "removeComments": true,
     "pretty": true,
     "strictPropertyInitialization": true,
-    "lib": ["es6"],
-    "typeRoots": [
-      "./typings",
+    "lib": ["ES2018","DOM"],
+    "typeRoots": [],
+    "types": [
+      "miniprogram-api-typings",
       "@types/echarts",
-      "typescript"
+      "./typings"
     ],
     "baseUrl": ".",
     "paths": {
@@ -30,9 +32,9 @@
     }
   },
   "include": [
-    "./**/*.ts"
+    "miniprogram/**/*.ts"
   ],
   "exclude": [
-    
+    "node_modules"
   ]
 }

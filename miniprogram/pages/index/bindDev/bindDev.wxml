@@ -7,20 +7,14 @@
     </van-cell-group>
   </view>
   <view>
-    <van-button round type="info" bind:click="scanRequst">查询设备</van-button>
+    <van-button round type="info" bind:click="scanRequst" class="center">查询设备</van-button>
   </view>
   <view class="info" wx:if="{{terminal.name}}">
-    <text>Mac:{{mac}}</text>
-    <text>DTU名称:{{terminal.name}}</text>
-    <text>接入节点:{{terminal.mountNode}}</text>
-    <text>挂载设备:</text>
-    <view>
-      <swiper id="mountDevs">
-        <swiper-item wx:for="{{terminal.mountDevs}}" wx:key="*this">
-          <text>{{item.mountDev}}</text>
-        </swiper-item>
-      </swiper>
-    </view>
-    <button type="primary" bindtap="bindDev">绑定DTU</button>
+    <van-cell-group>
+      <van-cell title="IMEI" value="{{mac}}"/>
+      <van-cell title="DTU名称" value="{{terminal.name}}"/>
+      <van-cell title="接入节点" value="{{terminal.mountNode}}"/>
+    </van-cell-group>
+    <van-button type="primary" bindtap="bindDev" round block>绑定DTU</van-button>
   </view>
 </view>

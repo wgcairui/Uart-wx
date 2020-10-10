@@ -1,7 +1,4 @@
-// miniprogram/pages/index/user/user.js
-
-import api from "../../../utils/api"
-
+// miniprogram/pages/index/userinfo/userinfo.js
 Page({
 
   /**
@@ -10,34 +7,37 @@ Page({
   data: {
     name: '',
     avanter: '',
-    rgwx: false
+    creatTime: "",
+    modifyTime: "",
+    user: "",
+    tel: "",
+    mail: "",
+    company: "",
+    address: "",
+    rgtype: ''
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: async function (_options) {
-    const { arg } = await api.getUserInfo()
-    console.log(arg);
-    this.setData({
-      name: arg.name,
-      avanter: arg.avanter,
-      rgwx: arg.rgtype === 'wx'
+  onLoad: function (_options) {
+    wx.getStorage({
+      key: 'userinfo',
+      success: ({ data }: { data: UserInfo }) => {
+        this.setData({
+          avanter: data.avanter,
+          name: data.name,
+          creatTime: new Date(data.creatTime as any).toLocaleString(),
+          modifyTime: new Date(data.modifyTime as any).toLocaleString(),
+          mail: data.mail,
+          tel: data.tel as any,
+          user: data.user,
+          company: data.company,
+          address: data.address,
+          rgtype: data.rgtype
+        })
+      }
     })
-    wx.setStorage({ key: 'userinfo', data: arg })
-    wx.setNavigationBarTitle({ title: arg.user })
-  },
-  // 解绑微信
-  async unbindwx() {
-    const { ok, msg } = await api.unbindwx()
-    if (ok) {
-      wx.reLaunch({ url: '/pages/index/index' })
-    } else {
-      wx.showModal({
-        title: '操作失败',
-        content: msg
-      })
-    }
   },
 
   /**

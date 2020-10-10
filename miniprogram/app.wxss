@@ -6,12 +6,17 @@
   justify-content: space-between;
   /* padding: 200rpx 0; */
   box-sizing: border-box;
+  padding: 12px;
 } 
 .container>view{
   margin-top: 12px;
-  
 }
 
+.center{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .w-100{
   width: 100%;
 }

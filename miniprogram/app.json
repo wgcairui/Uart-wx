@@ -9,7 +9,8 @@
     "pages/index/alarm/alarm",
     "pages/index/dtu/dtu",
     "pages/index/devs/devs",
-    "component/line/line"
+    "component/line/line",
+    "pages/index/userinfo/userinfo"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -22,7 +23,8 @@
   "usingComponents": {
     "van-cell": "@vant/weapp/cell/index",
     "van-cell-group": "@vant/weapp/cell-group/index",
-    "van-hr": "@vant/weapp/divider/index"
+    "van-hr": "@vant/weapp/divider/index",
+    "van-button": "@vant/weapp/button/index"
   },
   "tabBar": {
     "color": "#000",

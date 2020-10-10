@@ -20,7 +20,7 @@ Page({
               globalData.userName = res.arg.name
               globalData.userTel = res.arg.tel
               this.bindDev()
-              wx.navigateTo({
+              wx.switchTab({
                 url:"/pages/index/user/user"
               })
             } else {

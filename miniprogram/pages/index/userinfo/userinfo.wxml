@@ -1,0 +1,20 @@
+<!--miniprogram/pages/index/userinfo/userinfo.wxml-->
+<view class="container">
+  <view class="userinfo">
+    <block>
+      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{avanter}}" mode="cover"></image>
+      <text class="userinfo-nickname">{{name}}</text>
+    </block>
+  </view>
+  <view>
+    <van-cell-group title="详细信息">
+      <van-cell title="账号" value="{{user}}"></van-cell>
+      <van-cell title="电话" value="{{tel}}"></van-cell>
+      <van-cell title="邮箱" value="{{mail}}"></van-cell>
+      <van-cell title="注册途径" value="{{rgtype}}"></van-cell>
+      <van-cell title="组织" value="{{company}}"></van-cell>
+      <van-cell title="登录地址" value="{{address}}"></van-cell>
+      <van-cell title="创建时间" value="{{creatTime}}"></van-cell>
+    </van-cell-group>
+  </view>
+</view>
