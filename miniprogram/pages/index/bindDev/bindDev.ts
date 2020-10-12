@@ -11,7 +11,11 @@ Page({
   },
   // 调用微信api，扫描DTU条形码
   async scanMac() {
-
+    const scanResult = await wx.scanCode({})
+    this.setData({
+      mac: scanResult.result
+    })
+    this.scanRequst()
   },
   // 查询DTU设备信息
   async scanRequst() {
@@ -48,13 +52,5 @@ Page({
         content: `绑定DTU:${this.data.mac} 失败，tip:${msg}`,
       })
     }
-  },
-  //
-  async onClickIcon() {
-    const scanResult = await wx.scanCode({})
-    this.setData({
-      mac: scanResult.result
-    })
-    this.scanRequst()
   }
 })

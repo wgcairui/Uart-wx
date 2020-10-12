@@ -1,19 +1,26 @@
 <!--index.wxml-->
 <view class="container">
   <view class="content">
-    <van-panel wx:for="{{DTUs}}" wx:key="_id" title="{{item.name}}" desc="{{item.DevMac}}" status="{{item.AT}}"
-      use-footer-slot>
+    <van-panel wx:for="{{DTUs}}" wx:key="_id" title="{{item.name}}" desc="{{item.DevMac}}"
+      status="{{item.online?'在线':'离线'}}" use-footer-slot>
       <view>
-        <van-cell is-link icon="setting" wx:for="{{item.mountDevs}}" wx:for-item="item2" wx:key="pid"
-          bind:click="showMountDevData" id="{{item._id+'-'+item2.pid+'-'+item2.mountDev}}">
+        <van-cell is-link wx:for="{{item.mountDevs}}" wx:for-item="item2" wx:key="pid" bind:click="showMountDevData"
+          data-item="{{item2}}" data-id="{{item._id}}" use-label-slot center>
+          <view slot="icon">
+            <van-icon color="{{item2.online?'green':'red'}}" name="points"></van-icon>
+          </view>
           <view slot="title">
             <view class="van-cell-text">{{item2.mountDev}}</view>
             <van-tag type="primary">{{item2.Type}}</van-tag>
           </view>
+          <view slot="label">
+            <view>{{item2.online?'在线':'离线'}}</view>
+          </view>
         </van-cell>
       </view>
       <view slot="footer">
-        <van-button id="{{item._id}}" size="small" round plain type="primary" bind:click="showDTUInfo">DTU状态
+        <van-button data-item="{{item._id}}" size="small" round plain type="primary" bind:click="showDTUInfo"
+          class="right">DTU状态
         </van-button>
       </view>
     </van-panel>

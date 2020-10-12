@@ -15,7 +15,7 @@ type communicationType = 232 | 485;
 type protocolType = "ups" | "air" | "em" | "th";
 type characterType = "utf8" | "hex" | "float" | "short" | "int" | "HX" | 'bit2'
 // apollo server result
-interface ApolloMongoResult <T>{
+interface ApolloMongoResult<T> {
   msg: string
   ok: number
   n: number
@@ -92,7 +92,7 @@ interface TerminalMountDevs {
 }
 // 终端
 interface Terminal extends RegisterTerminal {
-  _id:string
+  _id: string
   DevMac: string
   online?: boolean
   mountNode: string
@@ -346,6 +346,7 @@ interface uartAlarmObject {
   timeStamp: number
   msg: string
   isOk?: boolean
+  time: string
 }
 
 // 单条发送短信
@@ -489,11 +490,11 @@ interface DTUoprate {
 }
 
 // vant 事件对象
-interface vantEvent {
+interface vantEvent<T = any> {
   type: string
   timeStamp: string
-  target: { id: string, dataset: { [x: string]: any } }
-  currentTarget: { id: string, dataset: { [x: string]: any } }
+  target: { id: string, dataset: { [x: string]: any, item: T } }
+  currentTarget: { id: string, dataset: { [x: string]: any, item: T } }
   mark: { [x: string]: any }
   detail: any
   touches: any

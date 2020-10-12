@@ -18,14 +18,13 @@ Page({
    */
   onLoad: async function (_options) {
     const { arg } = await api.getUserInfo()
-    console.log(arg);
     this.setData({
       name: arg.name,
       avanter: arg.avanter,
       rgwx: arg.rgtype === 'wx'
     })
     wx.setStorage({ key: 'userinfo', data: arg })
-    wx.setNavigationBarTitle({ title: arg.user })
+    wx.setNavigationBarTitle({ title: arg.name || arg.user })
   },
   // 解绑微信
   async unbindwx() {
@@ -38,6 +37,14 @@ Page({
         content: msg
       })
     }
+  },
+  //
+  openSetting() {
+    wx.openSetting({
+      withSubscriptions: true,
+      success(_res) {
+      }
+    })
   },
 
   /**

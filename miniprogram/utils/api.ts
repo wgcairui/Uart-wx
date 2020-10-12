@@ -10,6 +10,8 @@ type url = 'getuserMountDev'
   | 'userlogin'
   | 'getUserInfo'
   | 'unbindwx'
+  | 'getAlarmunconfirmed'
+  | 'alarmConfirmed'
 class api {
   readonly url: string
   token: string
@@ -57,10 +59,19 @@ class api {
   bindDev(mac: string) {
     return this.RequestUart<any>({ url: 'bindDev', data: { mac } })
   }
-
+  // 获取未确认告警数量
+  getAlarmunconfirmed() {
+    this.RequestUart<string>({ url: 'getAlarmunconfirmed', data: {} }).then(el => {
+      if (Number(el.arg) > 0) wx.setTabBarBadge({ index: 1, text: el.arg })
+    })
+  }
   // 获取告警信息
   getAlarm(start: string, end: string) {
     return this.RequestUart<uartAlarmObject[]>({ url: 'getAlarm', data: { start, end } })
+  }
+  // 确认告警信息,更新bar
+  alarmConfirmed(id: string) {
+    return this.RequestUart({ url: 'alarmConfirmed', data: { id } }).finally(() => this.getAlarmunconfirmed())
   }
   // 获取设备实时运行信息
   getDevsRunInfo(mac: string, pid: string) {
