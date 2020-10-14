@@ -26,6 +26,8 @@ Page({
    */
   onLoad: function (options) {
     const { name, mac, pid } = options
+    console.log(options);
+    
     this.setData({
       mac,
       pid,
@@ -46,6 +48,8 @@ Page({
           source: arg
         }
       })
+      console.log(this.data.option);
+      
     } else {
       wx.showModal({
         title: 'error',

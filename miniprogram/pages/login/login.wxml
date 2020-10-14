@@ -12,7 +12,8 @@
 		<van-tabs type="card" bind:click="tabclick" animated active="{{0}}">
 			<van-tab class="tab" title="微信注册">
 				<van-cell-group>
-					<van-field title-width="3em" model:value="{{tel}}" center clearable label="phone" placeholder="输入手机号码" use-button-slot>
+					<van-field title-width="3em" model:value="{{tel}}" center clearable label="phone" placeholder="输入手机号码"
+						use-button-slot>
 						<van-button slot="button" size="small" type="primary" open-type="getPhoneNumber"
 							bindgetphonenumber="getphonenumber">获取手机号码</van-button>
 					</van-field>
@@ -27,7 +28,7 @@
 					<van-field model:value="{{ accontPasswd }}" type="password" label="密码" placeholder="请输入密码" required
 						border="{{ false }}" />
 					<van-button disabled="{{!accontUser && !accontPasswd}}" type="primary" loading="{{loginloading}}"
-						bindtap="login" class="center register" round block>登录
+						bindtap="login" class="center register" round block>登录(绑定微信)
 					</van-button>
 				</van-cell-group>
 			</van-tab>

@@ -1,0 +1,9 @@
+<!--component/devTable/devTable.wxml-->
+<view class="container">
+  <van-search model:value="{{filter}}" placeholder="请输入参数搜索" show-action bind:search="onSearch" bind:cancel="onCancel">
+  </van-search>
+  <van-cell-group>
+    <van-cell is-link="{{item.unit}}" bind:click="onLine" wx:for="{{result}}" title="{{item.name}}" id="{{item.name}}"
+      value="{{item.value+item.unit}}" wx:key="name" data-item="{{item}}" />
+  </van-cell-group>
+</view>

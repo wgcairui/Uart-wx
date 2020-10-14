@@ -1,2 +1,13 @@
 <!--miniprogram/pages/index/alarmSetting/alarmSetting.wxml-->
-<text>miniprogram/pages/index/alarmSetting/alarmSetting.wxml</text>
+<view class="container">
+  <view>
+    <van-tabs type="card" bind:click="tabclick" animated active="{{active}}">
+      <van-tab class="tab" title="显示参数">
+      </van-tab>
+      <van-tab class="tab" title="参数限值">
+      </van-tab>
+      <van-tab class="tab" title="参数状态">
+      </van-tab>
+    </van-tabs>
+  </view>
+</view>

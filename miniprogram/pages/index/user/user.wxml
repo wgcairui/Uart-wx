@@ -15,8 +15,7 @@
       <van-grid-item icon="friends" icon-color="#29d" text="用户信息" url="/pages/index/userinfo/userinfo" />
       <van-grid-item icon="cluster" icon-color="#29d" text="管理DTU" url="/pages/index/manageDev/manageDev" />
       <van-grid-item icon="scan" icon-color="#29d" text="查询DTU" url="/pages/index/bindDev/bindDev" />
-      <van-grid-item icon="browsing-history" icon-color="#29d" text="告警设置"
-        url="/pages/index/alarmSetting/alarmSetting" />
+      <van-grid-item icon="browsing-history" icon-color="#29d" text="告警设置" url="/pages/index/alarmSetting/index" />
       <van-grid-item icon="setting" icon-color="#29d" text="微信权限" url="" bindtap="openSetting" />
       <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="/pages/index/updatelog/updatelog" />
       <van-grid-item wx:if="{{!rgwx}}" icon="delete" icon-color="#29d" text="解绑微信" url="" bindtap="unbindwx" />

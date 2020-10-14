@@ -1,0 +1,9 @@
+<!--component/devOprate/devOprate.wxml-->
+<view class="control">
+  <van-button type="primary" round size="small" bindtap="oprate">发送指令</van-button>
+  <van-button type="primary" round size="small" bindtap="opratealarm">告警设置</van-button>
+  <van-action-sheet show="{{ actionShow }}" actions="{{ actionItems }}" bind:close="actionClose"
+    bind:select="actionSelect" cancel-text="取消"/>
+    <van-action-sheet show="{{ actionShow2 }}" actions="{{ actionItems2 }}" bind:close="actionClose2"
+    bind:select="actionSelect2" cancel-text="取消"/>
+</view>

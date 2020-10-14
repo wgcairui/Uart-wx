@@ -1,0 +1,9 @@
+/* component/devOprate/devOprate.wxss */
+.control{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.control .van-button{
+  margin: 8rpx 16rpx;
+}

@@ -13,7 +13,8 @@
     "pages/index/userinfo/userinfo",
     "pages/index/updatelog/updatelog",
     "pages/index/manageDev/manageDev",
-    "pages/index/alarmSetting/alarmSetting"
+    "pages/index/alarmSetting/alarmSetting",
+    "pages/index/alarmSetting/index"
   ],
   "window": {
     "backgroundTextStyle": "dark",

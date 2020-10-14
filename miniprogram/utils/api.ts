@@ -12,18 +12,24 @@ type url = 'getuserMountDev'
   | 'unbindwx'
   | 'getAlarmunconfirmed'
   | 'alarmConfirmed'
+  | 'getDevOprate'
+  | 'SendProcotolInstructSet'
+  | 'getUserDevConstant'
 class api {
   readonly url: string
   token: string
   constructor() {
     this.url = "https://test.ladishb.com/api/wx/"
     this.token = ""
+
   }
   // 登录-用于小程序启动关联微信自动登录
   async login(data: { js_code: string }) {
     const el = await this.RequestUart<any>({ url: "code2Session", data })
-    if (el.ok)
+    if (el.ok) {
       this.token = el.arg.token
+      wx.setStorage({ key: 'token', data: el.arg.token })
+    }
     return el
   }
   //  登录-用于小程序登录页面登录
@@ -81,13 +87,26 @@ class api {
   getDevsHistoryInfo(mac: string, pid: string, name: string, datatime: string = '') {
     return this.RequestUart<any>({ url: 'getDevsHistoryInfo', data: { mac, pid, name, datatime } })
   }
+  // 获取设备操控指令
+  getDevOprate(protocol: string) {
+    return this.RequestUart<Pick<ProtocolConstantThreshold, 'OprateInstruct'>>({ url: 'getDevOprate', data: { protocol } })
+  }
+  //  固定发送设备操作指令
+  SendProcotolInstructSet(query: Partial<instructQueryArg>, item: OprateInstruct) {
+    return this.RequestUart<any>({ url: 'SendProcotolInstructSet', data: { query, item }, method: 'POST' })
+  }
+  // 获取用户自定义协议配置
+  getUserDevConstant(protocol: string) {
+    return this.RequestUart<ProtocolConstantThreshold>({ url: 'getUserDevConstant', data: { protocol } })
+  }
   private async RequestUart<T>(object: { url: url, data: Object, method?: "GET" | "POST" }) {
     //wx.showLoading({ title: '正在查询' })
     wx.showNavigationBarLoading()
+    const token: string = this.token || await wx.getStorage({ key: 'token' }).then(el => el.data).catch(() => "")
     return await new Promise<ApolloMongoResult<T>>((resolve, reject) => {
       wx.request({
         url: this.url + object.url,
-        data: Object.assign({ token: this.token }, object.data),
+        data: Object.assign({ token: token }, object.data),
         method: object.method || "GET",
         success: res => {
           //console.log(res);

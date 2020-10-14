@@ -1,4 +1,5 @@
 // index.ts
+import { ObjectToStrquery } from "../../utils/util";
 import api from "../../utils/api";
 // 获取应用实例
 Page({
@@ -22,6 +23,9 @@ Page({
     // 获取未读取的alarm数量
     api.getAlarmunconfirmed()
     this.bindDev()
+    wx.navigateTo({
+      url: '/pages/index/alarmSetting/alarmSetting?type=2&protocol=P01'
+    })
   },
   // 获取用户绑定设备
   async bindDev() {
@@ -54,14 +58,16 @@ Page({
   },
   // 查看设备数据
   showMountDevData(event: vantEvent<TerminalMountDevs>) {
-    const { pid, mountDev } = event.currentTarget.dataset.item
+    const { pid, mountDev, protocol } = event.currentTarget.dataset.item
     const id = event.currentTarget.dataset.id
     const { DevMac } = wx.getStorageSync(id) as Terminal
+    console.log('/pages/index/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac }));
+
     wx.navigateTo({
-      url: '/pages/index/devs/devs?mac=' + DevMac + '&pid=' + pid + '&mountDev=' + mountDev
+      url: '/pages/index/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac })
     })
   },
-  //
+  //mac=98D863CC870D&pid=0&mountDev=G2K
   async onPullDownRefresh() {
     await this.bindDev()
     wx.stopPullDownRefresh()

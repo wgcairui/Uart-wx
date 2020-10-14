@@ -22,15 +22,15 @@ Component({
     option: {
       color: ["#67E0E3", "#9FE6B8"],
       legend: {
-        //top: 70,
+        top: 30,
       },
-      dataZoom: [
+      /* dataZoom: [
         {
           startValue: '00:00:00'
         }, {
           type: 'inside'
         }
-      ],
+      ], */
       grid: {
         show: true,
         containLabel: true

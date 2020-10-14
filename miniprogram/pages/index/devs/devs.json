@@ -1,5 +1,6 @@
 {
   "usingComponents": {
-    "van-search": "@vant/weapp/search/index"
+    "my-table": "../../../component/devTable/devTable",
+    "dev-oprate": "../../../component/devOprate/devOprate"
   }
 }

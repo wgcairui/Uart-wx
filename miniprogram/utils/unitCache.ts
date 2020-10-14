@@ -1,30 +1,43 @@
 // 保存设备参数解析状态
 
 class unit {
-  private cache: Map<string, { [x: string]: string }>
+  private cache: Map<string, {
+    value: string,
+    unit: string
+  }>
   constructor() {
     this.cache = new Map()
   }
   get(value: string | number, unit: string) {
-    const unitObject = this.cache.get(unit)
-    const valueStr = String(value)
-    if (unitObject) {
-      return unitObject[valueStr]
+    if (unit && /^{.*}$/.test(unit)) {
+      const unitObject = this.cache.get(unit)
+      if (unitObject) return unitObject
+      else {
+        const parseObject = this.parse(value, unit)
+        this.cache.set(unit, parseObject)
+        return parseObject
+      }
     } else {
-      const parseObject = this.parse(unit)
-      this.cache.set(unit, parseObject)
-      return parseObject[valueStr]
+      return {
+        value,
+        unit
+      }
     }
+
   }
 
-  private parse(unit: string): { [x: string]: string } {
+  private parse(value: string | number, unit: string) {
     const arr = unit.replace(/(\{|\}| )/g, "")
       .split(",")
       .map(el => {
         const [key, val] = el.split(":")
         return { [key]: val }
       })
-    return Object.assign({}, ...arr)
+    const valueStr = String(value)
+    return {
+      value: Object.assign({}, ...arr)[valueStr] as string,
+      unit: ''
+    }
   }
 }
 
