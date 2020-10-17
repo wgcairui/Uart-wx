@@ -1,5 +1,5 @@
 // 转换对象为路由参数
-export const ObjectToStrquery = (Obj: { [x: string]: string }) => {
-  const objArr = Object.keys(Obj).map(el => `${el}=${Obj[el]}`)
+export const ObjectToStrquery = (Obj: { [x: string]: any }) => {
+  const objArr = Object.keys(Obj).map(el => `${el}=${String(Obj[el])}`)
   return "?" + objArr.join("&")
 }

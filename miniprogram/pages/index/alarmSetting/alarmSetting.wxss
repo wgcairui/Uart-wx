@@ -1,1 +1,19 @@
 /* miniprogram/pages/index/alarmSetting/alarmSetting.wxss */
+.value-class {
+  flex: none !important;
+}
+.van-checkbox-group{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.van-checkbox{
+  margin-right: 10px;
+  margin-bottom: 5px;
+}
+.van-checkbox__label{
+  margin: 0;
+}
+.van-button{
+  margin-bottom: 32px;
+}

@@ -1,0 +1,4 @@
+/* miniprogram/pages/index/alarmSetting/threshold/threshold.wxss */
+.van-button{
+  margin-top: 22px;
+}

@@ -1,1 +1,4 @@
 /* miniprogram/pages/index/alarmSetting/index.wxss */
+.van-cell-group{
+  margin-bottom: 32px;
+}

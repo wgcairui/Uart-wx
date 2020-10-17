@@ -38,8 +38,10 @@ Page({
   },
   // 获取告警信息
   async getAlarmInfo() {
+    wx.showLoading({ title: '加载数据' })
     const [start, end] = this.data.date.split('-')
     const { ok, msg, arg } = await api.getAlarm(start + ' 00:00:00', end + " 23:59:59")
+    wx.hideLoading()
     if (ok) {
       const Alarm = arg.map(el => {
         el.time = this.formattime(el.timeStamp)

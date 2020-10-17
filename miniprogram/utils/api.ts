@@ -15,6 +15,7 @@ type url = 'getuserMountDev'
   | 'getDevOprate'
   | 'SendProcotolInstructSet'
   | 'getUserDevConstant'
+  | 'pushThreshold'
 class api {
   readonly url: string
   token: string
@@ -67,9 +68,7 @@ class api {
   }
   // 获取未确认告警数量
   getAlarmunconfirmed() {
-    this.RequestUart<string>({ url: 'getAlarmunconfirmed', data: {} }).then(el => {
-      if (Number(el.arg) > 0) wx.setTabBarBadge({ index: 1, text: el.arg })
-    })
+    return this.RequestUart<string>({ url: 'getAlarmunconfirmed', data: {} })
   }
   // 获取告警信息
   getAlarm(start: string, end: string) {
@@ -97,7 +96,11 @@ class api {
   }
   // 获取用户自定义协议配置
   getUserDevConstant(protocol: string) {
-    return this.RequestUart<ProtocolConstantThreshold>({ url: 'getUserDevConstant', data: { protocol } })
+    return this.RequestUart<{ user: ProtocolConstantThreshold, sys: ProtocolConstantThreshold, protocol: protocol }>({ url: 'getUserDevConstant', data: { protocol } })
+  }
+  // 统一提交配置
+  pushThreshold(arg: ConstantAlarmStat[] | Threshold[] | string[], type: ConstantThresholdType, Protocol: string) {
+    return this.RequestUart<any>({ url: "pushThreshold", data: { type, arg, Protocol }, method: "POST" })
   }
   private async RequestUart<T>(object: { url: url, data: Object, method?: "GET" | "POST" }) {
     //wx.showLoading({ title: '正在查询' })

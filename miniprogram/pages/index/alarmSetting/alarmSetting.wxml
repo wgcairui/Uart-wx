@@ -1,12 +1,38 @@
 <!--miniprogram/pages/index/alarmSetting/alarmSetting.wxml-->
 <view class="container">
   <view>
-    <van-tabs type="card" bind:click="tabclick" animated active="{{active}}">
+    <van-tabs type="card" bind:click="tabclick" animated sticky active="{{active}}">
       <van-tab class="tab" title="显示参数">
+        <van-checkbox-group value="{{usersetup.ShowTag}}" bind:change="ShowTagonChange">
+          <van-cell-group title="显示参数(只显示选中的值)">
+            <van-cell wx:for="{{ syssetup.ShowTag }}" wx:key="index" title="{{ item }}" value-class="value-class"
+              clickable data-index="{{ index }}" bind:click="ShowTagtoggle">
+              <van-checkbox class="checkboxes-{{ index }}" name="{{ item }}" />
+            </van-cell>
+          </van-cell-group>
+        </van-checkbox-group>
       </van-tab>
       <van-tab class="tab" title="参数限值">
+        <view>
+          <van-cell-group title="参数限值(点击参数修改)">
+            <van-cell is-link wx:for="{{Threshold}}" wx:key="index" icon="{{item.icon}}" title="{{item.name}}"
+              value="{{item.min}}-{{item.max}}" data-item="{{item}}" data-index="{{index}}" bindtap="ThresholdClick">
+            </van-cell>
+          </van-cell-group>
+          <van-button type="primary" block round bindtap="addThreshold">添加新限值</van-button>
+        </view>
       </van-tab>
       <van-tab class="tab" title="参数状态">
+        <van-cell-group title="参数状态(值为非选中状态则告警)">
+          <van-cell wx:for="{{alarmStat}}" wx:key="name" title="{{item.name}}">
+            <van-checkbox-group class="van-checkbox-group" value="{{ item.alarmStat }}" bind:change="AlarmStatonChange"
+              data-item="{{item}}">
+              <van-checkbox wx:for="{{item.parse}}" wx:for-item="item2" wx:key="index" name="{{item2.key}}">
+                {{item2.text}}
+              </van-checkbox>
+            </van-checkbox-group>
+          </van-cell>
+        </van-cell-group>
       </van-tab>
     </van-tabs>
   </view>

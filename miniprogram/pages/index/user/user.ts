@@ -46,6 +46,34 @@ Page({
       }
     })
   },
+  clearCache() {
+    wx.getStorageInfo({
+      success(res) {
+        const size = res.currentSize / 1024
+        try {
+          wx.clearStorage({
+            success() {
+              wx.showModal({
+                title: '缓存清理成功',
+                content: '清除缓存' + size + 'MB',
+                success() {
+                  wx.reLaunch({ url: '/pages/index/index' })
+                }
+              })
+            }
+          })
+        } catch (error) {
+          wx.showModal({
+            title: '缓存清理失败',
+            content: error,
+            success() {
+              wx.reLaunch({ url: '/pages/index/index' })
+            }
+          })
+        }
+      }
+    })
+  },
 
   /**
    * 生命周期函数--监听页面初次渲染完成

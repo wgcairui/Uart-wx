@@ -285,6 +285,7 @@ interface Threshold {
 // 协议参数告警状态
 interface ConstantAlarmStat extends queryResultArgument {
   alarmStat: string[]
+  parse: { [x: string]: string }[]
 }
 // 协议操作指令
 interface OprateInstruct {

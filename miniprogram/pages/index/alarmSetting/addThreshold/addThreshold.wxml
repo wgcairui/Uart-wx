@@ -1,0 +1,17 @@
+<!--miniprogram/pages/index/alarmSetting/addThreshold/addThreshold.wxml-->
+<view class="container">
+  <van-cell-group>
+    <van-picker columns="{{ columns }}" bind:change="onChange" />
+    <van-cell title="参数值:" value="{{name}}">
+    </van-cell>
+    <van-cell title="最小值:">
+      <van-stepper model:value="{{ min }}" min="0" bind:change="minonChange" />
+    </van-cell>
+    <van-cell title="最大值:">
+      <van-stepper model:value="{{ max }}" min="{{min}}" bind:change="maxonChange" />
+    </van-cell>
+    <van-cell title="单位值:" value="{{ unit }}">
+    </van-cell>
+  </van-cell-group>
+  <van-button block type="primary" round bindtap="submit" disabled="{{!name}}">添加</van-button>
+</view>

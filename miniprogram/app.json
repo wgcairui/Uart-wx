@@ -14,7 +14,9 @@
     "pages/index/updatelog/updatelog",
     "pages/index/manageDev/manageDev",
     "pages/index/alarmSetting/alarmSetting",
-    "pages/index/alarmSetting/index"
+    "pages/index/alarmSetting/index",
+    "pages/index/alarmSetting/threshold/threshold",
+    "pages/index/alarmSetting/addThreshold/addThreshold"
   ],
   "window": {
     "backgroundTextStyle": "dark",

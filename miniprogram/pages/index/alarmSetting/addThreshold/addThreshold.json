@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "van-stepper": "@vant/weapp/stepper/index",
+    "van-picker": "@vant/weapp/picker/index"
+  },
+  "enablePullDownRefresh": false,
+  "navigationBarTitleText": "添加新的参数限值"
+}

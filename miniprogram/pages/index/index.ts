@@ -21,10 +21,17 @@ Page({
   // 登录运行
   start() {
     // 获取未读取的alarm数量
-    api.getAlarmunconfirmed()
+    api.getAlarmunconfirmed().then(el => {
+      //console.log(el);
+
+      //if (Number(el.arg) > 0) wx.setTabBarBadge({ index: 0, text: '4' || '' })
+    }).catch((e: any) => {
+      //console.log(e);
+
+    })
     this.bindDev()
     wx.navigateTo({
-      url: '/pages/index/alarmSetting/alarmSetting?type=2&protocol=P01'
+      url: '/pages/index/alarmSetting/index'
     })
   },
   // 获取用户绑定设备
@@ -39,6 +46,10 @@ Page({
           key: el._id,
           data: el
         })
+      })
+      wx.setStorage({
+        key: 'Uts',
+        data: arg.UTs
       })
     } else {
       wx.showModal({

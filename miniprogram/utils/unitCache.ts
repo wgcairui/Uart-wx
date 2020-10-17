@@ -3,7 +3,13 @@
 class unit {
   private cache: Map<string, {
     value: string,
-    unit: string
+    unit: string,
+    parse: {
+      [x: string]: string;
+    };
+    parseArray: {
+      [x: string]: string;
+    }[];
   }>
   constructor() {
     this.cache = new Map()
@@ -12,32 +18,40 @@ class unit {
     if (unit && /^{.*}$/.test(unit)) {
       const unitObject = this.cache.get(unit)
       if (unitObject) return unitObject
-      else {
-        const parseObject = this.parse(value, unit)
-        this.cache.set(unit, parseObject)
-        return parseObject
-      }
+      else return this.parse(value, unit)
     } else {
       return {
         value,
         unit
       }
     }
-
   }
 
+  getunitObject(value: string | number, unit: string) {
+    const unitObject = this.cache.get(unit)
+    if (unitObject) return unitObject.parseArray
+    else {
+      return this.parse(value, unit).parseArray
+    }
+  }
+  // 转换设备unit
   private parse(value: string | number, unit: string) {
     const arr = unit.replace(/(\{|\}| )/g, "")
       .split(",")
       .map(el => {
-        const [key, val] = el.split(":")
-        return { [key]: val }
+        const [key, text] = el.split(":")
+        return { [key]: text,key,text }
       })
     const valueStr = String(value)
-    return {
-      value: Object.assign({}, ...arr)[valueStr] as string,
-      unit: ''
+    const parseObject = Object.assign({}, ...arr) as { [x: string]: string }
+    const result = {
+      value: parseObject[valueStr],
+      unit: '',
+      parse: parseObject,
+      parseArray: arr
     }
+    this.cache.set(unit, result)
+    return result
   }
 }
 
