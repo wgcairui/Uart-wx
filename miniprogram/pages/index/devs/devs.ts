@@ -64,17 +64,22 @@ Page({
   },
   async GetDevsRunInfo() {
     const { mac, pid, filter } = this.data
-    const { ok, arg } = await api.getDevsRunInfo(mac, pid)
-    if (ok) {
+    const { ok, arg, msg } = await api.getDevsRunInfo(mac, pid)
+    if (ok && arg) {
       const regStr = new RegExp(filter)
       arg.result = arg.result?.filter(el => !filter || regStr.test(el.name)).map(obj => Object.assign(obj, unitCache.get(obj.value, obj.unit || '')))
       this.setData({
         result: arg
       })
     } else {
+      clearInterval(this.data.interval)
       wx.showModal({
         title: 'Error',
-        content: '信息获取失败'
+        content: msg,
+        success: () => {
+          clearInterval(this.data.interval)
+          wx.navigateBack()
+        }
       })
     }
   },

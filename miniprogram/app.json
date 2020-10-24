@@ -11,12 +11,12 @@
     "pages/index/devs/devs",
     "component/line/line",
     "pages/index/userinfo/userinfo",
-    "pages/index/updatelog/updatelog",
     "pages/index/manageDev/manageDev",
     "pages/index/alarmSetting/alarmSetting",
     "pages/index/alarmSetting/index",
     "pages/index/alarmSetting/threshold/threshold",
-    "pages/index/alarmSetting/addThreshold/addThreshold"
+    "pages/index/alarmSetting/addThreshold/addThreshold",
+    "pages/index/manageDev/addMountDev/addMountDev"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -30,7 +30,8 @@
     "van-cell": "@vant/weapp/cell/index",
     "van-cell-group": "@vant/weapp/cell-group/index",
     "van-hr": "@vant/weapp/divider/index",
-    "van-button": "@vant/weapp/button/index"
+    "van-button": "@vant/weapp/button/index",
+    "my-input": "../component/myInput/myInput"
   },
   "tabBar": {
     "color": "#000",

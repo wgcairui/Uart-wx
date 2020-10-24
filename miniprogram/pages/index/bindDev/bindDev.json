@@ -3,5 +3,6 @@
     "van-field": "@vant/weapp/field/index",
     "van-button": "@vant/weapp/button/index"
   },
-  "enablePullDownRefresh": false
+  "enablePullDownRefresh": false,
+  "navigationBarTitleText": "绑定DTU设备"
 }

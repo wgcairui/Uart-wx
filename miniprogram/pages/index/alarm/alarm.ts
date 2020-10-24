@@ -30,6 +30,7 @@ Page({
         this.setData({
           Alarm: el.data
         })
+        wx.setTabBarBadge({ index: 1, text: this.data.Alarm.filter(el => !el.isOk).length.toString() })
       },
       fail: () => {
         this.getAlarmInfo()
@@ -50,6 +51,7 @@ Page({
       this.setData({
         Alarm
       })
+      wx.setTabBarBadge({ index: 1, text: Alarm.filter(el => !el.isOk).length.toString() })
       wx.setStorage({ key: 'alarm_list', data: Alarm })
     } else {
       wx.showModal({
@@ -79,20 +81,28 @@ Page({
       dateShow: false,
       date: `${this.formatDate(start)} - ${this.formatDate(end)}`,
     });
+    this.getAlarmInfo()
   },
-
+  // 确认告警信息
   showalarm(event: vantEvent<uartAlarmObject>) {
     const alarm = event.currentTarget.dataset.item
+    const key = event.currentTarget.dataset.key as number
+
     wx.showModal({
       title: alarm.devName,
       content: alarm.msg,
       showCancel: !alarm.isOk,
-      confirmColor: 'green',
+      // confirmColor: 'green',
       confirmText: alarm.isOk ? '确定' : '确认消息',
       success: async (res) => {
         if (res.confirm && !alarm.isOk) {
+          wx.showLoading({ title: '确认告警信息' })
           await api.alarmConfirmed(alarm._id)
-          wx.startPullDownRefresh()
+          this.setData({
+            [`Alarm[${key}].isOk`]: true
+          })
+          wx.setTabBarBadge({ index: 1, text: this.data.Alarm.filter(el => !el.isOk).length.toString() })
+          wx.hideLoading()
         }
       }
     })

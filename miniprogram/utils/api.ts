@@ -1,3 +1,15 @@
+interface tencetMap {
+  /* 状态码，0为正常,
+310请求参数信息有误，
+311Key格式错误,
+306请求有护持信息请检查字符串,
+110请求来源未被授权 */
+  status: number,
+  request_id: string,
+  message: string
+  result: any
+}
+
 type url = 'getuserMountDev'
   | 'code2Session'
   | 'getphonenumber'
@@ -16,6 +28,14 @@ type url = 'getuserMountDev'
   | 'SendProcotolInstructSet'
   | 'getUserDevConstant'
   | 'pushThreshold'
+  | 'getUserAlarmTels'
+  | 'setUserSetupContact'
+  | 'addTerminalMountDev'
+  | 'delTerminalMountDev'
+  | 'delUserTerminal'
+  | 'DevTypes'
+  | 'modifyUserInfo'
+  | 'getGPSaddress'
 class api {
   readonly url: string
   token: string
@@ -76,7 +96,7 @@ class api {
   }
   // 确认告警信息,更新bar
   alarmConfirmed(id: string) {
-    return this.RequestUart({ url: 'alarmConfirmed', data: { id } }).finally(() => this.getAlarmunconfirmed())
+    return this.RequestUart({ url: 'alarmConfirmed', data: { id } })
   }
   // 获取设备实时运行信息
   getDevsRunInfo(mac: string, pid: string) {
@@ -102,6 +122,39 @@ class api {
   pushThreshold(arg: ConstantAlarmStat[] | Threshold[] | string[], type: ConstantThresholdType, Protocol: string) {
     return this.RequestUart<any>({ url: "pushThreshold", data: { type, arg, Protocol }, method: "POST" })
   }
+  // 获取用户的告警联系方式
+  getUserAlarmTels() {
+    return this.RequestUart<Pick<userSetup, 'mails' | 'tels'>>({ url: 'getUserAlarmTels', data: {} })
+  }
+  // 设置用户的告警联系方式
+  setUserSetupContact(tels: string[], mails: string[]) {
+    return this.RequestUart<any>({ url: 'setUserSetupContact', data: { tels, mails }, method: "POST" })
+  }
+  // 添加DTU挂载设备
+  addTerminalMountDe(DevMac: string, Type: string, mountDev: string, protocol: string, pid: string) {
+    return this.RequestUart<any>({ url: 'addTerminalMountDev', data: { DevMac, Type, mountDev, protocol, pid }, method: "POST" })
+  }
+  // 删除终端挂载设备
+  delTerminalMountDev(DevMac: string, mountDev: string, pid: string) {
+    return this.RequestUart<any>({ url: 'delTerminalMountDev', data: { DevMac, mountDev, pid }, method: "POST" })
+  }
+  // 删除用户终端绑定
+  delUserTerminal(mac: string) {
+    return this.RequestUart<any>({ url: 'delUserTerminal', data: { mac } })
+  }
+  // 获取设备类型
+  DevTypes(Type: string) {
+    return this.RequestUart<DevsType[]>({ url: 'DevTypes', data: { Type } })
+  }
+  // 修改用户信息
+  modifyUserInfo(type: 'tel' | 'mail' | 'name', value: string) {
+    return this.RequestUart<any>({ url: 'modifyUserInfo', data: { type, value } })
+  }
+  // 获取gps定位的详细地址
+  getGPSaddress(location: string) {
+    return this.RequestUart<tencetMap>({ url: 'getGPSaddress', data: { location } })
+  }
+
   private async RequestUart<T>(object: { url: url, data: Object, method?: "GET" | "POST" }) {
     //wx.showLoading({ title: '正在查询' })
     wx.showNavigationBarLoading()
@@ -115,7 +168,13 @@ class api {
           //console.log(res);
           //wx.hideLoading()
           if (res.statusCode !== 200) {
-            wx.showModal({ title: String(res.statusCode), content: res.data.toString() || res.errMsg })
+            wx.showModal({
+              title: String(res.statusCode),
+              content: res.data.toString() || res.errMsg,
+              success() {
+                wx.reLaunch({ url: '/pages/index/index' })
+              }
+            })
             reject(res)
           } else {
             setTimeout(() => {

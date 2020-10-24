@@ -1,8 +1,16 @@
 <!--miniprogram/pages/index/alarmSetting/index.wxml-->
 <view class="container">
-  <van-cell-group wx:for="{{devs}}" wx:key="_id" title="{{item.name}}">
-    <van-cell wx:for="{{item.mountDevs}}" wx:key="index" wx:for-item="item2" title="{{item2.mountDev}}"
-      label="{{item2.Type}}" value="{{item2.protocol}}" center is-link
-      url="{{'/pages/index/alarmSetting/alarmSetting?protocol='+item2.protocol}}"></van-cell>
-  </van-cell-group>
+  <view class="tels">
+    <van-cell-group title="告警信息发送(最多三个号码,以回车分隔)">
+      <my-input label="告警手机:" value="{{tels}}" bind:submit="modifyTell" data-key="tel" type="textarea"></my-input>
+      <my-input label="告警邮箱:" value="{{mails}}" bind:submit="modifyTell" data-key="mail" type="textarea"></my-input>
+    </van-cell-group>
+  </view>
+  <view class="devslist">
+    <van-cell-group wx:for="{{devs}}" wx:key="_id" title="{{item.name}}">
+      <van-cell wx:for="{{item.mountDevs}}" wx:key="index" wx:for-item="item2" title="{{item2.mountDev}}"
+        label="{{item2.Type}}" value="{{item2.protocol}}" center is-link
+        url="{{'/pages/index/alarmSetting/alarmSetting?protocol='+item2.protocol}}"></van-cell>
+    </van-cell-group>
+  </view>
 </view>

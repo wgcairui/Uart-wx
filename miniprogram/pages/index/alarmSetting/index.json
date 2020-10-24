@@ -1,5 +1,6 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText": "设置设备告警规则",
-  "enablePullDownRefresh": false
+  "usingComponents": {
+    
+  },
+  "navigationBarTitleText": "设置设备告警规则"
 }

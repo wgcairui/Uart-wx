@@ -12,6 +12,7 @@ App({
         const updateManager = wx.getUpdateManager()
         updateManager.onCheckForUpdate(function (res) {
             // 请求完新版本信息的回调
+            wx.showToast({ title: res.hasUpdate ? '有新版本,正在后台更新' : '最新版', icon: 'none' })
             console.log("新版本：" + res.hasUpdate)
         })
 

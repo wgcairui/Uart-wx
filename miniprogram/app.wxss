@@ -28,6 +28,12 @@
 .h-100{
   height: 100%;
 }
+.van-cell-group__title{
+  color: black !important
+}
+.van-button{
+  margin-right: 6px;
+}
 
 page {
   /* height: 100%; */

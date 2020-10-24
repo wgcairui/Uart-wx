@@ -1,3 +1,5 @@
 {
-  "usingComponents": {}
+  "usingComponents": {},
+  "navigationBarTitleText": "DTU信息",
+  "enablePullDownRefresh": false
 }

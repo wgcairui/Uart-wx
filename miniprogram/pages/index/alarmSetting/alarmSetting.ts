@@ -11,11 +11,11 @@ Page({
   data: {
     active: 0,
     protocol: '',
-    usersetup: {} as ProtocolConstantThreshold,
+    usersetup: {} as ProtocolConstantThreshold || undefined,
     syssetup: {} as ProtocolConstantThreshold,
     Protocols: {} as protocol,
-    alarmStat: [] as ConstantAlarmStat[],
-    Threshold: [] as Threshold[]
+    alarmStat: [] as ConstantAlarmStat[] || undefined,
+    Threshold: [] as Threshold[] || undefined
   },
 
   /**
@@ -33,6 +33,7 @@ Page({
         active: type,
         protocol
       })
+      this.getUserProtocolSetup()
       wx.getStorage({
         key: 'protocolSetup' + options.protocol,
         success: (res) => {
@@ -41,7 +42,6 @@ Page({
             syssetup: res.data.sys,
             Protocols: res.data.protocol
           })
-          this.mergeProtocolSetup()
         },
         fail: (_e) => {
           this.getUserProtocolSetup()
@@ -59,7 +59,6 @@ Page({
         syssetup: arg.sys,
         Protocols: arg.protocol
       })
-      this.mergeProtocolSetup()
       wx.setStorage({
         key: 'protocolSetup' + this.data.protocol,
         data: arg
@@ -72,30 +71,7 @@ Page({
       })
     }
   },
-  // 合并参数限值，参数状态设置
-  mergeProtocolSetup() {
-    const { usersetup, syssetup } = this.data
-    const user_alarmStatMap = usersetup.AlarmStat ? new Map(usersetup.AlarmStat.map(el => [el.name, el])) : new Map()
-    const sys_alarmStatMap = new Map(syssetup.AlarmStat.map(el => [el.name, el]))
-    sys_alarmStatMap.forEach((val, key) => {
-      if (!user_alarmStatMap.has(key)) user_alarmStatMap.set(key, val)
-    })
-    const parse = this.parseProtocol()
-    user_alarmStatMap.forEach((el, key) => {
-      el.parse = parse[key]
-    })
-    // 
-    const user_ThresholdMap = usersetup.Threshold ? new Map(usersetup.Threshold.map(el => [el.name, el])) : new Map()
-    const sys_ThresholdMap = new Map(syssetup.Threshold.map(el => [el.name, el]))
-    sys_ThresholdMap.forEach((val, key) => {
-      if (!user_ThresholdMap.has(key)) user_ThresholdMap.set(key, val)
-    })
-    this.setData({
-      alarmStat: Array.from(user_alarmStatMap.values()),
-      Threshold: Array.from(user_ThresholdMap.values())
-    })
 
-  },
   // 返回协议参数对象解析
   parseProtocol() {
     const protocolArray = this.data.Protocols.instruct.map(instruct => {
@@ -108,6 +84,50 @@ Page({
   // 修改标题
   tabclick(event: vantEvent) {
     wx.setNavigationBarTitle({ title: '协议配置-' + event.detail.title })
+    switch (event.detail.title) {
+      case "参数限值":
+        {
+          if (this.data.Threshold) {
+            const { usersetup, syssetup } = this.data
+            const sys_ThresholdMap = new Map(syssetup.Threshold.map(el => [el.name, el]))
+            if (usersetup?.Threshold) {
+              const user_ThresholdMap = new Map(usersetup.Threshold.map(el => [el.name, el]))
+              sys_ThresholdMap.forEach((val, key) => {
+                const thr = user_ThresholdMap.get(key)
+                if (thr && (thr.max !== val.max || thr.min !== val.min)) sys_ThresholdMap.set(key, thr)
+              })
+            }
+            this.setData({
+              Threshold: Array.from(sys_ThresholdMap.values())
+            })
+          }
+        }
+        break
+      case "参数状态":
+        {
+          if (this.data.alarmStat) {
+            const { usersetup, syssetup } = this.data
+            const sys_alarmStatMap = new Map(syssetup.AlarmStat.map(el => [el.name, el]))
+            if (usersetup?.AlarmStat) {
+              const user_alarmStatMap = new Map(usersetup.AlarmStat.map(el => [el.name, el]))
+              sys_alarmStatMap.forEach((val, key) => {
+                const stat = user_alarmStatMap.get(key)
+                if (stat && stat.alarmStat.sort().toString() !== val.alarmStat.sort().toString()) {
+                  sys_alarmStatMap.set(key, stat)
+                }
+              })
+            }
+            const parse = this.parseProtocol()
+            sys_alarmStatMap.forEach((el, key) => {
+              el.parse = parse[key]
+            })
+            this.setData({
+              alarmStat: Array.from(sys_alarmStatMap.values())
+            })
+          }
+        }
+        break
+    }
   },
   //  监听显示参数变化
   async ShowTagonChange(event: vantEvent) {
@@ -163,16 +183,39 @@ Page({
   },
   // 保存配置
   async saveSetup() {
-    const { usersetup: { ShowTag }, alarmStat, Threshold, protocol } = this.data
-    const showtag = api.pushThreshold(ShowTag, 'ShowTag', protocol)
-    const alarm = api.pushThreshold(alarmStat, 'AlarmStat', protocol)
-    const thre = api.pushThreshold(Threshold.map(el => ({ name: el.name, min: el.min, max: el.max })), "Threshold", protocol)
-    Promise.all([showtag, alarm, thre]).then(_res => {
+    const { usersetup, alarmStat, Threshold, protocol } = this.data
+    await api.pushThreshold(usersetup?.ShowTag || [], 'ShowTag', protocol)
+    // 如果有用户配置
+    if ((alarmStat && alarmStat.length > 0 && !usersetup?.AlarmStat) || JSON.stringify(alarmStat) !== JSON.stringify(usersetup.AlarmStat)) {
+      await api.pushThreshold(alarmStat, 'AlarmStat', protocol)
+    }
+    //
+    if ((Threshold && Threshold.length > 0 && usersetup?.Threshold) || JSON.stringify(Threshold) !== JSON.stringify(usersetup.Threshold)) {
+      await api.pushThreshold(Threshold.map(el => ({ name: el.name, min: el.min, max: el.max })), "Threshold", protocol)
+    }
+    const key = 'protocolSetup' + protocol
+    wx.getStorage({
+      key,
+      success({ data }: { data: { user: ProtocolConstantThreshold, sys: ProtocolConstantThreshold, protocol: protocol } }) {
+        data.user.ShowTag = usersetup?.ShowTag || []
+        data.user.AlarmStat = alarmStat
+        data.user.Threshold = Threshold
+        wx.setStorage({
+          key,
+          data,
+          fail() {
+            wx.removeStorage({ key })
+            wx.showToast({ title: "保存失败" })
+          }
+        })
+      }
+    })
+    /* Promise.all([showtag, alarm, thre]).then(_res => {
       const key = 'protocolSetup' + protocol
       wx.getStorage({
         key,
         success({ data }: { data: { user: ProtocolConstantThreshold, sys: ProtocolConstantThreshold, protocol: protocol } }) {
-          data.user.ShowTag = ShowTag
+          data.user.ShowTag = usersetup?.ShowTag || []
           data.user.AlarmStat = alarmStat
           data.user.Threshold = Threshold
           wx.setStorage({
@@ -194,26 +237,7 @@ Page({
         icon: "none"
       })
       wx.removeStorage({ key: 'protocolSetup' + protocol })
-    })
-  },
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-    //this.saveSetup()
+    }) */
   },
 
   /**
@@ -229,19 +253,5 @@ Page({
   onPullDownRefresh: async function () {
     await this.getUserProtocolSetup()
     wx.stopPullDownRefresh()
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
   }
 })

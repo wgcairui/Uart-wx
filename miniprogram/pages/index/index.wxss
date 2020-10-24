@@ -1,4 +1,38 @@
-.van-cell-text{
+.van-cell-text {
   display: inline;
   margin-right: 12px;
 }
+
+.card {
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: #fff;
+  background-clip: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 0.25rem;
+  margin: 8px 0;
+  padding: 10px;
+}
+
+.terminal {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.terminal .name {
+  font-size: 22px;
+}
+
+.terminal .mac {
+  font-size: 12px;
+  color: green;
+}
+
+@import "./index.skeleton.wxss";

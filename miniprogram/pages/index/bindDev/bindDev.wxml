@@ -6,14 +6,14 @@
         bind:click-icon="scanMac" />
     </van-cell-group>
   </view>
-  <view>
-    <van-button round type="info" bind:click="scanRequst" class="center">查询设备</van-button>
+  <view class="center">
+    <van-button round type="info" bind:click="scanRequst">查询设备</van-button>
   </view>
   <view class="info" wx:if="{{terminal.name}}">
     <van-cell-group>
-      <van-cell title="IMEI" value="{{mac}}"/>
-      <van-cell title="DTU名称" value="{{terminal.name}}"/>
-      <van-cell title="接入节点" value="{{terminal.mountNode}}"/>
+      <van-cell title="IMEI" value="{{mac}}" />
+      <van-cell title="DTU名称" value="{{terminal.name}}" />
+      <van-cell title="接入节点" value="{{terminal.mountNode}}" />
     </van-cell-group>
     <van-button type="primary" bindtap="bindDev" round block>绑定DTU</van-button>
   </view>

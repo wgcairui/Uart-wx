@@ -32,7 +32,7 @@ Page({
     wx.setNavigationBarTitle({ title: event.detail.title })
   },
   // 获取用户手机号码
-  async getphonenumber(e: any) {
+  async getphonenumber(e: vantEvent) {
     wx.showLoading({ title: '获取手机号' })
     const telObj = await api.getphonenumber<any>({ openid: this.data.openid, encryptedData: e.detail.encryptedData, iv: e.detail.iv })
     this.setData({
@@ -43,6 +43,7 @@ Page({
   // 注册用户
   async register() {
     wx.requestSubscribeMessage({
+      // 订阅消息id
       tmplIds: ['XPN75P-0F3so8dE__e5bxS9xznCyNGx4TKX0Fl-i_b4', '8NX6ji8ABlNAOEMcU7v2jtD4sgCB7NMHguWzxZn3HO4'],
       success: async (_res) => {
         this.setData({ registerloading: true })
@@ -50,12 +51,11 @@ Page({
         const { ok, msg } = await api.registerUser({ user: this.data.openid, name: nickName, avanter: avatarUrl, tel })
         this.setData({ registerloading: false })
         if (!ok) {
-          wx.showToast({ title: msg, icon: "none" })
-          wx.redirectTo({ url: "/" })
+          wx.showToast({ title: msg, icon: "none", duration: 5000 })
+          // wx.redirectTo({ url: "/" })
         } else {
           wx.reLaunch({ url: '/pages/index/index' })
         }
-        wx.showToast({ title: msg })
       }
     })
   },

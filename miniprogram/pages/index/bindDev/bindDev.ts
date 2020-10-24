@@ -2,7 +2,7 @@ import api from "../../../utils/api"
 
 Page({
   data: {
-    mac: '714048953250',
+    mac: '',
     terminal: {
       name: '',
       mountNode: '',
@@ -24,8 +24,6 @@ Page({
       this.setData({
         terminal: arg
       })
-      console.log(this.data.terminal);
-
     } else {
       wx.showModal({
         title: 'search',
@@ -39,10 +37,10 @@ Page({
     if (ok) {
       wx.showModal({
         title: 'bind success',
-        content: `绑定DTU:${this.data.mac} 成功，是否返回到主页？`,
+        content: `绑定DTU:${this.data.mac} 成功，是否现在添加挂载设备？`,
         success(res) {
           if (res.confirm) {
-            wx.navigateTo({ url: '/pages/index/index' })
+            wx.navigateTo({ url: '/pages/index/manageDev/manageDev' })
           }
         }
       })

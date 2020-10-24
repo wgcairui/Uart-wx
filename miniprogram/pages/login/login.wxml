@@ -1,7 +1,7 @@
 <!--miniprogram/pages/login/login.wxml-->
 <view class="container">
-	<view wx:if="{{!userInfo.nickName}}">
-		<van-button open-type="getUserInfo" bindgetuserinfo="getUserInfo" round type="primary" class="center"> 获取头像昵称
+	<view wx:if="{{!userInfo.nickName}}"  class="getAvanter">
+		<van-button open-type="getUserInfo" bindgetuserinfo="getUserInfo" round type="primary"> 获取头像昵称
 		</van-button>
 	</view>
 	<view wx:else>

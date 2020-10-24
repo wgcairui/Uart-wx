@@ -1,0 +1,156 @@
+<!--
+此文件为开发者工具生成，生成时间: 2020/10/21 下午4:31:45 
+使用方法：
+在 /Users/ruicai/WeChatProjects/ladisuart/miniprogram/pages/index/index.wxml 引入模板
+
+```
+<import src="index.skeleton.wxml"/>
+<template is="skeleton" wx-if="{{loading}}" />
+```
+
+在 /Users/ruicai/WeChatProjects/ladisuart/miniprogram/pages/index/index.wxss 中引入样式
+```
+@import "./index.skeleton.wxss";
+```
+
+更多详细信息可以参考文档：https://developers.weixin.qq.com/miniprogram/dev/devtools/skeleton.html
+-->
+<template name="skeleton">
+  <view class="sk-container">
+    <view class="container">
+      <view is="miniprogram_npm/@vant/weapp/notice-bar/index">
+        <view class=" van-notice-bar bar-index--van-notice-bar van-notice-bar--withicon bar-index--van-notice-bar--withicon" style="color: ; background-color: ; background: ">
+          <view is="miniprogram_npm/@vant/weapp/icon/index" class="van-notice-bar__left-icon bar-index--van-notice-bar__left-icon">
+            <view class="van-icon icon-index--van-icon van-icon-volume-o icon-index--van-icon-volume-o sk-pseudo sk-pseudo-circle" style="color: ;font-size: 16px;"></view>
+          </view>
+          <view class="van-notice-bar__wrap bar-index--van-notice-bar__wrap">
+            <view class="van-notice-bar__content bar-index--van-notice-bar__content sk-transparent sk-text-20-8333-675 sk-text">
+              有4条未确认的告警信息，点击查看?
+            </view>
+          </view>
+          <navigator open-type="navigate">
+            <view is="miniprogram_npm/@vant/weapp/icon/index" class="van-notice-bar__right-icon bar-index--van-notice-bar__right-icon">
+              <view class="van-icon icon-index--van-icon van-icon-arrow icon-index--van-icon-arrow sk-pseudo sk-pseudo-circle" style="color: ;font-size: ;"></view>
+            </view>
+          </navigator>
+        </view>
+      </view>
+      <view is="miniprogram_npm/@vant/weapp/notice-bar/index">
+        <view class=" van-notice-bar bar-index--van-notice-bar" style="color: #1989fa; background-color: ; background: #ecf9ff">
+          <view is="miniprogram_npm/@vant/weapp/icon/index" class="van-notice-bar__left-icon bar-index--van-notice-bar__left-icon">
+            <view class="van-icon icon-index--van-icon van-icon-info-o icon-index--van-icon-info-o sk-pseudo sk-pseudo-circle" style="color: ;font-size: 16px;"></view>
+          </view>
+          <view class="van-notice-bar__wrap bar-index--van-notice-bar__wrap">
+            <view class="van-notice-bar__content bar-index--van-notice-bar__content sk-transparent sk-text-20-8333-558 sk-text">
+              DTU:(全部3/在线0),挂载设备:(全部3/在线0)
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="content">
+        <view class="card" style="border: none;">
+          <view class="terminal" data-item="5ed8962e3952ff8fe8c44e4c">
+            <text class="name sk-transparent sk-text-14-2857-519 sk-text" style="background-position-x: 50%;">HF5111B</text>
+            <text class="mac sk-transparent sk-text-14-2857-215 sk-text" style="background-position-x: 50%;">98D863CC870D</text>
+            <view is="miniprogram_npm/@vant/weapp/tag/index">
+              <view class="van-tag tag-index--van-tag van-tag--danger tag-index--van-tag--danger sk-transparent sk-text-12-5000-289 sk-text" style="background-position-x: 50%;">离线</view>
+            </view>
+          </view>
+          <view is="miniprogram_npm/@vant/weapp/cell/index" data-id="5ed8962e3952ff8fe8c44e4c" data-item="[object Object]">
+            <view class="van-cell cell-index--van-cell van-cell--center cell-index--van-cell--center van-cell--clickable cell-index--van-cell--clickable sk-pseudo sk-pseudo-circle" hover-class="van-cell--hover hover-class" hover-stay-time="70" style="true">
+              <view>
+                <view is="miniprogram_npm/@vant/weapp/icon/index">
+                  <view class="van-icon icon-index--van-icon van-icon-points icon-index--van-icon-points sk-pseudo sk-pseudo-circle" style="color: red;font-size: ;"></view>
+                </view>
+              </view>
+              <view class="van-cell__title cell-index--van-cell__title " style="true">
+                <view>
+                  <view class="van-cell-text sk-transparent sk-text-20-8333-890 sk-text">G2K</view>
+                  <view is="miniprogram_npm/@vant/weapp/tag/index">
+                    <view class="van-tag tag-index--van-tag van-tag--primary tag-index--van-tag--primary sk-transparent sk-text-12-5000-411 sk-text" style="true">UPS</view>
+                  </view>
+                </view>
+                <view class="van-cell__label cell-index--van-cell__label ">
+                  <view>
+                    <view class="sk-transparent sk-text-16-6667-597 sk-text">离线</view>
+                  </view>
+                </view>
+              </view>
+              <view is="miniprogram_npm/@vant/weapp/icon/index" class="van-cell__right-icon-wrap cell-index--van-cell__right-icon-wrap ">
+                <view class="cell-index--van-cell__right-icon van-icon icon-index--van-icon van-icon-arrow icon-index--van-icon-arrow sk-pseudo sk-pseudo-circle" style="color: ;font-size: ;"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="card" style="border: none;">
+          <view class="terminal" data-item="5ed8b6af3952ff8fe8c4a19b">
+            <text class="name sk-transparent sk-text-14-2857-612 sk-text" style="background-position-x: 50%;">EE11</text>
+            <text class="mac sk-transparent sk-text-14-2857-291 sk-text" style="background-position-x: 50%;">98D863FEAAAC</text>
+            <view is="miniprogram_npm/@vant/weapp/tag/index">
+              <view class="van-tag tag-index--van-tag van-tag--danger tag-index--van-tag--danger sk-transparent sk-text-12-5000-917 sk-text" style="background-position-x: 50%;">离线</view>
+            </view>
+          </view>
+          <view is="miniprogram_npm/@vant/weapp/cell/index" data-id="5ed8b6af3952ff8fe8c4a19b" data-item="[object Object]">
+            <view class="van-cell cell-index--van-cell van-cell--center cell-index--van-cell--center van-cell--clickable cell-index--van-cell--clickable sk-pseudo sk-pseudo-circle" hover-class="van-cell--hover hover-class" hover-stay-time="70" style="true">
+              <view>
+                <view is="miniprogram_npm/@vant/weapp/icon/index">
+                  <view class="van-icon icon-index--van-icon van-icon-points icon-index--van-icon-points sk-pseudo sk-pseudo-circle" style="color: red;font-size: ;"></view>
+                </view>
+              </view>
+              <view class="van-cell__title cell-index--van-cell__title " style="true">
+                <view>
+                  <view class="van-cell-text sk-transparent sk-text-20-8333-378 sk-text">标准温湿度传感器</view>
+                  <view is="miniprogram_npm/@vant/weapp/tag/index">
+                    <view class="van-tag tag-index--van-tag van-tag--primary tag-index--van-tag--primary sk-transparent sk-text-12-5000-869 sk-text" style="true">温湿度</view>
+                  </view>
+                </view>
+                <view class="van-cell__label cell-index--van-cell__label ">
+                  <view>
+                    <view class="sk-transparent sk-text-16-6667-21 sk-text">离线</view>
+                  </view>
+                </view>
+              </view>
+              <view is="miniprogram_npm/@vant/weapp/icon/index" class="van-cell__right-icon-wrap cell-index--van-cell__right-icon-wrap ">
+                <view class="cell-index--van-cell__right-icon van-icon icon-index--van-icon van-icon-arrow icon-index--van-icon-arrow sk-pseudo sk-pseudo-circle" style="color: ;font-size: ;"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class="card" style="border: none;">
+          <view class="terminal" data-item="5f62ae304ccefe28eb38898b">
+            <text class="name sk-transparent sk-text-14-2857-980 sk-text" style="background-position-x: 50%;">HF2411F</text>
+            <text class="mac sk-transparent sk-text-14-2857-856 sk-text" style="background-position-x: 50%;">714048953250</text>
+            <view is="miniprogram_npm/@vant/weapp/tag/index">
+              <view class="van-tag tag-index--van-tag van-tag--danger tag-index--van-tag--danger sk-transparent sk-text-12-5000-72 sk-text" style="background-position-x: 50%;">离线</view>
+            </view>
+          </view>
+          <view is="miniprogram_npm/@vant/weapp/cell/index" data-id="5f62ae304ccefe28eb38898b" data-item="[object Object]">
+            <view class="van-cell cell-index--van-cell van-cell--center cell-index--van-cell--center van-cell--clickable cell-index--van-cell--clickable sk-pseudo sk-pseudo-circle" hover-class="van-cell--hover hover-class" hover-stay-time="70" style="true">
+              <view>
+                <view is="miniprogram_npm/@vant/weapp/icon/index">
+                  <view class="van-icon icon-index--van-icon van-icon-points icon-index--van-icon-points sk-pseudo sk-pseudo-circle" style="color: red;font-size: ;"></view>
+                </view>
+              </view>
+              <view class="van-cell__title cell-index--van-cell__title " style="true">
+                <view>
+                  <view class="van-cell-text sk-transparent sk-text-20-8333-862 sk-text">G2K</view>
+                  <view is="miniprogram_npm/@vant/weapp/tag/index">
+                    <view class="van-tag tag-index--van-tag van-tag--primary tag-index--van-tag--primary sk-transparent sk-text-12-5000-395 sk-text" style="true">UPS</view>
+                  </view>
+                </view>
+                <view class="van-cell__label cell-index--van-cell__label ">
+                  <view>
+                    <view class="sk-transparent sk-text-16-6667-678 sk-text">离线</view>
+                  </view>
+                </view>
+              </view>
+              <view is="miniprogram_npm/@vant/weapp/icon/index" class="van-cell__right-icon-wrap cell-index--van-cell__right-icon-wrap ">
+                <view class="cell-index--van-cell__right-icon van-icon icon-index--van-icon van-icon-arrow icon-index--van-icon-arrow sk-pseudo sk-pseudo-circle" style="color: ;font-size: ;"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>

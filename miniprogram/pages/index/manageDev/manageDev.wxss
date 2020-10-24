@@ -1,1 +1,8 @@
 /* miniprogram/pages/index/manageDev/manageDev.wxss */
+.van-cell-group {
+  margin-bottom: 36px;
+}
+
+.van-tag {
+  margin-right: 6px;
+}

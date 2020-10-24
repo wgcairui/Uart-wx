@@ -2,15 +2,15 @@
 <view class="container">
   <view>
     <van-cell title="选择日期" value="{{date}}" bind:click="showCalendar"></van-cell>
-    <van-calendar allow-same-day max-range="5" title="选择查询日期" show="{{dateShow}}" type="range" min-date="{{minDate}}"
+    <van-calendar allow-same-day max-range="30" title="选择查询日期" show="{{dateShow}}" type="range" min-date="{{minDate}}"
       max-date="{{maxDate}}" bind:close="onClose" default-date="{{[maxDate,maxDate]}}" bind:confirm="onConfirm">
     </van-calendar>
   </view>
   <view>
     <van-cell-group title="告警信息列表">
-      <van-cell wx:for="{{Alarm}}" wx:key="timeStamp" id="{{item._id}}" icon="{{item.isOk?'success':'fail'}}"
-        title="{{item.mac}}" label="{{item.time}}" value="{{item.msg}}" clickable center bind:click="showalarm"
-        data-item="{{item}}" title-style="{{item.isOk?'':'color: red;'}}" />
+      <van-cell wx:for="{{Alarm}}" wx:key="_id" icon="{{item.isOk?'success':'fail'}}" title="{{item.mac}}"
+        label="{{item.time}}" value="{{item.msg}}" clickable center bind:click="showalarm" data-item="{{item}}"
+        data-key="{{index}}" title-style="{{item.isOk?'':'color: red;'}}" />
     </van-cell-group>
   </view>
 </view>

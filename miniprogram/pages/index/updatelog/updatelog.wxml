@@ -1,6 +1,0 @@
-<!--miniprogram/pages/index/updatelog/updatelog.wxml-->
-<view class="container">
-  <van-cell-group title="logd">
-    <van-cell title="title" value="as"></van-cell>
-  </van-cell-group>
-</view>

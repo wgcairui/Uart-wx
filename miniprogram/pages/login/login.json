@@ -6,5 +6,6 @@
     "van-tab": "@vant/weapp/tab/index",
     "van-tabs": "@vant/weapp/tabs/index"
   },
-  "navigationBarTitleText": "微信注册"
+  "navigationBarTitleText": "微信注册",
+  "enablePullDownRefresh": false
 }

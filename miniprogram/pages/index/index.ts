@@ -5,7 +5,10 @@ import api from "../../utils/api";
 Page({
   data: {
     // DTU设备信息
-    DTUs: [] as Terminal[]
+    DTUs: [] as Terminal[],
+    state: '',
+    alarm: '',
+    alarmNum: 0
   },
   onLoad() {
     wx.login({
@@ -22,26 +25,25 @@ Page({
   start() {
     // 获取未读取的alarm数量
     api.getAlarmunconfirmed().then(el => {
-      //console.log(el);
-
-      //if (Number(el.arg) > 0) wx.setTabBarBadge({ index: 0, text: '4' || '' })
-    }).catch((e: any) => {
-      //console.log(e);
-
+      if (Number(el.arg) > 0) {
+        this.setData({
+          alarm: `有${el.arg}条未确认的告警信息，点击查看?`,
+          alarmNum: Number(el.arg)
+        })
+      }
     })
     this.bindDev()
-    wx.navigateTo({
-      url: '/pages/index/alarmSetting/index'
-    })
   },
   // 获取用户绑定设备
   async bindDev() {
+    wx.showLoading({ title: '获取DTU' })
     const { ok, arg } = await api.getuserMountDev()
+    wx.hideLoading()
     if (ok) {
       this.setData({
         DTUs: arg.UTs
       })
-      this.data.DTUs.forEach(el => {
+      arg.UTs.forEach(el => {
         wx.setStorage({
           key: el._id,
           data: el
@@ -51,6 +53,7 @@ Page({
         key: 'Uts',
         data: arg.UTs
       })
+      this.countDev(arg.UTs)
     } else {
       wx.showModal({
         title: '添加设备',
@@ -72,15 +75,36 @@ Page({
     const { pid, mountDev, protocol } = event.currentTarget.dataset.item
     const id = event.currentTarget.dataset.id
     const { DevMac } = wx.getStorageSync(id) as Terminal
-    console.log('/pages/index/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac }));
-
     wx.navigateTo({
       url: '/pages/index/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac })
+    })
+  },
+  // 查看告警
+  seeAlarm() {
+    wx.switchTab({ url: '/pages/index/alarm/alarm?num=' + this.data.alarmNum })
+  },
+  // 统计所有设备状态
+  countDev(terminals: Terminal[]) {
+    const terminal_all = terminals.length
+    const terminal_on = terminals.map(el => el.online).filter(el => el).length
+    const monutDev_all = terminals.map(el => el.mountDevs.length).reduce((pre, cur) => pre + cur)
+    const mountDev_on = terminals.map(el => el.mountDevs.filter(el2 => el2.online)).reduce((pre, cur) => [...pre, ...cur]).length
+    // console.log({ terminal_all, terminal_on, monutDev_all, mountDev_on });
+    const state = `DTU:(全部${terminal_all}/在线${terminal_on}),挂载设备:(全部${monutDev_all}/在线${mountDev_on})`
+    this.setData({
+      state
     })
   },
   //mac=98D863CC870D&pid=0&mountDev=G2K
   async onPullDownRefresh() {
     await this.bindDev()
     wx.stopPullDownRefresh()
+  },
+  //
+  bindload(event: vantEvent) {
+    console.log(`公众号加载success,状态:${event.detail.errMsg}`);
+  },
+  binderror(event: vantEvent) {
+    console.log(`公众号加载error,状态:${event.detail.errMsg}`);
   }
 })
