@@ -107,6 +107,21 @@ Page({
       }
     })
   },
+  // 全部确认
+  allQuest() {
+    wx.showModal({
+      title: "Tips",
+      content: "是否确认全部告警信息?",
+      success: async (res) => {
+        if (res.confirm) {
+          wx.showLoading({ title: '确认告警信息' })
+          await api.alarmConfirmed()
+          wx.startPullDownRefresh()
+          wx.hideLoading()
+        }
+      }
+    })
+  },
   // 下拉刷新
   async onPullDownRefresh() {
     await this.getAlarmInfo()

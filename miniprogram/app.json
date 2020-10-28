@@ -9,7 +9,6 @@
     "pages/index/alarm/alarm",
     "pages/index/dtu/dtu",
     "pages/index/devs/devs",
-    "component/line/line",
     "pages/index/userinfo/userinfo",
     "pages/index/manageDev/manageDev",
     "pages/index/alarmSetting/alarmSetting",

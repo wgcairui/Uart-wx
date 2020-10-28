@@ -96,7 +96,7 @@ Page({
   // 导航到图表
   toline(e: vantEvent) {
     wx.navigateTo({
-      url: '/pages/index/line/line' + ObjectToStrquery({ name: e.detail.name, mac: this.data.mac, pid: this.data.pid })
+      url: '/pages/index/line/line' + ObjectToStrquery({ name: e.detail.name, mac: this.data.mac, pid: this.data.pid, protocol: this.data.protocol })
     })
   },
   // 发送操作指令

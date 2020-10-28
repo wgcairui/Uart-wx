@@ -1,19 +1,19 @@
 <!--miniprogram/pages/index/manageDev/manageDev.wxml-->
 <view class="container">
-  <view class="devslist">
-    <van-cell-group wx:for="{{devs}}" wx:key="_id" title="{{item.name}}">
-      <van-cell wx:for="{{item.mountDevs}}" wx:key="index" wx:for-item="item2" title="{{item2.mountDev}}"
-        label="{{item2.protocol}}" center>
-        <van-tag  type="primary" size="medium">{{item2.Type}}</van-tag>
-        <van-tag  type="primary" size="medium">{{item2.pid}}</van-tag>
-        <van-button type="danger" data-item="{{item2}}" data-key="{{item.DevMac}}" round size="small"
-          bindtap="deleteMountDev">删除</van-button>
-      </van-cell>
-      <van-cell>
-        <van-button type="primary" round size="small" data-item="{{item}}" bindtap="addMonutDev">添加绑定设备</van-button>
-        <van-button wx:if="{{item.mountDevs.length === 0}}" type="danger" round size="small" data-item="{{item}}"
-          bindtap="deleteDTU">删除DTU</van-button>
-      </van-cell>
-    </van-cell-group>
+  <view wx:for="{{devs}}" wx:key="_id">
+    <van-cell icon="cluster" title="{{item.name}}" class="bg-dark-cell">
+      <van-button wx:if="{{item.mountDevs.length === 0}}" type="danger" round size="small" data-item="{{item}}"
+        bindtap="deleteDTU">删除DTU</van-button>
+    </van-cell>
+    <van-cell wx:for="{{item.mountDevs}}" wx:key="index" wx:for-item="item2" title="{{item2.mountDev}}"
+      label="{{item2.protocol}}" center>
+      <van-tag type="primary" size="medium">{{item2.Type}}</van-tag>
+      <van-tag type="primary" size="medium">{{item2.pid}}</van-tag>
+      <van-button type="danger" data-item="{{item2}}" data-key="{{item.DevMac}}" round size="small"
+        bindtap="deleteMountDev">删除</van-button>
+    </van-cell>
+    <van-cell>
+      <van-button type="primary" round size="small" data-item="{{item}}" bindtap="addMonutDev">添加设备</van-button>
+    </van-cell>
   </view>
 </view>

@@ -1,4 +1,4 @@
-import api from "../../../utils/api"
+import { urlRequest } from "../../../config";
 
 // miniprogram/pages/index/line/line.js
 Page({
@@ -17,7 +17,10 @@ Page({
     //
     dateShow: false,
     minDate: new Date(2020, 0, 1).getTime(),
-    maxDate: Date.now()
+    maxDate: Date.now(),
+
+    //
+    webSrc: ''
   },
 
 
@@ -25,20 +28,28 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    const { name, mac, pid } = options
+    const { name, mac, pid, protocol } = options
     console.log(options);
-    
+    const token = wx.getStorageSync('token') as string
     this.setData({
       mac,
       pid,
-      name
+      name,
+      webSrc: encodeURI(`${urlRequest}/main/line?token=${token}&DevMac=${mac}&pid=${pid}&name=${name}&protocol=${protocol}`)
     })
-    this.getDevsHistoryInfo()
+    /* this.getDevsHistoryInfo()
     this.setData({
       datatime: this.formatDate(new Date())
-    })
+    }) */
   },
-  async getDevsHistoryInfo() {
+  load(event: vantEvent) {
+    console.log(event);
+
+  },
+  error(event: vantEvent) {
+    console.log(event);
+  },
+  /* async getDevsHistoryInfo() {
     const { name, mac, pid, datatime } = this.data
     const { ok, arg } = await api.getDevsHistoryInfo(mac, pid, name, datatime)
     if (ok) {
@@ -80,48 +91,8 @@ Page({
       datatime: this.formatDate(event.detail),
     });
     this.getDevsHistoryInfo()
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: async function () {
+  }, onPullDownRefresh: async function () {
     await this.getDevsHistoryInfo()
     wx.stopPullDownRefresh()
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  }
+  }, */
 })

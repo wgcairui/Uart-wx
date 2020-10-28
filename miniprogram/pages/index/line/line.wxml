@@ -1,6 +1,6 @@
 <!--miniprogram/pages/index/line/line.wxml-->
 <view class="container" style="ma">
-  <view>
+  <!-- <view>
     <van-cell title="选择日期" value="{{datatime}}" bind:click="showCalendar"></van-cell>
     <van-calendar title="选择查询日期" show="{{dateShow}}" min-date="{{minDate}}" max-date="{{maxDate}}" bind:close="onClose"
       default-date="{{datatime}}" bind:confirm="onConfirm">
@@ -8,5 +8,6 @@
   </view>
   <view class="line-content">
     <my-line class="w-100 h-100" wx:if="{{!dateShow}}" opt="{{option}}" id="myechart" canvasId="myechartline" />
-  </view>
-</view> 
+  </view> -->
+  <web-view src="{{webSrc}}" bindload="load" binderror="error"></web-view>
+</view>

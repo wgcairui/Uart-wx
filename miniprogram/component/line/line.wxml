@@ -1,2 +1,0 @@
-<!--component/line/line.wxml-->
-<ec-canvas id="{{id}}" canvas-id="{{canvasId}}" opt="{{option}}"  class="ec-canvas"></ec-canvas>

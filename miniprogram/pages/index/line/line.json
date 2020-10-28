@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "my-line":"../../../component/line/line",
     "van-calendar": "@vant/weapp/calendar/index"
   },
   "navigationBarTitleText": "图例"

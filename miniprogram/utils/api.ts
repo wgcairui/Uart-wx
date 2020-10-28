@@ -1,3 +1,5 @@
+import { urlRequest, urlWs } from "../config"
+
 interface tencetMap {
   /* 状态码，0为正常,
 310请求参数信息有误，
@@ -40,16 +42,48 @@ class api {
   readonly url: string
   token: string
   constructor() {
-    this.url = "https://test.ladishb.com/api/wx/"
+    this.url = urlRequest + "/api/wx/"
     this.token = ""
 
   }
-  // 登录-用于小程序启动关联微信自动登录
+  // 登录- 域名
   async login(data: { js_code: string }) {
     const el = await this.RequestUart<any>({ url: "code2Session", data })
     if (el.ok) {
       this.token = el.arg.token
       wx.setStorage({ key: 'token', data: el.arg.token })
+      // 启用socket
+      const ws = wx.connectSocket({
+        url: urlWs,
+        header: {
+          'content-type': 'application/json'
+        }
+      })
+      ws.onOpen(() => {
+        ws.send({
+          data: JSON.stringify({ token: el.arg.token as string }),
+          success() {
+            setInterval(() => {
+              ws.send({ data: 'time' })
+            }, 1000 * 30)
+          }
+        })
+        ws.onMessage((msg) => {
+          wx.showModal({
+            title: '新的告警信息',
+            content: msg.data.toString(),
+            success() {
+              wx.switchTab({
+                url: '/pages/index/alarm/alarm'
+              })
+            }
+          })
+        })
+        wx.onSocketClose(() => {
+          console.log(new Date().toLocaleString() + "socket close");
+
+        })
+      })
     }
     return el
   }
@@ -95,8 +129,8 @@ class api {
     return this.RequestUart<uartAlarmObject[]>({ url: 'getAlarm', data: { start, end } })
   }
   // 确认告警信息,更新bar
-  alarmConfirmed(id: string) {
-    return this.RequestUart({ url: 'alarmConfirmed', data: { id } })
+  alarmConfirmed(id?: string) {
+    return this.RequestUart({ url: 'alarmConfirmed', data: id ? { id } : {} })
   }
   // 获取设备实时运行信息
   getDevsRunInfo(mac: string, pid: string) {

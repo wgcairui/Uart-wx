@@ -7,26 +7,25 @@
     </van-cell-group>
   </view>
   <view>
-    <van-cell-group title="添加设备参数">
-      <van-cell title="设备类型">
-        <van-dropdown-menu>
-          <van-dropdown-item model:value="{{ devType }}" options="{{ devTypes }}" bind:change="devTypeChange" />
-        </van-dropdown-menu>
-      </van-cell>
-      <van-cell title="设备型号">
-        <van-dropdown-menu>
-          <van-dropdown-item model:value="{{ devModal }}" options="{{ devModals }}" bind:change="devModalChange" />
-        </van-dropdown-menu>
-      </van-cell>
-      <van-cell title="设备协议">
-        <van-dropdown-menu>
-          <van-dropdown-item model:value="{{ devProtocol }}" options="{{ devProtocols }}" />
-        </van-dropdown-menu>
-      </van-cell>
-      <van-cell title="设备地址">
-        <van-picker columns="{{columns}}" default-index="{{ 1 }}" bind:change="pidChange"></van-picker>
-      </van-cell>
-    </van-cell-group>
+    <van-cell title="添加设备参数" class="bg-dark-cell"></van-cell>
+    <van-cell title="设备类型">
+      <van-dropdown-menu>
+        <van-dropdown-item model:value="{{ devType }}" options="{{ devTypes }}" bind:change="devTypeChange" />
+      </van-dropdown-menu>
+    </van-cell>
+    <van-cell title="设备型号">
+      <van-dropdown-menu>
+        <van-dropdown-item model:value="{{ devModal }}" options="{{ devModals }}" bind:change="devModalChange" />
+      </van-dropdown-menu>
+    </van-cell>
+    <van-cell title="设备协议">
+      <van-dropdown-menu>
+        <van-dropdown-item model:value="{{ devProtocol }}" options="{{ devProtocols }}" />
+      </van-dropdown-menu>
+    </van-cell>
+    <van-cell title="设备地址">
+      <van-picker columns="{{columns}}" default-index="{{ 1 }}" bind:change="pidChange"></van-picker>
+    </van-cell>
     <van-button block type="primary" round bindtap="addMountDev"
       disabled="{{!devProtocol || !devType || !devProtocol }}">添加</van-button>
   </view>

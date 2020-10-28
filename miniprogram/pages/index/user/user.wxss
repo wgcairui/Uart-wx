@@ -1,8 +1,10 @@
 /* miniprogram/pages/index/user/user.wxss */
 .userinfo {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.15) 100%), radial-gradient(at top center, rgba(255,255,255,0.40) 0%, rgba(0,0,0,0.40) 120%) #989898;
+ background-blend-mode: multiply,multiply;
 }
 
 .userinfo-avatar {
@@ -10,4 +12,14 @@
   height: 128rpx;
   margin: 20rpx;
   border-radius: 50%;
+}
+
+.van-grid {
+  margin-top: 12px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  
 }

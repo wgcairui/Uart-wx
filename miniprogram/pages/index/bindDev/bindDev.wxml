@@ -7,9 +7,9 @@
     </van-cell-group>
   </view>
   <view class="center">
-    <van-button round type="info" bind:click="scanRequst">查询设备</van-button>
+    <van-button round type="info" bind:click="scanRequst" disabled="{{!mac}}">查询设备</van-button>
   </view>
-  <view class="info" wx:if="{{terminal.name}}">
+  <view class="info card" wx:if="{{terminal.name}}">
     <van-cell-group>
       <van-cell title="IMEI" value="{{mac}}" />
       <van-cell title="DTU名称" value="{{terminal.name}}" />

@@ -106,5 +106,21 @@ Page({
   },
   binderror(event: vantEvent) {
     console.log(`公众号加载error,状态:${event.detail.errMsg}`);
-  }
+  },
+  // 添加绑定设备
+  addMonutDev(event: vantEvent<Terminal>) {
+    const { item } = event.currentTarget.dataset
+    wx.navigateTo({
+      url: '/pages/index/manageDev/addMountDev/addMountDev' + ObjectToStrquery({ item: JSON.stringify(item) }),
+      events: {
+        addSuccess() {
+          wx.nextTick(() => {
+            setTimeout(() => {
+              wx.startPullDownRefresh()
+            }, 500)
+          })
+        }
+      }
+    })
+  },
 })

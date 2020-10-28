@@ -1,5 +1,8 @@
 <!--miniprogram/pages/index/devs/devs.wxml-->
 <view class="container">
-  <dev-oprate protocol="{{protocol}}" bind:oprate="oprate" bind:alarm="alarm"></dev-oprate>
-  <my-table result="{{result.result}}" bind:filter="filter" bind:line="toline"></my-table>
+  <my-table result="{{result.result}}" bind:filter="filter" bind:line="toline">
+    <van-cell title="参数列表">
+      <dev-oprate protocol="{{protocol}}" bind:oprate="oprate" bind:alarm="alarm"></dev-oprate>
+    </van-cell>
+  </my-table>
 </view>

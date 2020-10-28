@@ -10,7 +10,8 @@ Page({
   data: {
     name: '',
     avanter: '',
-    rgwx: false
+    rgwx: false,
+    rgTime: ''
   },
 
   /**
@@ -26,10 +27,10 @@ Page({
     this.setData({
       name: arg.name,
       avanter: arg.avanter,
-      rgwx: arg.rgtype === 'wx'
+      rgwx: arg.rgtype === 'wx',
+      rgTime: new Date(arg.creatTime!).toLocaleDateString()
     })
     wx.setStorage({ key: 'userinfo', data: arg })
-    wx.setNavigationBarTitle({ title: arg.name || arg.user })
   },
   // 解绑微信
   async unbindwx() {
