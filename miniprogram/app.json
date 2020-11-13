@@ -15,7 +15,12 @@
     "pages/index/alarmSetting/index",
     "pages/index/alarmSetting/threshold/threshold",
     "pages/index/alarmSetting/addThreshold/addThreshold",
-    "pages/index/manageDev/addMountDev/addMountDev"
+    "pages/index/manageDev/addMountDev/addMountDev",
+    "pages/admin/index",
+    "pages/util/smsValidation/smsValidation",
+    "pages/util/setVal/setVal",
+    "pages/admin/register/register",
+    "pages/admin/node/node"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -30,7 +35,13 @@
     "van-cell-group": "@vant/weapp/cell-group/index",
     "van-hr": "@vant/weapp/divider/index",
     "van-button": "@vant/weapp/button/index",
-    "my-input": "../component/myInput/myInput"
+    "my-input": "../component/myInput/myInput",
+    "van-icon": "@vant/weapp/icon/index"
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置将用于定位您的DTU设备"
+    }
   },
   "tabBar": {
     "color": "#000",

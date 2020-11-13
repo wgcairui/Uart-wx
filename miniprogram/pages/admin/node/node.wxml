@@ -1,0 +1,10 @@
+<!--miniprogram/pages/admin/node/node.wxml-->
+<view container>
+  <van-cell-group wx:for="{{nodes}}" wx:key="IP" title="{{item.Name}}" class="card">
+    <van-cell title="IP" value="{{item.IP}}"></van-cell>
+    <van-cell title="Port" value="{{item.Port}}"></van-cell>
+    <van-cell title="最大连接数" value="{{item.MaxConnections}}"></van-cell>
+    <van-cell title="已使用连接数" value="{{item.count}}"></van-cell>
+    <van-cell title="使用比例" value="{{item.count/item.MaxConnections}}%"></van-cell>
+  </van-cell-group>
+</view>

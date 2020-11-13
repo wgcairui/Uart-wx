@@ -8,14 +8,39 @@ Page({
     DTUs: [] as Terminal[],
     state: '',
     alarm: '',
-    alarmNum: 0
+    alarmNum: 0,
+    Vm: [] as Terminal[]
   },
   onLoad() {
     wx.login({
       success: res => {
         // 发送网络请求，获取在线账户
-        api.login({ js_code: res.code }).then(res => {
-          if (res.ok) this.start()
+        api.login({ js_code: res.code }).then((res) => {
+          if (res.ok) {
+            console.log(`userGroup:${res.arg.userGroup}`);
+            switch (res.arg.userGroup) {
+              case "user":
+                this.start()
+                break;
+              case "admin":
+                {
+                  wx.navigateTo({ url: "/pages/admin/index" })
+                }
+                break
+              default:
+                wx.showModal({
+                  title: '用户组错误',
+                  content: '只有用户组user和admin可以使用小程序端',
+                  success() {
+                    api.unbindwx().then(() => {
+                      wx.startPullDownRefresh()
+                    })
+                  }
+                })
+                break
+            }
+
+          }
           else wx.navigateTo({ url: "/pages/login/login?openid=" + res.arg.openid })
         })
       }
@@ -39,7 +64,7 @@ Page({
     wx.showLoading({ title: '获取DTU' })
     const { ok, arg } = await api.getuserMountDev()
     wx.hideLoading()
-    if (ok) {
+    if (ok && arg?.UTs && arg.UTs.length > 0) {
       this.setData({
         DTUs: arg.UTs
       })
@@ -58,9 +83,20 @@ Page({
       wx.showModal({
         title: '添加设备',
         content: '您还没有添加任何设备，请先添加设备',
-        success(res) {
+        success: (res) => {
           if (res.confirm) {
-            wx.navigateTo({ url: '/pages/index/bindDev/bindDev' })
+            wx.navigateTo({
+              url: '/pages/index/bindDev/bindDev',
+              events: {
+                addSuccess() {
+                  wx.nextTick(() => {
+                    setTimeout(() => {
+                      wx.startPullDownRefresh()
+                    }, 500)
+                  })
+                }
+              }
+            })
           }
         }
       })
@@ -98,6 +134,8 @@ Page({
   //mac=98D863CC870D&pid=0&mountDev=G2K
   async onPullDownRefresh() {
     await this.bindDev()
+    this.countDev(this.data.DTUs)
+    this.start()
     wx.stopPullDownRefresh()
   },
   //
@@ -123,4 +161,25 @@ Page({
       }
     })
   },
+
+  // 添加虚拟设备
+  async addVm() {
+    const { ok, arg } = await api.addVm()
+    if (ok) {
+      this.setData({
+        Vm: arg
+      })
+      arg.forEach(el => {
+        wx.setStorage({
+          key: el._id,
+          data: el
+        })
+      })
+      wx.setStorage({
+        key: 'Uts',
+        data: arg
+      })
+      this.countDev(arg)
+    }
+  }
 })

@@ -1,4 +1,8 @@
 {
-  "usingComponents": {},
-  "navigationBarTitleText":"终端设备注册"
+  "usingComponents": {
+    "van-field": "@vant/weapp/field/index",
+    "van-button": "@vant/weapp/button/index"
+  },
+  "enablePullDownRefresh": false,
+  "navigationBarTitleText": "查询DTU设备"
 }

@@ -1,1 +1,4 @@
 /* miniprogram/pages/index/dtu/dtu.wxss */
+.jw{
+  display: flex;
+}

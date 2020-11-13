@@ -38,13 +38,22 @@ type url = 'getuserMountDev'
   | 'DevTypes'
   | 'modifyUserInfo'
   | 'getGPSaddress'
+  | 'cancelwx'
+  | 'getUserTel'
+  | 'sendValidation'
+  | 'ValidationCode'
+  | 'getNodes'
+  | 'bacthRegisterDTU'
+  | 'addVm'
+  | 'modifyDTUName'
+  | 'updateGps'
 class api {
   readonly url: string
   token: string
+  private wsInter?: number
   constructor() {
     this.url = urlRequest + "/api/wx/"
     this.token = ""
-
   }
   // 登录- 域名
   async login(data: { js_code: string }) {
@@ -62,8 +71,8 @@ class api {
       ws.onOpen(() => {
         ws.send({
           data: JSON.stringify({ token: el.arg.token as string }),
-          success() {
-            setInterval(() => {
+          success: () => {
+            this.wsInter = setInterval(() => {
               ws.send({ data: 'time' })
             }, 1000 * 30)
           }
@@ -81,7 +90,7 @@ class api {
         })
         wx.onSocketClose(() => {
           console.log(new Date().toLocaleString() + "socket close");
-
+          clearInterval(this.wsInter)
         })
       })
     }
@@ -92,8 +101,10 @@ class api {
     return this.RequestUart<any>({ url: 'userlogin', data })
   }
   // 用于解绑微信和透传账号的绑定关系
-  unbindwx() {
-    return this.RequestUart<any>({ url: 'unbindwx', data: {} })
+  async unbindwx() {
+    const el = await this.RequestUart<any>({ url: 'unbindwx', data: {} })
+    this.token = ""
+    return el
   }
   // 解密电话字符串
   getphonenumber<T>(data: { openid: string, encryptedData: string, iv: string }) {
@@ -189,18 +200,60 @@ class api {
     return this.RequestUart<tencetMap>({ url: 'getGPSaddress', data: { location } })
   }
 
+  // 注销微信
+  async cancelwx() {
+    const el = await this.RequestUart<string>({ url: 'cancelwx', data: {} })
+    this.token = ""
+    return el
+  }
+
+  // 获取用户手机号码
+  getUserTel() {
+    return this.RequestUart<string>({ url: 'getUserTel', data: {} })
+  }
+  // 发送短信验证码
+  sendValidation() {
+    return this.RequestUart<string>({ url: 'sendValidation', data: {} })
+  }
+  // 检验短信验证码
+  ValidationCode(code: number) {
+    return this.RequestUart<string>({ url: 'ValidationCode', data: { code } })
+  }
+  // 获取节点列表
+  getNodes() {
+    return this.RequestUart<NodeClient[]>({ url: 'getNodes', data: {} })
+  }
+  // 批量注册DTU
+  bacthRegisterDTU(node: string, dtus: string[]) {
+    return this.RequestUart<string>({ url: 'bacthRegisterDTU', data: { node, dtus }, method: "POST" })
+  }
+  // 添加虚拟设备
+  addVm() {
+    return this.RequestUart<Terminal[]>({ url: 'addVm', data: {} })
+  }
+
+  // 修改DTU名称
+  modifyDTUName(dtu: string, name: string) {
+    return this.RequestUart<string>({ url: 'modifyDTUName', data: { dtu, name } })
+  }
+
+  // 更新dtu定位
+  updateGps(dtu: string, jw: string) {
+    return this.RequestUart<string>({ url: 'updateGps', data: { dtu, jw } })
+  }
   private async RequestUart<T>(object: { url: url, data: Object, method?: "GET" | "POST" }) {
     //wx.showLoading({ title: '正在查询' })
     wx.showNavigationBarLoading()
     const token: string = this.token || await wx.getStorage({ key: 'token' }).then(el => el.data).catch(() => "")
     return await new Promise<ApolloMongoResult<T>>((resolve, reject) => {
       wx.request({
+        timeout: 1000 * 60,
         url: this.url + object.url,
         data: Object.assign({ token: token }, object.data),
         method: object.method || "GET",
         success: res => {
-          //console.log(res);
-          //wx.hideLoading()
+          // console.log(res);
+          // wx.hideLoading()
           if (res.statusCode !== 200) {
             wx.showModal({
               title: String(res.statusCode),
@@ -218,10 +271,12 @@ class api {
         },
         fail: e => {
           wx.showModal({ title: '服务器错误', content: e.errMsg })
+          wx.hideLoading()
           reject(e)
         },
         complete: () => {
           wx.hideNavigationBarLoading()
+          wx.hideLoading()
         }
       })
     })

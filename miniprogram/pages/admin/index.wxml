@@ -1,0 +1,25 @@
+<!--miniprogram/pages/admin/index.wxml-->
+<view class="container">
+  <view class="userinfo card">
+    <block>
+      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{avanter}}" mode="cover"></image>
+      <view class="info">
+        <text class="userinfo-nickname">{{name}}</text>
+      </view>
+    </block>
+  </view>
+  <view>
+
+  </view>
+  <view class="grid">
+    <van-cell title="常用操作"></van-cell>
+    <van-grid clickable gutter="{{6}}">
+      <van-grid-item icon="cluster" icon-color="#29d" text="批量登记" url="/pages/admin/register/register" />
+      <van-grid-item icon="scan" icon-color="#29d" text="查询DTU" url="/pages/admin/scan/scan" />
+      <van-grid-item icon="wap-home" icon-color="#29d" text="查询节点" url="/pages/admin/node/node" />
+      <van-grid-item icon="clear" icon-color="#29d" text="清除缓存" url="" bindtap="clearCache" />
+      <!-- <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="/pages/index/updatelog/updatelog" /> -->
+      <van-grid-item wx:if="{{!rgwx}}" icon="delete" icon-color="#29d" text="解绑微信" url="" bindtap="unbindwx" />
+    </van-grid>
+  </view>
+</view>

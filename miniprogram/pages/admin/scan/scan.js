@@ -35,53 +35,91 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var app = getApp();
+Object.defineProperty(exports, "__esModule", { value: true });
+var api_1 = require("../../../utils/api");
 Page({
     data: {
         mac: '',
-        iccd: '',
-        userInfo: {}
+        terminal: {
+            name: '',
+            mountNode: '',
+            mountDevs: [],
+            uptime: ''
+        }
     },
     scanMac: function () {
         return __awaiter(this, void 0, void 0, function () {
-            var result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4, this.scan()];
-                    case 1:
-                        result = _a.sent();
-                        this.setData({ mac: result });
-                        return [2];
-                }
-            });
-        });
-    },
-    scanICCD: function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var result;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4, this.scan()];
-                    case 1:
-                        result = _a.sent();
-                        this.setData({ iccd: result });
-                        return [2];
-                }
-            });
-        });
-    },
-    scan: function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var el;
+            var scanResult;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4, wx.scanCode({})];
                     case 1:
-                        el = _a.sent();
-                        return [2, el.result];
+                        scanResult = _a.sent();
+                        this.setData({
+                            mac: scanResult.result
+                        });
+                        this.scanRequst();
+                        return [2];
+                }
+            });
+        });
+    },
+    scanRequst: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, ok, arg;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        wx.showLoading({ title: '查询中' });
+                        return [4, api_1.default.getDTUInfo(this.data.mac)];
+                    case 1:
+                        _a = _b.sent(), ok = _a.ok, arg = _a.arg;
+                        wx.hideLoading();
+                        if (ok) {
+                            this.setData({
+                                terminal: arg
+                            });
+                        }
+                        else {
+                            wx.showModal({
+                                title: 'search',
+                                content: '此设备没有注册，请核对设备是否在我司渠道购买'
+                            });
+                        }
+                        return [2];
+                }
+            });
+        });
+    },
+    bindDev: function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, ok, msg;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4, api_1.default.bindDev(this.data.mac)];
+                    case 1:
+                        _a = _b.sent(), ok = _a.ok, msg = _a.msg;
+                        if (ok) {
+                            wx.showModal({
+                                title: 'bind success',
+                                content: "\u7ED1\u5B9ADTU:" + this.data.mac + " \u6210\u529F\uFF0C\u662F\u5426\u73B0\u5728\u6DFB\u52A0\u6302\u8F7D\u8BBE\u5907\uFF1F",
+                                success: function (res) {
+                                    if (res.confirm) {
+                                        wx.navigateTo({ url: '/pages/index/manageDev/manageDev' });
+                                    }
+                                }
+                            });
+                        }
+                        else {
+                            wx.showModal({
+                                title: 'bind error',
+                                content: "\u7ED1\u5B9ADTU:" + this.data.mac + " \u5931\u8D25\uFF0Ctip:" + msg,
+                            });
+                        }
+                        return [2];
                 }
             });
         });
     }
 });
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic2Nhbi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbInNjYW4udHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUNBLElBQU0sR0FBRyxHQUFHLE1BQU0sRUFBYyxDQUFBO0FBQ2hDLElBQUksQ0FBQztJQUNILElBQUksRUFBRTtRQUNKLEdBQUcsRUFBQyxFQUFFO1FBQ04sSUFBSSxFQUFDLEVBQUU7UUFDUCxRQUFRLEVBQUMsRUFBRTtLQUNaO0lBRUssT0FBTzs7Ozs7NEJBQ0ksV0FBTSxJQUFJLENBQUMsSUFBSSxFQUFFLEVBQUE7O3dCQUExQixNQUFNLEdBQUcsU0FBaUI7d0JBQ2hDLElBQUksQ0FBQyxPQUFPLENBQUMsRUFBQyxHQUFHLEVBQUMsTUFBTSxFQUFDLENBQUMsQ0FBQTs7Ozs7S0FDM0I7SUFDSyxRQUFROzs7Ozs0QkFDRyxXQUFNLElBQUksQ0FBQyxJQUFJLEVBQUUsRUFBQTs7d0JBQTFCLE1BQU0sR0FBRyxTQUFpQjt3QkFDaEMsSUFBSSxDQUFDLE9BQU8sQ0FBQyxFQUFDLElBQUksRUFBQyxNQUFNLEVBQUMsQ0FBQyxDQUFBOzs7OztLQUM1QjtJQUdLLElBQUk7Ozs7OzRCQUNFLFdBQU0sRUFBRSxDQUFDLFFBQVEsQ0FBQyxFQUFFLENBQUMsRUFBQTs7d0JBQTFCLEVBQUUsR0FBRyxTQUFxQjt3QkFDL0IsV0FBTyxFQUFFLENBQUMsTUFBTSxFQUFDOzs7O0tBQ2xCO0NBQ0YsQ0FBQyxDQUFBIiwic291cmNlc0NvbnRlbnQiOlsiLy8gbWluaXByb2dyYW0vcGFnZXMvYWRtaW4vc2Nhbi9zY2FuLmpzXG5jb25zdCBhcHAgPSBnZXRBcHA8SUFwcE9wdGlvbj4oKVxuUGFnZSh7XG4gIGRhdGE6IHtcbiAgICBtYWM6JycsXG4gICAgaWNjZDonJyxcbiAgICB1c2VySW5mbzp7fVxuICB9LFxuICBcbiAgYXN5bmMgc2Nhbk1hYygpe1xuICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IHRoaXMuc2NhbigpXG4gICAgdGhpcy5zZXREYXRhKHttYWM6cmVzdWx0fSlcbiAgfSxcbiAgYXN5bmMgc2NhbklDQ0QoKXtcbiAgICBjb25zdCByZXN1bHQgPSBhd2FpdCB0aGlzLnNjYW4oKVxuICAgIHRoaXMuc2V0RGF0YSh7aWNjZDpyZXN1bHR9KVxuICB9LFxuXG4gIC8vIOaJq+eggVxuICBhc3luYyBzY2FuKCl7IFxuICAgY29uc3QgZWwgPSBhd2FpdCB3eC5zY2FuQ29kZSh7fSk7XG4gICAgcmV0dXJuIGVsLnJlc3VsdDtcbiAgfVxufSkiXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic2Nhbi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbInNjYW4udHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSwwQ0FBb0M7QUFDcEMsSUFBSSxDQUFDO0lBQ0gsSUFBSSxFQUFFO1FBQ0osR0FBRyxFQUFFLEVBQUU7UUFDUCxRQUFRLEVBQUU7WUFDUixJQUFJLEVBQUUsRUFBRTtZQUNSLFNBQVMsRUFBRSxFQUFFO1lBQ2IsU0FBUyxFQUFFLEVBQXlCO1lBQ3BDLE1BQU0sRUFBQyxFQUFFO1NBQ0U7S0FDZDtJQUVLLE9BQU87Ozs7OzRCQUNRLFdBQU0sRUFBRSxDQUFDLFFBQVEsQ0FBQyxFQUFFLENBQUMsRUFBQTs7d0JBQWxDLFVBQVUsR0FBRyxTQUFxQjt3QkFDeEMsSUFBSSxDQUFDLE9BQU8sQ0FBQzs0QkFDWCxHQUFHLEVBQUUsVUFBVSxDQUFDLE1BQU07eUJBQ3ZCLENBQUMsQ0FBQTt3QkFDRixJQUFJLENBQUMsVUFBVSxFQUFFLENBQUE7Ozs7O0tBQ2xCO0lBRUssVUFBVTs7Ozs7O3dCQUNkLEVBQUUsQ0FBQyxXQUFXLENBQUMsRUFBQyxLQUFLLEVBQUMsS0FBSyxFQUFDLENBQUMsQ0FBQTt3QkFDVCxXQUFNLGFBQUcsQ0FBQyxVQUFVLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxHQUFHLENBQUMsRUFBQTs7d0JBQWpELEtBQWMsU0FBbUMsRUFBL0MsRUFBRSxRQUFBLEVBQUUsR0FBRyxTQUFBO3dCQUNmLEVBQUUsQ0FBQyxXQUFXLEVBQUUsQ0FBQTt3QkFDaEIsSUFBSSxFQUFFLEVBQUU7NEJBQ04sSUFBSSxDQUFDLE9BQU8sQ0FBQztnQ0FDWCxRQUFRLEVBQUUsR0FBRzs2QkFDZCxDQUFDLENBQUE7eUJBQ0g7NkJBQU07NEJBQ0wsRUFBRSxDQUFDLFNBQVMsQ0FBQztnQ0FDWCxLQUFLLEVBQUUsUUFBUTtnQ0FDZixPQUFPLEVBQUUsd0JBQXdCOzZCQUNsQyxDQUFDLENBQUE7eUJBQ0g7Ozs7O0tBQ0Y7SUFFSyxPQUFPOzs7Ozs0QkFDUyxXQUFNLGFBQUcsQ0FBQyxPQUFPLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxHQUFHLENBQUMsRUFBQTs7d0JBQTlDLEtBQWMsU0FBZ0MsRUFBNUMsRUFBRSxRQUFBLEVBQUUsR0FBRyxTQUFBO3dCQUNmLElBQUksRUFBRSxFQUFFOzRCQUNOLEVBQUUsQ0FBQyxTQUFTLENBQUM7Z0NBQ1gsS0FBSyxFQUFFLGNBQWM7Z0NBQ3JCLE9BQU8sRUFBRSxxQkFBUyxJQUFJLENBQUMsSUFBSSxDQUFDLEdBQUcsMEZBQWlCO2dDQUNoRCxPQUFPLFlBQUMsR0FBRztvQ0FDVCxJQUFJLEdBQUcsQ0FBQyxPQUFPLEVBQUU7d0NBQ2YsRUFBRSxDQUFDLFVBQVUsQ0FBQyxFQUFFLEdBQUcsRUFBRSxrQ0FBa0MsRUFBRSxDQUFDLENBQUE7cUNBQzNEO2dDQUNILENBQUM7NkJBQ0YsQ0FBQyxDQUFBO3lCQUNIOzZCQUFNOzRCQUNMLEVBQUUsQ0FBQyxTQUFTLENBQUM7Z0NBQ1gsS0FBSyxFQUFFLFlBQVk7Z0NBQ25CLE9BQU8sRUFBRSxxQkFBUyxJQUFJLENBQUMsSUFBSSxDQUFDLEdBQUcsK0JBQVcsR0FBSzs2QkFDaEQsQ0FBQyxDQUFBO3lCQUNIOzs7OztLQUNGO0NBQ0YsQ0FBQyxDQUFBIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IGFwaSBmcm9tIFwiLi4vLi4vLi4vdXRpbHMvYXBpXCJcblBhZ2Uoe1xuICBkYXRhOiB7XG4gICAgbWFjOiAnJyxcbiAgICB0ZXJtaW5hbDoge1xuICAgICAgbmFtZTogJycsXG4gICAgICBtb3VudE5vZGU6ICcnLFxuICAgICAgbW91bnREZXZzOiBbXSBhcyBUZXJtaW5hbE1vdW50RGV2c1tdLFxuICAgICAgdXB0aW1lOicnXG4gICAgfSBhcyBUZXJtaW5hbFxuICB9LFxuICAvLyDosIPnlKjlvq7kv6FhcGnvvIzmiavmj49EVFXmnaHlvaLnoIFcbiAgYXN5bmMgc2Nhbk1hYygpIHtcbiAgICBjb25zdCBzY2FuUmVzdWx0ID0gYXdhaXQgd3guc2NhbkNvZGUoe30pXG4gICAgdGhpcy5zZXREYXRhKHtcbiAgICAgIG1hYzogc2NhblJlc3VsdC5yZXN1bHRcbiAgICB9KVxuICAgIHRoaXMuc2NhblJlcXVzdCgpXG4gIH0sXG4gIC8vIOafpeivokRUVeiuvuWkh+S/oeaBr1xuICBhc3luYyBzY2FuUmVxdXN0KCkgeyBcbiAgICB3eC5zaG93TG9hZGluZyh7dGl0bGU6J+afpeivouS4rSd9KVxuICAgIGNvbnN0IHsgb2ssIGFyZyB9ID0gYXdhaXQgYXBpLmdldERUVUluZm8odGhpcy5kYXRhLm1hYylcbiAgICB3eC5oaWRlTG9hZGluZygpXG4gICAgaWYgKG9rKSB7XG4gICAgICB0aGlzLnNldERhdGEoe1xuICAgICAgICB0ZXJtaW5hbDogYXJnXG4gICAgICB9KVxuICAgIH0gZWxzZSB7XG4gICAgICB3eC5zaG93TW9kYWwoe1xuICAgICAgICB0aXRsZTogJ3NlYXJjaCcsXG4gICAgICAgIGNvbnRlbnQ6ICfmraTorr7lpIfmsqHmnInms6jlhozvvIzor7fmoLjlr7norr7lpIfmmK/lkKblnKjmiJHlj7jmuKDpgZPotK3kubAnXG4gICAgICB9KVxuICAgIH1cbiAgfSxcbiAgLy8g57uR5a6a6K6+5aSHXG4gIGFzeW5jIGJpbmREZXYoKSB7XG4gICAgY29uc3QgeyBvaywgbXNnIH0gPSBhd2FpdCBhcGkuYmluZERldih0aGlzLmRhdGEubWFjKVxuICAgIGlmIChvaykge1xuICAgICAgd3guc2hvd01vZGFsKHtcbiAgICAgICAgdGl0bGU6ICdiaW5kIHN1Y2Nlc3MnLFxuICAgICAgICBjb250ZW50OiBg57uR5a6aRFRVOiR7dGhpcy5kYXRhLm1hY30g5oiQ5Yqf77yM5piv5ZCm546w5Zyo5re75Yqg5oyC6L296K6+5aSH77yfYCxcbiAgICAgICAgc3VjY2VzcyhyZXMpIHtcbiAgICAgICAgICBpZiAocmVzLmNvbmZpcm0pIHtcbiAgICAgICAgICAgIHd4Lm5hdmlnYXRlVG8oeyB1cmw6ICcvcGFnZXMvaW5kZXgvbWFuYWdlRGV2L21hbmFnZURldicgfSlcbiAgICAgICAgICB9XG4gICAgICAgIH1cbiAgICAgIH0pXG4gICAgfSBlbHNlIHtcbiAgICAgIHd4LnNob3dNb2RhbCh7XG4gICAgICAgIHRpdGxlOiAnYmluZCBlcnJvcicsXG4gICAgICAgIGNvbnRlbnQ6IGDnu5HlrppEVFU6JHt0aGlzLmRhdGEubWFjfSDlpLHotKXvvIx0aXA6JHttc2d9YCxcbiAgICAgIH0pXG4gICAgfVxuICB9XG59KSJdfQ==

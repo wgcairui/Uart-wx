@@ -16,6 +16,22 @@
 
 .getAvanter {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   margin-top: 64px;
+}
+
+.userinfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.userinfo-avatar {
+  width: 168rpx;
+  height: 168rpx;
+  margin: 20rpx;
+  border-radius: 50%;
+  margin-bottom: 40rpx;
 }

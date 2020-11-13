@@ -1,20 +1,34 @@
 <!--miniprogram/pages/admin/scan/scan.wxml-->
-<view class="body">
-	<view class="logo">
-		<!-- <image src="https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png" mode="aspectFit" class="logo"></image> -->
-    <image class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-	</view>
-	<view class="form">
-		<text space>MAC: </text>
-		<input type="tetx" placeholder="输入mac" maxlength="12" focus confirm-type="提交" value="{{mac}}"></input>
-		<view class="iconfont icon-saomiao ml-auto" style="font-size:22px" bindtap="scanMac"></view>
-	</view>
-	<view class="form">
-		<text>ICCID:</text>
-		<input type="tetx" placeholder="输入iccd" maxlength="20" value="{{iccd}}"></input>
-		<view class="iconfont icon-saomiao ml-auto" style="font-size:22px" bindtap="scanICCD"></view>
-	</view>
+<view class="container">
   <view>
-    <button type="primary">提交验证</button>
+    <van-cell-group>
+      <van-field model:value="{{mac}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描DTU的编号"
+        bind:click-icon="scanMac" />
+    </van-cell-group>
+  </view>
+  <view class="center">
+    <van-button round type="info" bind:click="scanRequst" disabled="{{!mac}}" block>查询设备</van-button>
+  </view>
+  <view class="info card" wx:if="{{terminal.name}}">
+    <van-cell-group title="设备信息">
+      <van-cell title="IMEI" value="{{mac}}" />
+      <van-cell title="DTU名称" value="{{terminal.name}}" />
+      <van-cell title="接入节点" value="{{terminal.mountNode}}" />
+      <van-cell title="上线时间" value="{{terminal.uptime}}" />
+      <van-cell title="AT指令支持" value="{{terminal.AT?'是':'否'}}" />
+      <van-cell title="Gps" value="{{terminal.jw}}" />
+      <van-cell title="Port" value="{{terminal.port}}" />
+      <van-cell title="通讯" value="{{terminal.uart}}" />
+      <van-cell wx:if="{{terminal.mountDevs}}" title="挂载设备数目" value="{{terminal.mountDevs.length}}" />
+    </van-cell-group>
+
+  </view>
+  <view wx:if="{{terminal.mountDevs}}"  class="info card">
+    <van-cell-group wx:for="{{terminal.mountDevs}}" wx:key="index" title="{{index}}">
+      <van-cell title="设备类型" value="{{item.Type}}"></van-cell>
+      <van-cell title="设备型号" value="{{item.mountDev}}"></van-cell>
+      <van-cell title="设备地址" value="{{item.pid}}"></van-cell>
+      <van-cell title="设备协议" value="{{item.protocol}}"></van-cell>
+    </van-cell-group>
   </view>
 </view>

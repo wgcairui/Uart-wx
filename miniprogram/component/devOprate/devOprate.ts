@@ -51,7 +51,7 @@ Component({
       if (oprate.value) this.triggerEvent("oprate", { ...oprate })
     },
 
-    //
+    // 
     opratealarm() {
       const itemList = ['显示参数', '参数限值', '参数状态']
       wx.showActionSheet({
@@ -61,7 +61,6 @@ Component({
         },
         fail(err) {
           console.log(err);
-
         }
       })
     },

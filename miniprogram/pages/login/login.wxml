@@ -1,9 +1,16 @@
 <!--miniprogram/pages/login/login.wxml-->
 <view class="container">
-	<view wx:if="{{!userInfo.nickName}}"  class="getAvanter">
-		<van-button open-type="getUserInfo" bindgetuserinfo="getUserInfo" round type="primary"> 获取头像昵称
+	<view wx:if="{{!userInfo.nickName}}" class="userinfo">
+    <block>
+      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{img}}" mode="cover"></image>
+      <van-button open-type="getUserInfo" bindgetuserinfo="getUserInfo" round type="primary"> 获取头像昵称
 		</van-button>
-	</view>
+    </block>
+  </view>
+<!-- 	<view   class="getAvanter">
+	<image src="{{img}}"></image>
+		
+	</view> -->
 	<view wx:else>
 		<view class="avanter">
 			<van-image round width="7rem" height="7rem" src="{{userInfo.avatarUrl}}" />

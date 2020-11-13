@@ -3,7 +3,7 @@
   <view>
     <van-tabs type="card" bind:click="tabclick" animated sticky active="{{active}}">
       <van-tab class="tab" title="显示参数">
-        <van-checkbox-group value="{{usersetup.ShowTag}}" bind:change="ShowTagonChange">
+        <van-checkbox-group value="{{showTag}}" bind:change="ShowTagonChange">
           <van-cell-group title="显示参数(只显示选中的值)">
             <van-cell wx:for="{{ syssetup.ShowTag }}" wx:key="index" title="{{ item }}" value-class="value-class"
               clickable data-index="{{ index }}" bind:click="ShowTagtoggle">

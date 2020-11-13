@@ -28,9 +28,14 @@ Page({
       this.setData({
         devs: data
       })
-    }).catch((e) => {
-      console.log(e);
-      wx.switchTab({ url: '/pages/index/index' })
+    }).catch(() => {
+      wx.showModal({
+        title: '设备错误',
+        content: '缓存被清理或没有绑定设备,请在首页下拉刷新',
+        success() {
+          wx.switchTab({ url: '/pages/index/index' })
+        }
+      })
     })
   },
   async getuserTels() {

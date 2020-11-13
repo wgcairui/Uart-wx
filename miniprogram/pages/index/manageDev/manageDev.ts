@@ -26,7 +26,13 @@ Page({
         devs: data
       })
     }).catch(() => {
-      wx.switchTab({ url: '/pages/index/index' })
+      wx.showModal({
+        title: '设备错误',
+        content: '缓存被清理或没有绑定设备,请在首页下拉刷新',
+        success() {
+          wx.switchTab({ url: '/pages/index/index' })
+        }
+      })
     })
   },
   // 删除DTU挂载设备
@@ -56,19 +62,19 @@ Page({
     const { item: { DevMac, mountDevs } } = event.currentTarget.dataset
     if (mountDevs.length > 0) {
       wx.showModal({
-        title: '操作失败',
+        title: 'Tip',
         content: `是否删除DTU绑定的所有设备?`,
         success: async (res) => {
           if (res.confirm) {
             for (let dev of mountDevs) {
               await this.deleteMountDev({ currentTarget: { dataset: { item: dev, key: DevMac } } } as any)
             }
+          } else {
+            api.delUserTerminal(DevMac).then(() => {
+              wx.startPullDownRefresh()
+            })
           }
         }
-      })
-    } else {
-      api.delUserTerminal(DevMac).then(() => {
-        wx.startPullDownRefresh()
       })
     }
   },

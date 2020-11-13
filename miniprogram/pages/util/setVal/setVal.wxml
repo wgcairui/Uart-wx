@@ -1,0 +1,12 @@
+<!--miniprogram/pages/util/setVal/setVal.wxml-->
+<view class="container">
+  <view class="content">
+    <van-cell-group title="设置发送配置的指令值">
+      <van-field model:value="{{ val }}" center clearable label="值" placeholder="仅支持正负数字" border="{{ false }}"
+        type="number">
+      </van-field>
+    </van-cell-group>
+    <van-button slot="button" block round type="primary" bindtap="sendVal" class="">
+      发送</van-button>
+  </view>
+</view>

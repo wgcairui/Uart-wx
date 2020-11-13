@@ -61,7 +61,7 @@
 .bg-dark-cell>.van-cell:first-child {
   background-color: #343a40 !important;
   color: #fff;
-  border-radius: .75rem .75rem 0 0;
+  border-radius: .5rem .5rem 0 0;
 }
 
 page {

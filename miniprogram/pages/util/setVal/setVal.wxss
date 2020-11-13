@@ -1,0 +1,4 @@
+/* miniprogram/pages/util/setVal/setVal.wxss */
+.van-button{
+  margin-top: 18px;
+}

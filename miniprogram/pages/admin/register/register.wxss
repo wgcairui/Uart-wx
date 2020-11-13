@@ -1,0 +1,8 @@
+/* miniprogram/pages/admin/register/register.wxss */
+.container>view{
+  padding: 8px 0;
+}
+
+.center{
+  margin-top: 6px;
+}

@@ -115,6 +115,7 @@ interface NodeClient {
   IP: string;
   Port: number;
   MaxConnections: number;
+  count: number
 }
 // 用户绑定设备
 interface BindDevice {
@@ -158,6 +159,7 @@ interface queryResultArgument {
   unit: string | null;
   issimulate?: boolean
   alarm?: boolean
+  [x: string]: any
 }
 //
 interface queryResultParse {
@@ -166,8 +168,7 @@ interface queryResultParse {
 //协议查询结果
 interface queryResult extends queryObject {
   contents: IntructQueryResult[]
-  parse?: queryResultParse
-  result?: queryResultArgument[];
+  result: queryResultArgument[];
   time?: string;
   useBytes?: number
 }

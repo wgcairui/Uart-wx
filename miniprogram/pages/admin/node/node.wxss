@@ -1,0 +1,4 @@
+/* miniprogram/pages/admin/node/node.wxss */
+.container{
+  padding: 10px 10px;
+}

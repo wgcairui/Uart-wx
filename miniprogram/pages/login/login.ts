@@ -5,6 +5,7 @@ Page({
    * 页面的初始数据
    */
   data: {
+    img:"https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png",
     userInfo: {} as WechatMiniprogram.UserInfo,
     tel: '',
     registerloading: false,

@@ -1,0 +1,23 @@
+/* miniprogram/pages/admin/index.wxss */
+.userinfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.userinfo-avatar {
+  width: 128rpx;
+  height: 128rpx;
+  margin: 20rpx;
+  border-radius: 50%;
+}
+
+.van-grid {
+  margin-top: 12px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+
+}

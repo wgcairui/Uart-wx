@@ -18,8 +18,10 @@ Page({
     this.scanRequst()
   },
   // 查询DTU设备信息
-  async scanRequst() {
+  async scanRequst() { 
+    wx.showLoading({title:'查询中'})
     const { ok, arg } = await api.getDTUInfo(this.data.mac)
+    wx.hideLoading()
     if (ok) {
       this.setData({
         terminal: arg
@@ -38,9 +40,14 @@ Page({
       wx.showModal({
         title: 'bind success',
         content: `绑定DTU:${this.data.mac} 成功，是否现在添加挂载设备？`,
-        success(res) {
+        success:(res)=> {
           if (res.confirm) {
-            wx.navigateTo({ url: '/pages/index/manageDev/manageDev' })
+            const events = this.getOpenerEventChannel()
+            if(events) {
+              events.emit("addSuccess",{})
+              wx.navigateBack()
+            }
+            else wx.navigateTo({ url: '/pages/index/manageDev/manageDev' })
           }
         }
       })

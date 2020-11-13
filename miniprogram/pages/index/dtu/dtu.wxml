@@ -1,9 +1,13 @@
 <!--miniprogram/pages/index/dtu/dtu.wxml-->
 <view class="container">
   <view class="card">
-    <van-cell title="DTU" value="{{terminal.name}}" />
+    <my-input label="别名" value="{{terminal.name}}" bind:submit="nameChange"></my-input>
     <van-cell title="IMEI" value="{{terminal.DevMac}}" />
     <van-cell title="IP" value="{{terminal.ip}}" />
+    <van-cell title="定位" bindtap="updateGps" class="jw">
+      <text>{{terminal.jw}}</text>
+      <van-icon name="location" />
+    </van-cell>
     <van-cell title="端口" value="{{terminal.port}}" />
     <van-cell title="通讯" value="{{terminal.uart}}" />
     <van-cell title="更新时间" value="{{terminal.uptime}}" />

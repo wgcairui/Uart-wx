@@ -7,6 +7,7 @@ Page({
   /**
    * 页面的初始数据
    */
+
   data: {
     mac: '',
     pid: '',
@@ -14,7 +15,8 @@ Page({
     result: {} as queryResult,
     filter: '',
     interval: 0,
-    protocol: ''
+    protocol: '',
+    _oprateStat: false
   },
 
   /**
@@ -29,8 +31,10 @@ Page({
       mountDev: options.mountDev
     })
   },
-  onReady() {
-    this.GetDevsRunInfo()
+  async onReady() {
+    wx.showLoading({ title: '获取运行数据' })
+    await this.GetDevsRunInfo()
+    wx.hideLoading()
   },
   /**
    * 生命周期函数--监听页面显示
@@ -67,7 +71,8 @@ Page({
     const { ok, arg, msg } = await api.getDevsRunInfo(mac, pid)
     if (ok && arg) {
       const regStr = new RegExp(filter)
-      arg.result = arg.result?.filter(el => !filter || regStr.test(el.name)).map(obj => Object.assign(obj, unitCache.get(obj.value, obj.unit || '')))
+      arg.result = arg.result.filter(el => !filter || regStr.test(el.name)).map(obj => Object.assign(obj, unitCache.get(obj.value, obj.unit || '')))
+      arg.time = new Date(arg.time!).toLocaleString()
       this.setData({
         result: arg
       })
@@ -78,7 +83,7 @@ Page({
         content: msg,
         success: () => {
           clearInterval(this.data.interval)
-          wx.navigateBack()
+          //wx.navigateBack()
         }
       })
     }
@@ -100,17 +105,55 @@ Page({
     })
   },
   // 发送操作指令
-  async oprate(e: vantEvent) {
+  async oprate(e: Pick<vantEvent, 'detail'>) {
+    if (this.data._oprateStat) return
     const item: OprateInstruct = e.detail
-    if (item.value.includes("%i")) {
-      console.log(item.value);
-
+    if (item.value.includes("%i") && !item.val) {
+      wx.navigateTo({
+        url: '/pages/util/setVal/setVal' + ObjectToStrquery({ item }),
+        events: {
+          valueOk: (value: { val: number }) => {
+            item.val = value.val
+            this.oprate({ detail: item })
+          }
+        }
+      })
+      return
     }
-    const { ok, msg } = await api.SendProcotolInstructSet({ mountDev: this.data.mountDev, pid: Number(this.data.pid), protocol: this.data.protocol, DevMac: this.data.mac }, item)
-    wx.showModal({
-      title: ok ? 'Success' : 'Error',
-      content: msg
+    wx.showLoading({ title: '正在发送' })
+    this.setData({
+      _oprateStat: true
     })
+    const { ok, msg } = await api.SendProcotolInstructSet({ mountDev: this.data.mountDev, pid: Number(this.data.pid), protocol: this.data.protocol, DevMac: this.data.mac }, item)
+    this.setData({
+      _oprateStat: false
+    })
+    wx.hideLoading()
+    // 如果设备未通过校验，则跳转到校验短信验证码页面
+    if (ok === 4) {
+      wx.showModal({
+        title: '权限验证',
+        content: '操作指令需要验证您的设备,是否通过短信开始验证？',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: '/pages/util/smsValidation/smsValidation',
+              events: {
+                validationSuccess: () => {
+                  console.log('sms validation success');
+                  this.oprate({ detail: item })
+                }
+              }
+            })
+          }
+        }
+      })
+    } else {
+      wx.showModal({
+        title: ok ? 'Success' : 'Error',
+        content: msg
+      })
+    }
   },
   // 跳转告警设置
   alarm(e: vantEvent) {

@@ -11,7 +11,7 @@ Page({
     min: 0,
     max: 0,
     icon:'star',
-    columns: ['杭州', '宁波', '温州', '嘉兴', '湖州'],
+    columns: [] as string[],
   },
 
   /**
@@ -20,15 +20,13 @@ Page({
   onLoad: function (options) {
     wx.getStorage({
       key: 'protocolSetup' + options.protocol,
-      success: ({ data }: { data: { user: ProtocolConstantThreshold, sys: ProtocolConstantThreshold, protocol: protocol } }) => {
-        const hasKeys = new Set()
-        data.sys.Threshold.forEach(el => hasKeys.add(el.name))
-        data.user.Threshold.forEach(el => hasKeys.add(el.name))
-        const setups = data.protocol.instruct.map(el => el.formResize.filter(el2 => !el2.isState && !hasKeys.has(el2.name)))
+      success: ({ data }: { data: protocol }) => {
+        const setups = data.instruct.map(el => el.formResize.filter(el2 => !el2.isState))
           .reduce((pre, cur) => [...pre, ...cur])
         const cache = new Map(setups.map(el => [el.name, el]))
+        const keysSet = new Set((<string>options.keys).split(","))
         this.setData({
-          columns: Array.from(cache.keys()),
+          columns: Array.from(cache.keys()).filter(el=>!keysSet.has(el)),
           cache
         })
       },

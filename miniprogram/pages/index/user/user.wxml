@@ -2,8 +2,8 @@
 <view class="container">
   <view class="userinfo card">
     <block>
-      <image bindtap="bindViewTap" class="userinfo-avatar" src="{{avanter}}" mode="cover"></image>
-      
+      <image bindtap="updateUserInfo" class="userinfo-avatar" src="{{avanter}}" mode="cover"></image>
+
       <view class="info">
         <text class="userinfo-nickname">{{name}}</text>
         <text style="font-size: 10px;">注册日期：{{rgTime}}</text>
@@ -24,6 +24,7 @@
       <van-grid-item icon="clear" icon-color="#29d" text="清除缓存" url="" bindtap="clearCache" />
       <!-- <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="/pages/index/updatelog/updatelog" /> -->
       <van-grid-item wx:if="{{!rgwx}}" icon="delete" icon-color="#29d" text="解绑微信" url="" bindtap="unbindwx" />
+      <van-grid-item wx:if="{{rgwx}}" icon="delete" icon-color="#29d" text="注销账号" url="" bindtap="cancelwx" />
     </van-grid>
   </view>
 </view>

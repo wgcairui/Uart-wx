@@ -32,6 +32,10 @@ Page({
     })
     wx.setStorage({ key: 'userinfo', data: arg })
   },
+  // 更新用户头像和名称
+  updateUserInfo(){
+
+  },
   // 解绑微信
   async unbindwx() {
     const { ok, msg } = await api.unbindwx()
@@ -45,7 +49,29 @@ Page({
       })
     }
   },
-  //
+  // 注销账号
+  async cancelwx() {
+    wx.showModal({
+      title: '注销操作',
+      content: '是否确定注销此账号？',
+      success: (res) => {
+        if (res.confirm) {
+          api.cancelwx().then(({ ok, msg }) => {
+            if (ok) {
+              this.clearCache()
+              wx.reLaunch({ url: '/pages/index/index' })
+            } else {
+              wx.showModal({
+                title: '操作失败',
+                content: msg
+              })
+            }
+          })
+        }
+      }
+    })
+  },
+  // 打开微信设置
   openSetting() {
     wx.openSetting({
       withSubscriptions: true,
@@ -53,6 +79,7 @@ Page({
       }
     })
   },
+  // 清除缓存
   clearCache() {
     wx.getStorageInfo({
       success(res) {
@@ -62,7 +89,7 @@ Page({
             success() {
               wx.showModal({
                 title: '缓存清理成功',
-                content: '清除缓存' + size + 'MB',
+                content: '清除缓存' + size.toFixed(5) + 'MB',
                 success() {
                   wx.reLaunch({ url: '/pages/index/index' })
                 }
@@ -80,34 +107,6 @@ Page({
         }
       }
     })
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
   },
 
   /**

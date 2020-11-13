@@ -6,11 +6,14 @@
 .terminal {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  text-align: center;
-  padding-top: 10px;
-  border-radius: .75rem .75rem 0 0;
+  /* justify-content: center; */
+  /* text-align: center; */
+  padding: 10px;
+  border-radius: .5rem .5rem 0 0;
   background-image: linear-gradient(to right, #243949 0%, #517fa4 100%);
+}
+.terminal>text{
+  margin-bottom: 8px;
 }
 
 .card {
@@ -18,13 +21,14 @@
 }
 
 .terminal .name {
-  font-size: 22px;
+  font-size: 18px;
   color: aliceblue;
 }
 
 .terminal .mac {
   font-size: 12px;
   color: aliceblue;
+  margin-right: .5rem
 }
 
 @import "./index.skeleton.wxss";

@@ -1,0 +1,12 @@
+<!--miniprogram/pages/util/smsValidation/smsValidation.wxml-->
+<view class="container">
+  <view class="content">
+    <van-cell-group title="是否发送验证码到 {{tel}}">
+      <van-field model:value="{{ sms }}" center clearable label="短信验证码" placeholder="请输入短信验证码" border="{{ false }}"
+        use-button-slot bind:change="checkSms">
+        <van-button slot="button" size="small" type="primary" bindtap="sendValidation" disabled="{{senddisable}}">
+          {{sendtext}}</van-button>
+      </van-field>
+    </van-cell-group>
+  </view>
+</view>
