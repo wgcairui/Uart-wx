@@ -243,7 +243,7 @@ class api {
   }
   private async RequestUart<T>(object: { url: url, data: Object, method?: "GET" | "POST" }) {
     //wx.showLoading({ title: '正在查询' })
-    wx.showNavigationBarLoading()
+    // wx.showNavigationBarLoading()
     const token: string = this.token || await wx.getStorage({ key: 'token' }).then(el => el.data).catch(() => "")
     return await new Promise<ApolloMongoResult<T>>((resolve, reject) => {
       wx.request({
@@ -271,12 +271,12 @@ class api {
         },
         fail: e => {
           wx.showModal({ title: '服务器错误', content: e.errMsg })
-          wx.hideLoading()
+          // wx.hideLoading()
           reject(e)
         },
         complete: () => {
-          wx.hideNavigationBarLoading()
-          wx.hideLoading()
+          // wx.hideNavigationBarLoading()
+          // wx.hideLoading()
         }
       })
     })

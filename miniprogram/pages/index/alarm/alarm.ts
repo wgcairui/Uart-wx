@@ -122,6 +122,10 @@ Page({
       }
     })
   },
+
+  onShow() {
+    wx.startPullDownRefresh()
+  },
   // 下拉刷新
   async onPullDownRefresh() {
     await this.getAlarmInfo()

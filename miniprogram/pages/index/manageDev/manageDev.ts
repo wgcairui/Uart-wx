@@ -76,6 +76,10 @@ Page({
           }
         }
       })
+    } else {
+      api.delUserTerminal(DevMac).then(() => {
+        wx.startPullDownRefresh()
+      })
     }
   },
 

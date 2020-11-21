@@ -4,7 +4,7 @@
     <my-input label="别名" value="{{terminal.name}}" bind:submit="nameChange"></my-input>
     <van-cell title="IMEI" value="{{terminal.DevMac}}" />
     <van-cell title="IP" value="{{terminal.ip}}" />
-    <van-cell title="定位" bindtap="updateGps" class="jw">
+    <van-cell title="定位(仅参考)" bindtap="updateGps" class="jw">
       <text>{{terminal.jw}}</text>
       <van-icon name="location" />
     </van-cell>

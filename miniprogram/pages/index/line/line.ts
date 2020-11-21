@@ -31,11 +31,14 @@ Page({
     const { name, mac, pid, protocol } = options
     console.log(options);
     const token = wx.getStorageSync('token') as string
+    const webSrc = encodeURI(`${urlRequest}/main/line?token=${token}&DevMac=${mac}&pid=${pid}&name=${name}&protocol=${protocol}`)
+    console.log(webSrc);
+
     this.setData({
       mac,
       pid,
       name,
-      webSrc: encodeURI(`${urlRequest}/main/line?token=${token}&DevMac=${mac}&pid=${pid}&name=${name}&protocol=${protocol}`)
+      webSrc
     })
     /* this.getDevsHistoryInfo()
     this.setData({

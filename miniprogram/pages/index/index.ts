@@ -98,6 +98,11 @@ Page({
               }
             })
           }
+        },
+        complete: () => {
+          this.setData({
+            DTUs: []
+          })
         }
       })
     }
@@ -121,6 +126,7 @@ Page({
   },
   // 统计所有设备状态
   countDev(terminals: Terminal[]) {
+    
     const terminal_all = terminals.length
     const terminal_on = terminals.map(el => el.online).filter(el => el).length
     const monutDev_all = terminals.map(el => el.mountDevs.length).reduce((pre, cur) => pre + cur)

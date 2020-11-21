@@ -40,9 +40,9 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-    this.setData({
+    /* this.setData({
       interval: setInterval(() => this.GetDevsRunInfo(), 5000)
-    })
+    }) */
   },
 
   /**
@@ -74,7 +74,10 @@ Page({
       arg.result = arg.result.filter(el => !filter || regStr.test(el.name)).map(obj => Object.assign(obj, unitCache.get(obj.value, obj.unit || '')))
       arg.time = new Date(arg.time!).toLocaleString()
       this.setData({
-        result: arg
+        result: arg,
+        interval: setTimeout(() => {
+          this.GetDevsRunInfo()
+        }, arg.Interval || 5000)
       })
     } else {
       clearInterval(this.data.interval)

@@ -37,7 +37,7 @@ Page({
     const terminal = wx.getStorageSync(id) as Terminal
     const jw = terminal.jw && terminal.jw.length > 10 ? terminal.jw.split(',') : false
     console.log(jw);
-
+    terminal.uptime = new Date(terminal.uptime!).toLocaleString()
     this.setData({
       terminal,
       jwSupport: Boolean(jw),
