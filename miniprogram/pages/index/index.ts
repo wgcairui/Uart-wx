@@ -1,31 +1,47 @@
 // index.ts
-import { ObjectToStrquery } from "../../utils/util";
+import { ObjectToStrquery, parseTime } from "../../utils/util";
 import api from "../../utils/api";
 // 获取应用实例
 Page({
   data: {
-    // DTU设备信息
+    /** DTU设备信息 */
     DTUs: [] as Terminal[],
+    // 设备类型
+    devTypes: [] as string[],
+    // 刷选挂载设备列表
+    dtuItem: [] as TerminalMountDevs[],
+    // 挂载状态信息
     state: '',
+    // 告警状态信息
     alarm: '',
+    // 未确认告警数量
     alarmNum: 0,
+    // 五条内告警数据
+    alarmData: [] as uartAlarmObject[],
+    // 虚拟设备
     Vm: [] as Terminal[]
+  },
+
+  devPics: {
+    "UPS": '/assert/ups.png',
+    "温湿度": '/assert/th.png',
+    "电量仪": '/assert/em.png',
+    "空调": '/assert/air.png'
   },
   onLoad() {
     wx.login({
-      success: res => {
+      success: login => {
         // 发送网络请求，获取在线账户
-        api.login({ js_code: res.code }).then((res) => {
+        api.login({ js_code: login.code }).then((res) => {
           if (res.ok) {
-            console.log(`userGroup:${res.arg.userGroup}`);
+            // console.log(`userGroup:${res.arg.userGroup}`);
+            // 判断user用户组,如果是admin则跳转到专有页面
             switch (res.arg.userGroup) {
               case "user":
                 this.start()
                 break;
               case "admin":
-                {
-                  wx.navigateTo({ url: "/pages/admin/index" })
-                }
+                wx.reLaunch({ url: "/pages/admin/index" })
                 break
               default:
                 wx.showModal({
@@ -39,46 +55,103 @@ Page({
                 })
                 break
             }
-
           }
-          else wx.navigateTo({ url: "/pages/login/login?openid=" + res.arg.openid })
+          else wx.reLaunch({ url: "/pages/login/login?openid=" + res.arg.openid })
         })
       }
     })
   },
+
+  /**
+   * tab点击触发
+   * @param e 
+   */
+  tabChange(e: vantEvent) {
+    const type = e.detail.title as string
+    this.selectTab(type)
+  },
+
+  selectTab(type: string = "全部") {
+    const devs = this.data.DTUs.map(dtu => {
+      return dtu.mountDevs.map(dev => {
+        dev.online = dev.online && dtu.online
+        dev.pic = (this.devPics as any)[dev.Type]
+        dev.dtu = dtu.name
+        return dev
+      })
+    }).flat()
+    switch (type) {
+      /* case "UPS":
+      case "IO":
+      case "电量仪":
+      case "温湿度":
+      case "空调":
+        this.setData({
+          dtuItem: devs.filter(el => el.Type === type)
+        })
+        break; */
+      case "全部":
+        this.setData({
+          dtuItem: devs
+        })
+        break
+      default:
+        this.setData({
+          dtuItem: devs.filter(el => el.dtu === type)
+        })
+        break
+    }
+  },
   // 登录运行
   start() {
+    this.bindDev()
     // 获取未读取的alarm数量
     api.getAlarmunconfirmed().then(el => {
-      if (Number(el.arg) > 0) {
+      const { len, alarm } = el.arg
+      if (Number(len) > 0) {
         this.setData({
-          alarm: `有${el.arg}条未确认的告警信息，点击查看?`,
-          alarmNum: Number(el.arg)
+          alarm: `有${len}条未确认的告警信息，点击查看?`,
+          alarmNum: Number(len),
+          alarmData: alarm.map(el => {
+            el.time = parseTime(el.timeStamp)
+            return el
+          })
+        })
+      } else {
+        this.setData({
+          alarm: ``,
+          alarmNum: Number(len),
+          alarmData: []
         })
       }
     })
-    this.bindDev()
   },
   // 获取用户绑定设备
   async bindDev() {
     wx.showLoading({ title: '获取DTU' })
     const { ok, arg } = await api.getuserMountDev()
     wx.hideLoading()
+    wx.stopPullDownRefresh()
     if (ok && arg?.UTs && arg.UTs.length > 0) {
-      this.setData({
-        DTUs: arg.UTs
-      })
+      const devTypes = new Set<string>()
       arg.UTs.forEach(el => {
+        devTypes.add(el.name)
         wx.setStorage({
           key: el._id,
           data: el
         })
+        // el.mountDevs?.forEach(dev => devTypes.add(dev.Type))
       })
       wx.setStorage({
         key: 'Uts',
         data: arg.UTs
       })
       this.countDev(arg.UTs)
+      this.setData({
+        DTUs: arg.UTs,
+        devTypes: [...devTypes].sort()
+      })
+      this.selectTab()
     } else {
       wx.showModal({
         title: '添加设备',
@@ -108,16 +181,17 @@ Page({
     }
   },
   // 显示用户DTU参数
-  showDTUInfo(event: vantEvent<string>) {
+  /* showDTUInfo(event: vantEvent<string>) {
     wx.navigateTo({ url: `/pages/index/dtu/dtu?id=${event.currentTarget.dataset.item}` })
-  },
+  }, */
   // 查看设备数据
   showMountDevData(event: vantEvent<TerminalMountDevs>) {
-    const { pid, mountDev, protocol } = event.currentTarget.dataset.item
-    const id = event.currentTarget.dataset.id
-    const { DevMac } = wx.getStorageSync(id) as Terminal
+    const { pid, mountDev, protocol, dtu, Type } = event.currentTarget.dataset.item
+    /* const id = event.currentTarget.dataset.id
+    const { DevMac } = wx.getStorageSync(id) as Terminal */
+    const { DevMac } = this.data.DTUs.find(el => el.name === dtu)!
     wx.navigateTo({
-      url: '/pages/index/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac })
+      url: '/pages/index/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac, Type })
     })
   },
   // 查看告警
@@ -126,7 +200,7 @@ Page({
   },
   // 统计所有设备状态
   countDev(terminals: Terminal[]) {
-    
+
     const terminal_all = terminals.length
     const terminal_on = terminals.map(el => el.online).filter(el => el).length
     const monutDev_all = terminals.map(el => el.mountDevs.length).reduce((pre, cur) => pre + cur)
@@ -152,7 +226,7 @@ Page({
     console.log(`公众号加载error,状态:${event.detail.errMsg}`);
   },
   // 添加绑定设备
-  addMonutDev(event: vantEvent<Terminal>) {
+  /* addMonutDev(event: vantEvent<Terminal>) {
     const { item } = event.currentTarget.dataset
     wx.navigateTo({
       url: '/pages/index/manageDev/addMountDev/addMountDev' + ObjectToStrquery({ item: JSON.stringify(item) }),
@@ -166,7 +240,7 @@ Page({
         }
       }
     })
-  },
+  }, */
 
   // 添加虚拟设备
   async addVm() {

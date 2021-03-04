@@ -32,8 +32,31 @@ Page({
     })
     wx.setStorage({ key: 'userinfo', data: arg })
   },
+  // webLogin
+  webLogin() {
+    wx.showModal({
+      title:'Web登录',
+      content:'打开https://uart.ladishb.com',
+      success:(r)=>{
+        if(r.confirm){
+          wx.scanCode({
+            success: async (res) => {
+              api.webLogin(res.result).then(result => {
+                if (result.ok) {
+                  wx.showModal({
+                    title: 'Scan',
+                    content: '扫码登录成功'
+                  })
+                }
+              })
+            }
+          })
+        }
+      }
+    })
+  },
   // 更新用户头像和名称
-  updateUserInfo(){
+  updateUserInfo() {
 
   },
   // 解绑微信

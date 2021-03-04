@@ -84,8 +84,10 @@ interface RegisterTerminal {
 }
 // 终端挂载设备
 interface TerminalMountDevs {
+  dtu: string;
+  pic: any;
   Type: string
-  online?: boolean
+  online: boolean
   mountDev: string;
   protocol: string;
   pid: number;
@@ -94,7 +96,7 @@ interface TerminalMountDevs {
 interface Terminal extends RegisterTerminal {
   _id: string
   DevMac: string
-  online?: boolean
+  online: boolean
   mountNode: string
   name: string;
   ip?: string
@@ -167,6 +169,7 @@ interface queryResultParse {
 }
 //协议查询结果
 interface queryResult extends queryObject {
+  updatedAt: string
   contents: IntructQueryResult[]
   result: queryResultArgument[];
   time?: string;
@@ -242,7 +245,10 @@ interface UserInfo {
 
 // 设备协议参数-常量
 // 空调
+// 空调
 interface DevConstant_Air {
+  Switch: string
+  WorkMode: string
   //热通道温度
   HeatChannelTemperature: string;
   HeatChannelHumidity: string;
@@ -254,29 +260,36 @@ interface DevConstant_Air {
   RefrigerationHumidity: string;
   // 风速
   Speed: string;
-  //制热模式
-  HeatModel: string;
-  ColdModel: string;
-  //除湿
-  Dehumidification: string;
-  // 加湿
-  Humidification: string;
 }
 // EM
-interface DevConstant_EM { }
-interface DevConstant_Ups {
-  UPSModels: string
-  BatteryTemperature: string
-  ResidualCapacity: string
-  BatteryVoltage: string
-  OutputFrequency: string
-  OutputLoad: string
+interface DevConstant_EM {
+  battery: string
+  voltage: string[],
+  current: string[],
+  factor: string[]
 }
+// UPS
+interface DevConstant_Ups {
+  Switch: string
+  WorkMode: string
+  UpsStat: string[]
+  BettyStat: string[]
+  InputStat: string[]
+  OutStat: string[]
+}
+// TH
 interface DevConstant_TH {
   Temperature: string;
   Humidity: string;
 }
-interface DevConstant extends DevConstant_Air, DevConstant_EM, DevConstant_TH, DevConstant_Ups { }
+// IO
+interface DevConstant_IO {
+  di: string[];
+  do: string[];
+}
+interface DevConstant extends DevConstant_Air, DevConstant_EM, DevConstant_TH, DevConstant_Ups {
+  WorkMode: any;
+}
 // 协议参数阀值
 interface Threshold {
   name: string

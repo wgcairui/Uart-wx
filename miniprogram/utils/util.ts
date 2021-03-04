@@ -10,3 +10,14 @@ export const RgexpTel = (tel: string) => {
 export const RgexpMail = (mail: string) => {
   return /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/.test(mail)
 }
+
+export const parseTime = (time?: string | number | Date) => {
+  if (time) {
+    const date = new Date(time)
+    const h = date.getHours()
+    const m = date.getMinutes()
+    const s = date.getSeconds()
+    return `${date.toLocaleDateString()} ${h}:${m}:${s}`
+  }
+  else return ''
+}

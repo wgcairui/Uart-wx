@@ -1,8 +1,28 @@
 <!--miniprogram/pages/index/devs/devs.wxml-->
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
 <view class="container">
-  <my-table result="{{result.result}}" bind:filter="filter" bind:line="toline">
+  <my-table result="{{result}}" bind:filter="filter" bind:line="toline">
     <van-cell value="{{result.time}}"></van-cell>
-    <van-cell title="参数列表">
+    <view wx:if="{{Type==='空调'}}"
+      style="background-color:#000;padding:6px 24px 6px 6px;wxcs_style_padding:12rpx 48rpx 12rpx 12rpx;">
+      <image src="http://www.ladishb.com/upload/342021__ac1.png" style="height: 120px;"></image>
+    </view>
+    <view wx:if="{{Type==='UPS'}}">
+      <image src="{{upsPic}}"></image>
+    </view>
+    <view wx:if="{{Type==='温湿度'}}" class="th-pic">
+      <view>
+        <image src="/assert/temperature.png"></image>
+        <text>{{th.temperature}}℃</text>
+      </view>
+      <view>
+        <image src="/assert/humidity.png"></image>
+        <text>{{th.humidity}}%</text>
+      </view>
+    </view>
+    <van-cell title="运行状态">
       <dev-oprate protocol="{{protocol}}" bind:oprate="oprate" bind:alarm="alarm"></dev-oprate>
     </van-cell>
   </my-table>

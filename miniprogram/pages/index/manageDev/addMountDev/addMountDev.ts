@@ -66,10 +66,14 @@ Page({
     this.setData({
       pid: event.detail.value.text
     })
+    console.log({event,p:this.data.pid});
+    
   },
   // 提交新增
   async addMountDev() {
     const { devModal, devType, devProtocol, pid, terminal } = this.data
+    console.log(this.data);
+    
     if (devProtocol && devType && devProtocol) {
       const { ok } = await api.addTerminalMountDe(terminal.DevMac, devType, devModal, devProtocol, pid as any)
       if (ok) {

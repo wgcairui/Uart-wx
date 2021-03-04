@@ -6,8 +6,9 @@ Page({
       name: '',
       mountNode: '',
       mountDevs: [] as TerminalMountDevs[],
-      uptime:''
-    } as Terminal
+      uptime: ''
+    } as Terminal,
+    remoteUrl: ''
   },
   // 调用微信api，扫描DTU条形码
   async scanMac() {
@@ -18,8 +19,8 @@ Page({
     this.scanRequst()
   },
   // 查询DTU设备信息
-  async scanRequst() { 
-    wx.showLoading({title:'查询中'})
+  async scanRequst() {
+    wx.showLoading({ title: '查询中' })
     const { ok, arg } = await api.getDTUInfo(this.data.mac)
     wx.hideLoading()
     if (ok) {
@@ -50,6 +51,31 @@ Page({
       wx.showModal({
         title: 'bind error',
         content: `绑定DTU:${this.data.mac} 失败，tip:${msg}`,
+      })
+    }
+  },
+  //远程调试设备
+  async iotRemoteUrl() {
+    const url = await api.iotRemoteUrl(this.data.mac) as any as string
+    if (!url) {
+      wx.showModal({
+        title: '获取失败',
+        content: '设备未连接到iot server中心'
+      })
+    } else {
+      wx.showModal({
+        title: '调试地址',
+        content: url,
+        success() {
+          wx.setClipboardData({
+            data: url,
+            success() {
+              wx.showToast({
+                title: '已复制网址到剪切板'
+              })
+            }
+          })
+        }
       })
     }
   }

@@ -4,8 +4,12 @@
   </van-search>
   <van-cell-group>
     <slot></slot>
-    <van-cell icon="{{item.alarm?'fail':''}}" title-style="{{item.alarm?'color:red':'color:green'}}"
-      is-link="{{item.unit}}" bind:click="onLine" wx:for="{{result}}" title="{{item.name}}" id="{{item.name}}"
-      value="{{(item.step || '')+' '+item.value+item.unit}}" wx:key="name" data-item="{{item}}" />
+    <van-cell icon="fail" title-style="color:red" is-link="{{item.unit}}" bind:click="onLine" wx:for="{{dangerData}}"
+      title="{{item.alias}}" id="{{item.name}}" value="{{(item.step || '')+' '+item.value+item.unit}}" wx:key="name"
+      data-item="{{item}}" />
+
+    <van-cell title-style="color:green" is-link="{{item.unit}}" bind:click="onLine" wx:for="{{successData}}"
+      title="{{item.alias}}" id="{{item.name}}" value="{{(item.step || '')+' '+item.value+item.unit}}" wx:key="name"
+      data-item="{{item}}" />
   </van-cell-group>
 </view>

@@ -12,7 +12,7 @@
 
   <view>
     <van-cell-group title="设备列表">
-      <van-cell wx:for="{{dtus}}" wx:key="index" title="{{item}}">
+      <van-cell wx:for="{{dtus}}" wx:key="key" title="{{item}}">
         <van-button round type="info" size="small" bindtap="rmDtu" data-key="{{item}}">删除设备</van-button>
       </van-cell>
     </van-cell-group>
@@ -20,7 +20,7 @@
   <view>
     <van-radio-group value="{{ radio }}" bind:change="changeNode">
       <van-cell-group title="节点名称/最大挂载数/已挂载数:{{radio}}">
-        <van-cell wx:for="{{nodes}}" title="{{item.Name}}/{{item.MaxConnections}}/{{item.count}}" clickable
+        <van-cell wx:for="{{nodes}}" wx:key="key" title="{{item.Name}}/{{item.MaxConnections}}/{{item.count}}" clickable
           data-item="{{item}}" bind:click="selectNode">
           <van-radio slot="right-icon" name="{{item.Name}}" disabled="{{item.MaxConnections <=item.count}}" />
         </van-cell>

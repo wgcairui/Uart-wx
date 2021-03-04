@@ -1,42 +1,6 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var api_1 = require("../../../utils/api");
+const api_1 = require("../../../utils/api");
 Page({
     data: {
         mac: '',
@@ -46,86 +10,54 @@ Page({
             mountDevs: []
         }
     },
-    scanMac: function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var scanResult;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4, wx.scanCode({})];
-                    case 1:
-                        scanResult = _a.sent();
-                        this.setData({
-                            mac: scanResult.result
-                        });
-                        this.scanRequst();
-                        return [2];
-                }
-            });
+    async scanMac() {
+        const scanResult = await wx.scanCode({});
+        this.setData({
+            mac: scanResult.result
         });
+        this.scanRequst();
     },
-    scanRequst: function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, ok, arg;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        wx.showLoading({ title: '查询中' });
-                        return [4, api_1.default.getDTUInfo(this.data.mac)];
-                    case 1:
-                        _a = _b.sent(), ok = _a.ok, arg = _a.arg;
-                        wx.hideLoading();
-                        if (ok) {
-                            this.setData({
-                                terminal: arg
-                            });
-                        }
-                        else {
-                            wx.showModal({
-                                title: 'search',
-                                content: '此设备没有注册，请核对设备是否在我司渠道购买'
-                            });
-                        }
-                        return [2];
-                }
+    async scanRequst() {
+        wx.showLoading({ title: '查询中' });
+        const { ok, arg } = await api_1.default.getDTUInfo(this.data.mac);
+        wx.hideLoading();
+        if (ok) {
+            this.setData({
+                terminal: arg
             });
-        });
+        }
+        else {
+            wx.showModal({
+                title: 'search',
+                content: '此设备没有注册，请核对设备是否在我司渠道购买'
+            });
+        }
     },
-    bindDev: function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, ok, msg;
-            var _this = this;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0: return [4, api_1.default.bindDev(this.data.mac)];
-                    case 1:
-                        _a = _b.sent(), ok = _a.ok, msg = _a.msg;
-                        if (ok) {
-                            wx.showModal({
-                                title: 'bind success',
-                                content: "\u7ED1\u5B9ADTU:" + this.data.mac + " \u6210\u529F\uFF0C\u662F\u5426\u73B0\u5728\u6DFB\u52A0\u6302\u8F7D\u8BBE\u5907\uFF1F",
-                                success: function (res) {
-                                    if (res.confirm) {
-                                        var events = _this.getOpenerEventChannel();
-                                        if (events) {
-                                            events.emit("addSuccess", {});
-                                            wx.navigateBack();
-                                        }
-                                        else
-                                            wx.navigateTo({ url: '/pages/index/manageDev/manageDev' });
-                                    }
-                                }
-                            });
+    async bindDev() {
+        const { ok, msg } = await api_1.default.bindDev(this.data.mac);
+        if (ok) {
+            wx.showModal({
+                title: 'bind success',
+                content: `绑定DTU:${this.data.mac} 成功，是否现在添加挂载设备？`,
+                success: (res) => {
+                    if (res.confirm) {
+                        const events = this.getOpenerEventChannel();
+                        if (events) {
+                            events.emit("addSuccess", {});
+                            wx.navigateBack();
                         }
-                        else {
-                            wx.showModal({
-                                title: 'bind error',
-                                content: "\u7ED1\u5B9ADTU:" + this.data.mac + " \u5931\u8D25\uFF0Ctip:" + msg,
-                            });
-                        }
-                        return [2];
+                        else
+                            wx.navigateTo({ url: '/pages/index/manageDev/manageDev' });
+                    }
                 }
             });
-        });
+        }
+        else {
+            wx.showModal({
+                title: 'bind error',
+                content: `绑定DTU:${this.data.mac} 失败，tip:${msg}`,
+            });
+        }
     }
 });
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYmluZERldi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImJpbmREZXYudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFBQSwwQ0FBb0M7QUFFcEMsSUFBSSxDQUFDO0lBQ0gsSUFBSSxFQUFFO1FBQ0osR0FBRyxFQUFFLEVBQUU7UUFDUCxRQUFRLEVBQUU7WUFDUixJQUFJLEVBQUUsRUFBRTtZQUNSLFNBQVMsRUFBRSxFQUFFO1lBQ2IsU0FBUyxFQUFFLEVBQXlCO1NBQ3pCO0tBQ2Q7SUFFSyxPQUFPOzs7Ozs0QkFDUSxXQUFNLEVBQUUsQ0FBQyxRQUFRLENBQUMsRUFBRSxDQUFDLEVBQUE7O3dCQUFsQyxVQUFVLEdBQUcsU0FBcUI7d0JBQ3hDLElBQUksQ0FBQyxPQUFPLENBQUM7NEJBQ1gsR0FBRyxFQUFFLFVBQVUsQ0FBQyxNQUFNO3lCQUN2QixDQUFDLENBQUE7d0JBQ0YsSUFBSSxDQUFDLFVBQVUsRUFBRSxDQUFBOzs7OztLQUNsQjtJQUVLLFVBQVU7Ozs7Ozt3QkFDZCxFQUFFLENBQUMsV0FBVyxDQUFDLEVBQUMsS0FBSyxFQUFDLEtBQUssRUFBQyxDQUFDLENBQUE7d0JBQ1QsV0FBTSxhQUFHLENBQUMsVUFBVSxDQUFDLElBQUksQ0FBQyxJQUFJLENBQUMsR0FBRyxDQUFDLEVBQUE7O3dCQUFqRCxLQUFjLFNBQW1DLEVBQS9DLEVBQUUsUUFBQSxFQUFFLEdBQUcsU0FBQTt3QkFDZixFQUFFLENBQUMsV0FBVyxFQUFFLENBQUE7d0JBQ2hCLElBQUksRUFBRSxFQUFFOzRCQUNOLElBQUksQ0FBQyxPQUFPLENBQUM7Z0NBQ1gsUUFBUSxFQUFFLEdBQUc7NkJBQ2QsQ0FBQyxDQUFBO3lCQUNIOzZCQUFNOzRCQUNMLEVBQUUsQ0FBQyxTQUFTLENBQUM7Z0NBQ1gsS0FBSyxFQUFFLFFBQVE7Z0NBQ2YsT0FBTyxFQUFFLHdCQUF3Qjs2QkFDbEMsQ0FBQyxDQUFBO3lCQUNIOzs7OztLQUNGO0lBRUssT0FBTzs7Ozs7OzRCQUNTLFdBQU0sYUFBRyxDQUFDLE9BQU8sQ0FBQyxJQUFJLENBQUMsSUFBSSxDQUFDLEdBQUcsQ0FBQyxFQUFBOzt3QkFBOUMsS0FBYyxTQUFnQyxFQUE1QyxFQUFFLFFBQUEsRUFBRSxHQUFHLFNBQUE7d0JBQ2YsSUFBSSxFQUFFLEVBQUU7NEJBQ04sRUFBRSxDQUFDLFNBQVMsQ0FBQztnQ0FDWCxLQUFLLEVBQUUsY0FBYztnQ0FDckIsT0FBTyxFQUFFLHFCQUFTLElBQUksQ0FBQyxJQUFJLENBQUMsR0FBRywwRkFBaUI7Z0NBQ2hELE9BQU8sRUFBQyxVQUFDLEdBQUc7b0NBQ1YsSUFBSSxHQUFHLENBQUMsT0FBTyxFQUFFO3dDQUNmLElBQU0sTUFBTSxHQUFHLEtBQUksQ0FBQyxxQkFBcUIsRUFBRSxDQUFBO3dDQUMzQyxJQUFHLE1BQU0sRUFBRTs0Q0FDVCxNQUFNLENBQUMsSUFBSSxDQUFDLFlBQVksRUFBQyxFQUFFLENBQUMsQ0FBQTs0Q0FDNUIsRUFBRSxDQUFDLFlBQVksRUFBRSxDQUFBO3lDQUNsQjs7NENBQ0ksRUFBRSxDQUFDLFVBQVUsQ0FBQyxFQUFFLEdBQUcsRUFBRSxrQ0FBa0MsRUFBRSxDQUFDLENBQUE7cUNBQ2hFO2dDQUNILENBQUM7NkJBQ0YsQ0FBQyxDQUFBO3lCQUNIOzZCQUFNOzRCQUNMLEVBQUUsQ0FBQyxTQUFTLENBQUM7Z0NBQ1gsS0FBSyxFQUFFLFlBQVk7Z0NBQ25CLE9BQU8sRUFBRSxxQkFBUyxJQUFJLENBQUMsSUFBSSxDQUFDLEdBQUcsK0JBQVcsR0FBSzs2QkFDaEQsQ0FBQyxDQUFBO3lCQUNIOzs7OztLQUNGO0NBQ0YsQ0FBQyxDQUFBIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IGFwaSBmcm9tIFwiLi4vLi4vLi4vdXRpbHMvYXBpXCJcblxuUGFnZSh7XG4gIGRhdGE6IHtcbiAgICBtYWM6ICcnLFxuICAgIHRlcm1pbmFsOiB7XG4gICAgICBuYW1lOiAnJyxcbiAgICAgIG1vdW50Tm9kZTogJycsXG4gICAgICBtb3VudERldnM6IFtdIGFzIFRlcm1pbmFsTW91bnREZXZzW11cbiAgICB9IGFzIFRlcm1pbmFsXG4gIH0sXG4gIC8vIOiwg+eUqOW+ruS/oWFwae+8jOaJq+aPj0RUVeadoeW9oueggVxuICBhc3luYyBzY2FuTWFjKCkge1xuICAgIGNvbnN0IHNjYW5SZXN1bHQgPSBhd2FpdCB3eC5zY2FuQ29kZSh7fSlcbiAgICB0aGlzLnNldERhdGEoe1xuICAgICAgbWFjOiBzY2FuUmVzdWx0LnJlc3VsdFxuICAgIH0pXG4gICAgdGhpcy5zY2FuUmVxdXN0KClcbiAgfSxcbiAgLy8g5p+l6K+iRFRV6K6+5aSH5L+h5oGvXG4gIGFzeW5jIHNjYW5SZXF1c3QoKSB7IFxuICAgIHd4LnNob3dMb2FkaW5nKHt0aXRsZTon5p+l6K+i5LitJ30pXG4gICAgY29uc3QgeyBvaywgYXJnIH0gPSBhd2FpdCBhcGkuZ2V0RFRVSW5mbyh0aGlzLmRhdGEubWFjKVxuICAgIHd4LmhpZGVMb2FkaW5nKClcbiAgICBpZiAob2spIHtcbiAgICAgIHRoaXMuc2V0RGF0YSh7XG4gICAgICAgIHRlcm1pbmFsOiBhcmdcbiAgICAgIH0pXG4gICAgfSBlbHNlIHtcbiAgICAgIHd4LnNob3dNb2RhbCh7XG4gICAgICAgIHRpdGxlOiAnc2VhcmNoJyxcbiAgICAgICAgY29udGVudDogJ+atpOiuvuWkh+ayoeacieazqOWGjO+8jOivt+aguOWvueiuvuWkh+aYr+WQpuWcqOaIkeWPuOa4oOmBk+i0reS5sCdcbiAgICAgIH0pXG4gICAgfVxuICB9LFxuICAvLyDnu5Hlrprorr7lpIdcbiAgYXN5bmMgYmluZERldigpIHtcbiAgICBjb25zdCB7IG9rLCBtc2cgfSA9IGF3YWl0IGFwaS5iaW5kRGV2KHRoaXMuZGF0YS5tYWMpXG4gICAgaWYgKG9rKSB7XG4gICAgICB3eC5zaG93TW9kYWwoe1xuICAgICAgICB0aXRsZTogJ2JpbmQgc3VjY2VzcycsXG4gICAgICAgIGNvbnRlbnQ6IGDnu5HlrppEVFU6JHt0aGlzLmRhdGEubWFjfSDmiJDlip/vvIzmmK/lkKbnjrDlnKjmt7vliqDmjILovb3orr7lpIfvvJ9gLFxuICAgICAgICBzdWNjZXNzOihyZXMpPT4ge1xuICAgICAgICAgIGlmIChyZXMuY29uZmlybSkge1xuICAgICAgICAgICAgY29uc3QgZXZlbnRzID0gdGhpcy5nZXRPcGVuZXJFdmVudENoYW5uZWwoKVxuICAgICAgICAgICAgaWYoZXZlbnRzKSB7XG4gICAgICAgICAgICAgIGV2ZW50cy5lbWl0KFwiYWRkU3VjY2Vzc1wiLHt9KVxuICAgICAgICAgICAgICB3eC5uYXZpZ2F0ZUJhY2soKVxuICAgICAgICAgICAgfVxuICAgICAgICAgICAgZWxzZSB3eC5uYXZpZ2F0ZVRvKHsgdXJsOiAnL3BhZ2VzL2luZGV4L21hbmFnZURldi9tYW5hZ2VEZXYnIH0pXG4gICAgICAgICAgfVxuICAgICAgICB9XG4gICAgICB9KVxuICAgIH0gZWxzZSB7XG4gICAgICB3eC5zaG93TW9kYWwoe1xuICAgICAgICB0aXRsZTogJ2JpbmQgZXJyb3InLFxuICAgICAgICBjb250ZW50OiBg57uR5a6aRFRVOiR7dGhpcy5kYXRhLm1hY30g5aSx6LSl77yMdGlwOiR7bXNnfWAsXG4gICAgICB9KVxuICAgIH1cbiAgfVxufSkiXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYmluZERldi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbImJpbmREZXYudHMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6Ijs7QUFBQSw0Q0FBb0M7QUFFcEMsSUFBSSxDQUFDO0lBQ0gsSUFBSSxFQUFFO1FBQ0osR0FBRyxFQUFFLEVBQUU7UUFDUCxRQUFRLEVBQUU7WUFDUixJQUFJLEVBQUUsRUFBRTtZQUNSLFNBQVMsRUFBRSxFQUFFO1lBQ2IsU0FBUyxFQUFFLEVBQXlCO1NBQ3pCO0tBQ2Q7SUFFRCxLQUFLLENBQUMsT0FBTztRQUNYLE1BQU0sVUFBVSxHQUFHLE1BQU0sRUFBRSxDQUFDLFFBQVEsQ0FBQyxFQUFFLENBQUMsQ0FBQTtRQUN4QyxJQUFJLENBQUMsT0FBTyxDQUFDO1lBQ1gsR0FBRyxFQUFFLFVBQVUsQ0FBQyxNQUFNO1NBQ3ZCLENBQUMsQ0FBQTtRQUNGLElBQUksQ0FBQyxVQUFVLEVBQUUsQ0FBQTtJQUNuQixDQUFDO0lBRUQsS0FBSyxDQUFDLFVBQVU7UUFDZCxFQUFFLENBQUMsV0FBVyxDQUFDLEVBQUMsS0FBSyxFQUFDLEtBQUssRUFBQyxDQUFDLENBQUE7UUFDN0IsTUFBTSxFQUFFLEVBQUUsRUFBRSxHQUFHLEVBQUUsR0FBRyxNQUFNLGFBQUcsQ0FBQyxVQUFVLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxHQUFHLENBQUMsQ0FBQTtRQUN2RCxFQUFFLENBQUMsV0FBVyxFQUFFLENBQUE7UUFDaEIsSUFBSSxFQUFFLEVBQUU7WUFDTixJQUFJLENBQUMsT0FBTyxDQUFDO2dCQUNYLFFBQVEsRUFBRSxHQUFHO2FBQ2QsQ0FBQyxDQUFBO1NBQ0g7YUFBTTtZQUNMLEVBQUUsQ0FBQyxTQUFTLENBQUM7Z0JBQ1gsS0FBSyxFQUFFLFFBQVE7Z0JBQ2YsT0FBTyxFQUFFLHdCQUF3QjthQUNsQyxDQUFDLENBQUE7U0FDSDtJQUNILENBQUM7SUFFRCxLQUFLLENBQUMsT0FBTztRQUNYLE1BQU0sRUFBRSxFQUFFLEVBQUUsR0FBRyxFQUFFLEdBQUcsTUFBTSxhQUFHLENBQUMsT0FBTyxDQUFDLElBQUksQ0FBQyxJQUFJLENBQUMsR0FBRyxDQUFDLENBQUE7UUFDcEQsSUFBSSxFQUFFLEVBQUU7WUFDTixFQUFFLENBQUMsU0FBUyxDQUFDO2dCQUNYLEtBQUssRUFBRSxjQUFjO2dCQUNyQixPQUFPLEVBQUUsU0FBUyxJQUFJLENBQUMsSUFBSSxDQUFDLEdBQUcsaUJBQWlCO2dCQUNoRCxPQUFPLEVBQUMsQ0FBQyxHQUFHLEVBQUMsRUFBRTtvQkFDYixJQUFJLEdBQUcsQ0FBQyxPQUFPLEVBQUU7d0JBQ2YsTUFBTSxNQUFNLEdBQUcsSUFBSSxDQUFDLHFCQUFxQixFQUFFLENBQUE7d0JBQzNDLElBQUcsTUFBTSxFQUFFOzRCQUNULE1BQU0sQ0FBQyxJQUFJLENBQUMsWUFBWSxFQUFDLEVBQUUsQ0FBQyxDQUFBOzRCQUM1QixFQUFFLENBQUMsWUFBWSxFQUFFLENBQUE7eUJBQ2xCOzs0QkFDSSxFQUFFLENBQUMsVUFBVSxDQUFDLEVBQUUsR0FBRyxFQUFFLGtDQUFrQyxFQUFFLENBQUMsQ0FBQTtxQkFDaEU7Z0JBQ0gsQ0FBQzthQUNGLENBQUMsQ0FBQTtTQUNIO2FBQU07WUFDTCxFQUFFLENBQUMsU0FBUyxDQUFDO2dCQUNYLEtBQUssRUFBRSxZQUFZO2dCQUNuQixPQUFPLEVBQUUsU0FBUyxJQUFJLENBQUMsSUFBSSxDQUFDLEdBQUcsV0FBVyxHQUFHLEVBQUU7YUFDaEQsQ0FBQyxDQUFBO1NBQ0g7SUFDSCxDQUFDO0NBQ0YsQ0FBQyxDQUFBIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IGFwaSBmcm9tIFwiLi4vLi4vLi4vdXRpbHMvYXBpXCJcblxuUGFnZSh7XG4gIGRhdGE6IHtcbiAgICBtYWM6ICcnLFxuICAgIHRlcm1pbmFsOiB7XG4gICAgICBuYW1lOiAnJyxcbiAgICAgIG1vdW50Tm9kZTogJycsXG4gICAgICBtb3VudERldnM6IFtdIGFzIFRlcm1pbmFsTW91bnREZXZzW11cbiAgICB9IGFzIFRlcm1pbmFsXG4gIH0sXG4gIC8vIOiwg+eUqOW+ruS/oWFwae+8jOaJq+aPj0RUVeadoeW9oueggVxuICBhc3luYyBzY2FuTWFjKCkge1xuICAgIGNvbnN0IHNjYW5SZXN1bHQgPSBhd2FpdCB3eC5zY2FuQ29kZSh7fSlcbiAgICB0aGlzLnNldERhdGEoe1xuICAgICAgbWFjOiBzY2FuUmVzdWx0LnJlc3VsdFxuICAgIH0pXG4gICAgdGhpcy5zY2FuUmVxdXN0KClcbiAgfSxcbiAgLy8g5p+l6K+iRFRV6K6+5aSH5L+h5oGvXG4gIGFzeW5jIHNjYW5SZXF1c3QoKSB7IFxuICAgIHd4LnNob3dMb2FkaW5nKHt0aXRsZTon5p+l6K+i5LitJ30pXG4gICAgY29uc3QgeyBvaywgYXJnIH0gPSBhd2FpdCBhcGkuZ2V0RFRVSW5mbyh0aGlzLmRhdGEubWFjKVxuICAgIHd4LmhpZGVMb2FkaW5nKClcbiAgICBpZiAob2spIHtcbiAgICAgIHRoaXMuc2V0RGF0YSh7XG4gICAgICAgIHRlcm1pbmFsOiBhcmdcbiAgICAgIH0pXG4gICAgfSBlbHNlIHtcbiAgICAgIHd4LnNob3dNb2RhbCh7XG4gICAgICAgIHRpdGxlOiAnc2VhcmNoJyxcbiAgICAgICAgY29udGVudDogJ+atpOiuvuWkh+ayoeacieazqOWGjO+8jOivt+aguOWvueiuvuWkh+aYr+WQpuWcqOaIkeWPuOa4oOmBk+i0reS5sCdcbiAgICAgIH0pXG4gICAgfVxuICB9LFxuICAvLyDnu5Hlrprorr7lpIdcbiAgYXN5bmMgYmluZERldigpIHtcbiAgICBjb25zdCB7IG9rLCBtc2cgfSA9IGF3YWl0IGFwaS5iaW5kRGV2KHRoaXMuZGF0YS5tYWMpXG4gICAgaWYgKG9rKSB7XG4gICAgICB3eC5zaG93TW9kYWwoe1xuICAgICAgICB0aXRsZTogJ2JpbmQgc3VjY2VzcycsXG4gICAgICAgIGNvbnRlbnQ6IGDnu5HlrppEVFU6JHt0aGlzLmRhdGEubWFjfSDmiJDlip/vvIzmmK/lkKbnjrDlnKjmt7vliqDmjILovb3orr7lpIfvvJ9gLFxuICAgICAgICBzdWNjZXNzOihyZXMpPT4ge1xuICAgICAgICAgIGlmIChyZXMuY29uZmlybSkge1xuICAgICAgICAgICAgY29uc3QgZXZlbnRzID0gdGhpcy5nZXRPcGVuZXJFdmVudENoYW5uZWwoKVxuICAgICAgICAgICAgaWYoZXZlbnRzKSB7XG4gICAgICAgICAgICAgIGV2ZW50cy5lbWl0KFwiYWRkU3VjY2Vzc1wiLHt9KVxuICAgICAgICAgICAgICB3eC5uYXZpZ2F0ZUJhY2soKVxuICAgICAgICAgICAgfVxuICAgICAgICAgICAgZWxzZSB3eC5uYXZpZ2F0ZVRvKHsgdXJsOiAnL3BhZ2VzL2luZGV4L21hbmFnZURldi9tYW5hZ2VEZXYnIH0pXG4gICAgICAgICAgfVxuICAgICAgICB9XG4gICAgICB9KVxuICAgIH0gZWxzZSB7XG4gICAgICB3eC5zaG93TW9kYWwoe1xuICAgICAgICB0aXRsZTogJ2JpbmQgZXJyb3InLFxuICAgICAgICBjb250ZW50OiBg57uR5a6aRFRVOiR7dGhpcy5kYXRhLm1hY30g5aSx6LSl77yMdGlwOiR7bXNnfWAsXG4gICAgICB9KVxuICAgIH1cbiAgfVxufSkiXX0=

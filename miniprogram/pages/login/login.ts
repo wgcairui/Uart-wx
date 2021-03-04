@@ -14,7 +14,7 @@ Page({
     accontUser: '',
     accontPasswd: ''
   },
-  onLoad(opt) {
+  onLoad(opt: { openid: string; }) {
     this.setData({
       openid: opt.openid
     })
@@ -24,10 +24,18 @@ Page({
    * 生命周期函数--监听页面加载
    */
   // 获取用户信息
-  getUserInfo(e: vantEvent) {
-    this.setData({
-      userInfo: e.detail.userInfo
+  getUserInfo(_e: vantEvent) {
+    (wx as any).getUserProfile({
+      desc:'用于注册小程序',
+      success:(info:{userInfo:WechatMiniprogram.UserInfo})=>{
+        this.setData({
+          userInfo: info.userInfo
+        })
+      }
     })
+    /* this.setData({
+      userInfo: e.detail.userInfo
+    }) */
   },
   tabclick(event: vantEvent) {
     wx.setNavigationBarTitle({ title: event.detail.title })

@@ -1,30 +1,38 @@
 <!--miniprogram/pages/index/user/user.wxml-->
-<view class="container">
-  <view class="userinfo card">
-    <block>
-      <image bindtap="updateUserInfo" class="userinfo-avatar" src="{{avanter}}" mode="cover"></image>
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
+<view>
+  <view class="userinfo">
+    <image bindtap="updateUserInfo" class="userinfo-avatar" src="{{avanter}}" mode="cover"></image>
 
-      <view class="info">
-        <text class="userinfo-nickname">{{name}}</text>
-        <text style="font-size: 10px;">注册日期：{{rgTime}}</text>
-      </view>
-    </block>
+    <view class="info">
+      <text class="userinfo-nickname">{{name}}</text>
+      <text style="font-size: 10px;">注册日期：{{rgTime}}</text>
+    </view>
+
+    <view class="ml-auto">
+      <van-button icon="scan" round size="small" type="info" bindtap="webLogin">Web登录</van-button>
+    </view>
   </view>
   <view>
 
   </view>
-  <view class="grid">
-    <van-cell title="常用操作"></van-cell>
-    <van-grid clickable gutter="{{6}}">
-      <van-grid-item icon="friends" icon-color="#29d" text="用户信息" url="/pages/index/userinfo/userinfo" />
-      <van-grid-item icon="cluster" icon-color="#29d" text="管理DTU" url="/pages/index/manageDev/manageDev" />
-      <van-grid-item icon="scan" icon-color="#29d" text="查询DTU" url="/pages/index/bindDev/bindDev" />
-      <van-grid-item icon="browsing-history" icon-color="#29d" text="告警设置" url="/pages/index/alarmSetting/index" />
-      <van-grid-item icon="setting" icon-color="#29d" text="微信权限" url="" bindtap="openSetting" />
-      <van-grid-item icon="clear" icon-color="#29d" text="清除缓存" url="" bindtap="clearCache" />
-      <!-- <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="/pages/index/updatelog/updatelog" /> -->
-      <van-grid-item wx:if="{{!rgwx}}" icon="delete" icon-color="#29d" text="解绑微信" url="" bindtap="unbindwx" />
-      <van-grid-item wx:if="{{rgwx}}" icon="delete" icon-color="#29d" text="注销账号" url="" bindtap="cancelwx" />
-    </van-grid>
+  <view class="grid content">
+    <view class="card">
+      <text>常用操作</text>
+      <van-grid clickable>
+        <van-grid-item icon="friends-o" icon-color="#000" text="用户信息" url="/pages/index/userinfo/userinfo" />
+        <van-grid-item icon="cluster-o" icon-color="#000" text="管理DTU" url="/pages/index/manageDev/manageDev" />
+        <van-grid-item icon="scan" icon-color="#000" text="查询DTU" url="/pages/index/bindDev/bindDev" />
+        <van-grid-item icon="browsing-history-o" icon-color="#000" text="告警设置" url="/pages/index/alarmSetting/index" />
+        <van-grid-item icon="setting-o" icon-color="#000" text="微信权限" url="" bindtap="openSetting" />
+        <van-grid-item icon="warn-o" icon-color="#000" text="清除缓存" url="" bindtap="clearCache" />
+        <!-- <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="/pages/index/updatelog/updatelog" /> -->
+        <van-grid-item wx:if="{{!rgwx}}" icon="delete" icon-color="#000" text="解绑微信" url="" bindtap="unbindwx" />
+        <van-grid-item wx:if="{{rgwx}}" icon="delete" icon-color="#000" text="注销账号" url="" bindtap="cancelwx" />
+      </van-grid>
+    </view>
+
   </view>
 </view>

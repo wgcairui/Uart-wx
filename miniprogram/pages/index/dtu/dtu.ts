@@ -1,3 +1,4 @@
+import { parseTime } from "../../../utils/util"
 import api from "../../../utils/api"
 
 // miniprogram/pages/index/dtu/dtu.js
@@ -21,7 +22,7 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+  onLoad: function (options: { id: any }) {
     const id = options.id
     if (id) {
       this.setData({
@@ -36,8 +37,8 @@ Page({
     const id = this.data.id
     const terminal = wx.getStorageSync(id) as Terminal
     const jw = terminal.jw && terminal.jw.length > 10 ? terminal.jw.split(',') : false
-    console.log(jw);
-    terminal.uptime = new Date(terminal.uptime!).toLocaleString()
+    // console.log(jw);
+    terminal.uptime = parseTime(terminal.uptime)
     this.setData({
       terminal,
       jwSupport: Boolean(jw),

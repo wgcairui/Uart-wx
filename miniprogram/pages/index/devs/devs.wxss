@@ -1,1 +1,18 @@
 /* miniprogram/pages/index/devs/devs.wxss */
+.th-pic {
+  display: flex;
+  margin-top: 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.th-pic view {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.th-pic image {
+  width: 100rpx;
+  height: 100rpx;
+}

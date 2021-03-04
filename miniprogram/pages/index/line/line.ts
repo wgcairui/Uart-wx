@@ -9,7 +9,7 @@ Page({
     option: {
       dimensions: [],
       source: []
-    } as echarts.EChartOption.Dataset,
+    },
     datatime: '',
     name: '',
     mac: '',
@@ -18,8 +18,6 @@ Page({
     dateShow: false,
     minDate: new Date(2020, 0, 1).getTime(),
     maxDate: Date.now(),
-
-    //
     webSrc: ''
   },
 
@@ -27,12 +25,12 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+  onLoad: function (options: { name: any; mac: any; pid: any; protocol: any; }) {
     const { name, mac, pid, protocol } = options
-    console.log(options);
+    // console.log(options);
     const token = wx.getStorageSync('token') as string
     const webSrc = encodeURI(`${urlRequest}/main/line?token=${token}&DevMac=${mac}&pid=${pid}&name=${name}&protocol=${protocol}`)
-    console.log(webSrc);
+    // console.log(webSrc);
 
     this.setData({
       mac,

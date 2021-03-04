@@ -24,7 +24,7 @@
       </van-dropdown-menu>
     </van-cell>
     <van-cell title="设备地址">
-      <van-picker columns="{{columns}}" default-index="{{ 1 }}" bind:change="pidChange"></van-picker>
+      <van-picker columns="{{columns}}" default-index="{{ 0 }}" bind:change="pidChange"></van-picker>
     </van-cell>
     <van-button block type="primary" round bindtap="addMountDev"
       disabled="{{!devProtocol || !devType || !devProtocol }}">添加</van-button>

@@ -51,7 +51,10 @@ Page({
       this.setData({
         Alarm
       })
-      wx.setTabBarBadge({ index: 1, text: Alarm.filter(el => !el.isOk).length.toString() })
+      // 计算未确认告警数量
+      const alarmNum = Alarm.filter(el => !el.isOk).length
+      if (alarmNum > 0) wx.setTabBarBadge({ index: 1, text: alarmNum.toString() })
+      else wx.removeTabBarBadge({index:1})
       wx.setStorage({ key: 'alarm_list', data: Alarm })
     } else {
       wx.showModal({

@@ -38,8 +38,18 @@ Page({
   // 删除DTU挂载设备
   async deleteMountDev(event: vantEvent<TerminalMountDevs>) {
     const { item, key } = event.currentTarget.dataset
-    await api.delTerminalMountDev(key, item.mountDev, (item.pid as any))
-    wx.startPullDownRefresh()
+    wx.showModal({
+      title: '解除挂载！！',
+      content: `确定解除挂载设备：${item.mountDev} ？？`,
+      success(res) {
+        if (res.confirm) {
+          api.delTerminalMountDev(key, item.mountDev, (item.pid as any)).then(el => {
+            wx.startPullDownRefresh()
+          })
+        }
+      }
+    })
+
   },
   // 添加绑定设备
   addMonutDev(event: vantEvent<Terminal>) {
@@ -58,29 +68,41 @@ Page({
     })
   },
   // 删除DTU
-  deleteDTU(event: vantEvent<Terminal>) {
-    const { item: { DevMac, mountDevs } } = event.currentTarget.dataset
-    if (mountDevs.length > 0) {
-      wx.showModal({
-        title: 'Tip',
-        content: `是否删除DTU绑定的所有设备?`,
-        success: async (res) => {
-          if (res.confirm) {
-            for (let dev of mountDevs) {
-              await this.deleteMountDev({ currentTarget: { dataset: { item: dev, key: DevMac } } } as any)
+  async deleteDTU(event: vantEvent<Terminal>) {
+    const { item: { DevMac, mountDevs, name } } = event.currentTarget.dataset
+    const del = await wx.showModal({
+      title: `删除DTU`,
+      content: `是否删除DTU:${name}?`,
+    })
+
+    if (del.confirm) {
+      if (mountDevs.length > 0) {
+        wx.showModal({
+          title: 'Tip',
+          content: `是否删除DTU绑定的所有设备?`,
+          success: async (res) => {
+            if (res.confirm) {
+              for (let dev of mountDevs) {
+                await this.deleteMountDev({ currentTarget: { dataset: { item: dev, key: DevMac } } } as any)
+              }
+            } else {
+              api.delUserTerminal(DevMac).then(() => {
+                wx.startPullDownRefresh()
+              })
             }
-          } else {
-            api.delUserTerminal(DevMac).then(() => {
-              wx.startPullDownRefresh()
-            })
           }
-        }
-      })
-    } else {
-      api.delUserTerminal(DevMac).then(() => {
-        wx.startPullDownRefresh()
-      })
+        })
+      } else {
+        api.delUserTerminal(DevMac).then(() => {
+          wx.startPullDownRefresh()
+        })
+      }
     }
+  },
+
+  // 显示用户DTU参数
+  showDTUInfo(event: vantEvent<string>) {
+    wx.navigateTo({ url: `/pages/index/dtu/dtu?id=${event.currentTarget.dataset.item}` })
   },
 
   /**

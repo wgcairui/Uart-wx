@@ -23,7 +23,7 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (_options) {
+  onLoad: function (_options: any) {
     this.start()
   },
   //
@@ -43,8 +43,21 @@ Page({
           address: data.address,
           rgtype: data.rgtype || 'web'
         })
+      },
+      fail(){
+        wx.navigateBack()
+        /* wx.showModal({
+          title: '设备错误',
+          content: '缓存被清理,请在首页下拉刷新',
+          success() {
+            wx.switchTab({ url: '/pages/index/index' })
+          }
+        }) */
       }
     })
+  },
+
+  bindViewTap(){
   },
   //
   telChange(event: vantEvent) {

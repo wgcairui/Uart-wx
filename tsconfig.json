@@ -4,7 +4,7 @@
     "strictNullChecks": true,
     "noImplicitAny": true,
     "module": "CommonJS",
-    "target": "ES5",
+    "target": "ES2020",
     "allowJs": false,
     "experimentalDecorators": true,
     "noImplicitThis": true,
@@ -19,11 +19,10 @@
     "removeComments": true,
     "pretty": true,
     "strictPropertyInitialization": true,
-    "lib": ["ES2018","DOM"],
+    "lib": ["ES2020", "DOM"],
     "typeRoots": [],
     "types": [
       "miniprogram-api-typings",
-      "@types/echarts",
       "./typings"
     ],
     "baseUrl": ".",

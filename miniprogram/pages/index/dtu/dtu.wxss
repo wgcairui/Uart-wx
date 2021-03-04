@@ -2,3 +2,7 @@
 .jw{
   display: flex;
 }
+
+.bg{
+  background-image: linear-gradient(to right, #1e3d58 0%, #8e8888 100%);
+}

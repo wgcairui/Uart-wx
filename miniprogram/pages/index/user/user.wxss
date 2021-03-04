@@ -3,8 +3,9 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(0,0,0,0.15) 100%), radial-gradient(at top center, rgba(255,255,255,0.40) 0%, rgba(0,0,0,0.40) 120%) #989898;
- background-blend-mode: multiply,multiply;
+  padding: 12px;
+  color: #ffffff;
+  background-image: linear-gradient(to top, #48c6ef 0%, #487ed9 100%);
 }
 
 .userinfo-avatar {
@@ -22,4 +23,22 @@
   display: flex;
   flex-direction: column;
   
+}
+
+.ml-auto{
+  margin-left: auto;
+}
+
+.content{
+  padding: 7px;
+}
+.card{
+  padding: 5px;
+}
+.card>text{
+  padding-left: 8px;
+  padding-top: 8px;
+}
+.van-hairline--surround:after {
+  border-width: 0 !important
 }

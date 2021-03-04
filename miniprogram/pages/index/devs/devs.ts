@@ -1,5 +1,5 @@
 // miniprogram/pages/index/devs/devs.js
-import { ObjectToStrquery } from "../../../utils/util"
+import { ObjectToStrquery, parseTime } from "../../../utils/util"
 import api from "../../../utils/api"
 import unitCache from "../../../utils/unitCache"
 Page({
@@ -16,23 +16,37 @@ Page({
     filter: '',
     interval: 0,
     protocol: '',
+    Type: '',
+    Constant: {} as {
+      sys: ProtocolConstantThreshold
+    },
+    upsPic: 'http://www.ladishb.com/upload/342021__ups.gif',
+    th: {
+      temperature: 0,
+      humidity: 0,
+    },
     _oprateStat: false
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+  onLoad: function (options: { mountDev: any; mac: any; DevMac: any; pid: any; protocol: any; Type: any }) {
     wx.setNavigationBarTitle({ title: options.mountDev || options.mac || '' })
     this.setData({
       mac: options.DevMac,
       pid: options.pid,
       protocol: options.protocol,
-      mountDev: options.mountDev
+      mountDev: options.mountDev,
+      Type: options.Type
     })
   },
   async onReady() {
     wx.showLoading({ title: '获取运行数据' })
+    const { arg } = await api.getUserDevConstant(this.data.protocol)
+    this.setData({
+      Constant: arg
+    })
     await this.GetDevsRunInfo()
     wx.hideLoading()
   },
@@ -72,13 +86,52 @@ Page({
     if (ok && arg) {
       const regStr = new RegExp(filter)
       arg.result = arg.result.filter(el => !filter || regStr.test(el.name)).map(obj => Object.assign(obj, unitCache.get(obj.value, obj.unit || '')))
-      arg.time = new Date(arg.time!).toLocaleString()
+      arg.time = parseTime(arg.time)
       this.setData({
         result: arg,
         interval: setTimeout(() => {
           this.GetDevsRunInfo()
         }, arg.Interval || 5000)
       })
+      //
+
+      switch (this.data.Type) {
+        case "UPS":
+          const workMode = arg.result.find(el => el.name === this.data.Constant.sys.Constant.WorkMode)?.value as string
+          switch (workMode) {
+            case "电池模式":
+              this.setData({
+                upsPic: 'http://www.ladishb.com/upload/342021__ups1.gif'
+              })
+              break
+            case "旁路模式":
+              this.setData({
+                upsPic: 'http://www.ladishb.com/upload/342021__ups2.gif'
+              })
+              break
+            case "在线模式":
+              this.setData({
+                upsPic: 'http://www.ladishb.com/upload/342021__ups3.gif'
+              })
+              break
+            default:
+              this.setData({
+                upsPic: 'http://www.ladishb.com/upload/342021__ups.gif'
+              })
+              break;
+          }
+          break;
+
+        case "温湿度":
+          const { Temperature, Humidity } = this.data.Constant.sys.Constant
+          this.setData({
+            th: {
+              temperature: arg.result.find(el => el.name === Temperature)?.value,
+              humidity: arg.result.find(el => el.name === Humidity)?.value
+            }
+          })
+          break
+      }
     } else {
       clearInterval(this.data.interval)
       wx.showModal({

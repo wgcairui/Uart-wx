@@ -54,19 +54,19 @@
         "pagePath": "pages/index/index",
         "text": "设备",
         "iconPath": "assert/Devs.png",
-        "selectedIconPath": "assert/Devs.png"
+        "selectedIconPath": "assert/Devs_select.png"
       },
       {
         "pagePath": "pages/index/alarm/alarm",
         "text": "告警",
         "iconPath": "assert/alarm.png",
-        "selectedIconPath": "assert/alarm.png"
+        "selectedIconPath": "assert/alarm_select.png"
       },
       {
         "pagePath": "pages/index/user/user",
-        "text": "我",
+        "text": "我的",
         "iconPath": "assert/user.png",
-        "selectedIconPath": "assert/user.png"
+        "selectedIconPath": "assert/user_select.png"
       }
     ]
   }
