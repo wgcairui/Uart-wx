@@ -7,7 +7,8 @@
 
 <template is="skeleton" wx-if="{{loading}}" />
 <view class="container">
-  <view class="content">
+
+  <view class="content" wx:if="{{ready}}">
     <view wx:if="{{alarmNum>0}}" class=" alarmCard" bindtap="seeAlarm">
       <swiper indicator-dots="true" indicator-active-color="#00a1ff" autoplay="true" interval="2000" duration="500">
         <swiper-item class="alarmItem" wx:for="{{alarmData}}" wx:key="key">
@@ -64,6 +65,8 @@
 
     </view>
 
+  </view>
+  <view wx:else>
   </view>
   <!-- <van-notice-bar wx:if="{{alarm}}" left-icon="volume-o" text="{{alarm}}" mode="link" bindtap="seeAlarm" />
   <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="info-o" text="{{state}}" />

@@ -4,6 +4,7 @@ import api from "../../utils/api";
 // 获取应用实例
 Page({
   data: {
+    ready: false,
     /** DTU设备信息 */
     DTUs: [] as Terminal[],
     // 设备类型
@@ -29,35 +30,36 @@ Page({
     "空调": '/assert/air.png'
   },
   onLoad() {
+    wx.showLoading({ title: '加载中' })
     wx.login({
-      success: login => {
+      success: async login => {
         // 发送网络请求，获取在线账户
-        api.login({ js_code: login.code }).then((res) => {
-          if (res.ok) {
-            // console.log(`userGroup:${res.arg.userGroup}`);
-            // 判断user用户组,如果是admin则跳转到专有页面
-            switch (res.arg.userGroup) {
-              case "user":
-                this.start()
-                break;
-              case "admin":
-                wx.reLaunch({ url: "/pages/admin/index" })
-                break
-              default:
-                wx.showModal({
-                  title: '用户组错误',
-                  content: '只有用户组user和admin可以使用小程序端',
-                  success() {
-                    api.unbindwx().then(() => {
-                      wx.startPullDownRefresh()
-                    })
-                  }
-                })
-                break
-            }
+        const res = await api.login({ js_code: login.code })
+        wx.hideLoading()
+        if (res.ok) {
+          // 判断user用户组,如果是admin则跳转到专有页面
+          switch (res.arg.userGroup) {
+            case "user":
+              this.setData({ ready: true })
+              this.start()
+              break;
+            case "admin":
+              wx.reLaunch({ url: "/pages/admin/index" })
+              break
+            default:
+              wx.showModal({
+                title: '用户组错误',
+                content: '只有用户组user和admin可以使用小程序端',
+                success() {
+                  api.unbindwx().then(() => {
+                    wx.startPullDownRefresh()
+                  })
+                }
+              })
+              break
           }
-          else wx.reLaunch({ url: "/pages/login/login?openid=" + res.arg.openid })
-        })
+        }
+        else wx.reLaunch({ url: "/pages/login/login?openid=" + res.arg.openid })
       }
     })
   },
@@ -133,8 +135,35 @@ Page({
     wx.hideLoading()
     wx.stopPullDownRefresh()
     if (ok && arg?.UTs && arg.UTs.length > 0) {
-      const devTypes = new Set<string>()
-      arg.UTs.forEach(el => {
+      this.sortDevs(arg.UTs)
+    } else {
+      const res = await wx.showModal({
+        title: '添加设备',
+        content: '您还没有添加任何设备，请先添加设备'
+      })
+      if (res.confirm) {
+        wx.navigateTo({
+          url: '/pages/index/bindDev/bindDev',
+          events: {
+            addSuccess() {
+              wx.nextTick(() => {
+                setTimeout(() => {
+                  wx.startPullDownRefresh()
+                }, 500)
+              })
+            }
+          }
+        })
+      }else{
+        this.addVm()
+      }
+    }
+  },
+
+  // 处理设备分类
+  sortDevs(UTs:Terminal[]){
+    const devTypes = new Set<string>()
+      UTs.forEach(el => {
         devTypes.add(el.name)
         wx.setStorage({
           key: el._id,
@@ -144,51 +173,19 @@ Page({
       })
       wx.setStorage({
         key: 'Uts',
-        data: arg.UTs
+        data: UTs
       })
-      this.countDev(arg.UTs)
+      this.countDev(UTs)
       this.setData({
-        DTUs: arg.UTs,
+        DTUs: UTs,
         devTypes: [...devTypes].sort()
       })
       this.selectTab()
-    } else {
-      wx.showModal({
-        title: '添加设备',
-        content: '您还没有添加任何设备，请先添加设备',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: '/pages/index/bindDev/bindDev',
-              events: {
-                addSuccess() {
-                  wx.nextTick(() => {
-                    setTimeout(() => {
-                      wx.startPullDownRefresh()
-                    }, 500)
-                  })
-                }
-              }
-            })
-          }
-        },
-        complete: () => {
-          this.setData({
-            DTUs: []
-          })
-        }
-      })
-    }
   },
-  // 显示用户DTU参数
-  /* showDTUInfo(event: vantEvent<string>) {
-    wx.navigateTo({ url: `/pages/index/dtu/dtu?id=${event.currentTarget.dataset.item}` })
-  }, */
+
   // 查看设备数据
   showMountDevData(event: vantEvent<TerminalMountDevs>) {
     const { pid, mountDev, protocol, dtu, Type } = event.currentTarget.dataset.item
-    /* const id = event.currentTarget.dataset.id
-    const { DevMac } = wx.getStorageSync(id) as Terminal */
     const { DevMac } = this.data.DTUs.find(el => el.name === dtu)!
     wx.navigateTo({
       url: '/pages/index/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac, Type })
@@ -249,17 +246,7 @@ Page({
       this.setData({
         Vm: arg
       })
-      arg.forEach(el => {
-        wx.setStorage({
-          key: el._id,
-          data: el
-        })
-      })
-      wx.setStorage({
-        key: 'Uts',
-        data: arg
-      })
-      this.countDev(arg)
+      this.sortDevs(arg)
     }
   }
 })

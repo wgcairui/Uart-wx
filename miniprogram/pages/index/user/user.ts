@@ -35,10 +35,10 @@ Page({
   // webLogin
   webLogin() {
     wx.showModal({
-      title:'Web登录',
-      content:'打开https://uart.ladishb.com',
-      success:(r)=>{
-        if(r.confirm){
+      title: 'Web登录',
+      content: '打开https://uart.ladishb.com',
+      success: (r) => {
+        if (r.confirm) {
           wx.scanCode({
             success: async (res) => {
               api.webLogin(res.result).then(result => {
@@ -56,8 +56,17 @@ Page({
     })
   },
   // 更新用户头像和名称
-  updateUserInfo() {
-
+  updateAvanter() {
+    (wx as any).getUserProfile({
+      desc: '用于更新用户头像和昵称',
+      success: (info: { userInfo: WechatMiniprogram.UserInfo }) => {
+        const { nickName, avatarUrl } = info.userInfo
+        api.updateAvanter(nickName, avatarUrl).then(el=>{
+          console.log(el);
+          
+        })
+      }
+    })
   },
   // 解绑微信
   async unbindwx() {
@@ -110,7 +119,7 @@ Page({
         try {
           wx.clearStorage({
             success() {
-              wx.showModal({
+              wx.showToast({
                 title: '缓存清理成功',
                 content: '清除缓存' + size.toFixed(5) + 'MB',
                 success() {

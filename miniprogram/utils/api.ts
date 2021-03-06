@@ -52,6 +52,7 @@ type url = 'getuserMountDev'
   | 'updateGps'
   | 'webLogin'
   | 'iotRemoteUrl'
+  | 'updateAvanter'
 
 /**
  * @class wp客户端统一请求api
@@ -120,6 +121,15 @@ class api {
    */
   userlogin(data: { openid: string, avanter: string, user: string, passwd: string }) {
     return this.RequestUart<any>({ url: 'userlogin', data })
+  }
+
+  /**
+   * 更新用户头像和昵称
+   * @param nickName 昵称
+   * @param avanter 头像链接
+   */
+  updateAvanter(nickName: string, avanter: string) {
+    return this.RequestUart<boolean>({ url: 'updateAvanter', data: { nickName, avanter } })
   }
 
   /**
@@ -434,7 +444,7 @@ class api {
           // console.log(res);
           // wx.hideLoading()
           if (res.statusCode !== 200) {
-            wx.showModal({
+            wx.showToast({
               title: String(res.statusCode),
               content: res.data.toString() || res.errMsg,
               success() {

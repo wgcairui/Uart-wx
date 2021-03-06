@@ -1,3 +1,4 @@
+import { SubscribeMessage } from "../../../utils/util"
 // miniprogram/pages/index/alarm/alarm.js
 import api from "../../../utils/api"
 Page({
@@ -6,6 +7,7 @@ Page({
    * 页面的初始数据
    */
   data: {
+    subMessageStat: false,
     Alarm: [] as uartAlarmObject[],
     filter: '',
     date: '',
@@ -36,6 +38,25 @@ Page({
         this.getAlarmInfo()
       }
     })
+    //检查告警订阅状态
+    const { subscriptionsSetting } = await wx.getSetting({
+      withSubscriptions: true
+    })
+    this.setData({
+      subMessageStat: Boolean(subscriptionsSetting?.itemSettings?.['8NX6ji8ABlNAOEMcU7v2jtD4sgCB7NMHguWzxZn3HO4'] === 'accept')
+    })
+  },
+  /**
+   * 订阅下次告警
+   */
+  async subMessage() {
+    if (!this.data.subMessageStat) {
+      const res = await SubscribeMessage(['设备告警提醒'])
+      this.setData({
+        subMessageStat: (res as any)['8NX6ji8ABlNAOEMcU7v2jtD4sgCB7NMHguWzxZn3HO4'] === 'accept'
+      })
+    }
+
   },
   // 获取告警信息
   async getAlarmInfo() {
@@ -54,7 +75,7 @@ Page({
       // 计算未确认告警数量
       const alarmNum = Alarm.filter(el => !el.isOk).length
       if (alarmNum > 0) wx.setTabBarBadge({ index: 1, text: alarmNum.toString() })
-      else wx.removeTabBarBadge({index:1})
+      else wx.removeTabBarBadge({ index: 1 })
       wx.setStorage({ key: 'alarm_list', data: Alarm })
     } else {
       wx.showModal({
@@ -90,7 +111,6 @@ Page({
   showalarm(event: vantEvent<uartAlarmObject>) {
     const alarm = event.currentTarget.dataset.item
     const key = event.currentTarget.dataset.key as number
-
     wx.showModal({
       title: alarm.devName,
       content: alarm.msg,
@@ -104,6 +124,7 @@ Page({
           this.setData({
             [`Alarm[${key}].isOk`]: true
           })
+          this.subMessage()
           wx.setTabBarBadge({ index: 1, text: this.data.Alarm.filter(el => !el.isOk).length.toString() })
           wx.hideLoading()
         }
@@ -121,6 +142,7 @@ Page({
           await api.alarmConfirmed()
           wx.startPullDownRefresh()
           wx.hideLoading()
+          this.subMessage()
         }
       }
     })

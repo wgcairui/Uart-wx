@@ -4,19 +4,19 @@
 </page-meta>
 <view class="container">
 
-	<view wx:if="{{!userInfo.nickName}}" class="userinfo">
+	<!-- <view class="userinfo">
 		<block>
 			<image bindtap="bindViewTap" class="userinfo-avatar" src="{{img}}" mode="cover"></image>
 			<van-button bindtap="getUserInfo" round type="primary" class="getUserInfo"> 获取头像昵称
 			</van-button>
 		</block>
-	</view>
+	</view> -->
 	<!-- 	<view   class="getAvanter">
 	<image src="{{img}}"></image>
 		
 	</view> -->
-	<view wx:else>
-		<view class="avanter">
+	<view>
+		<view class="avanter" bindtap="getUserInfo">
 			<van-image round width="7rem" height="7rem" src="{{userInfo.avatarUrl}}" />
 			<text>{{userInfo.nickName}}</text>
 		</view>
@@ -28,7 +28,7 @@
 						<van-button slot="button" size="small" type="primary" open-type="getPhoneNumber"
 							bindgetphonenumber="getphonenumber">获取手机号码</van-button>
 					</van-field>
-					<van-button open-type="getUserInfo" disabled="{{!tel}}" type="primary" loading="{{registerloading}}"
+					<van-button disabled="{{!tel}}" type="primary" loading="{{registerloading}}"
 						bindtap="register" class="center register" round block>注册(开通消息订阅)
 					</van-button>
 				</van-cell-group>
@@ -39,7 +39,7 @@
 					<van-field model:value="{{ accontPasswd }}" type="password" label="密码" placeholder="请输入密码" required
 						border="{{ false }}" />
 					<van-button disabled="{{!accontUser && !accontPasswd}}" type="primary" loading="{{loginloading}}"
-						bindtap="login" class="center register" round block>登录(绑定微信)
+						bindtap="login" class="center register" round block>登录(开通消息订阅)
 					</van-button>
 				</van-cell-group>
 			</van-tab>
