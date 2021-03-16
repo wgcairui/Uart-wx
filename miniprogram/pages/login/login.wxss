@@ -36,6 +36,12 @@
   margin-bottom: 40rpx;
 }
 
-.getUserInfo{
+.getUserInfo {
   margin-top: 32px;
+}
+
+.readme {
+  padding: 48rpx 36rpx;
+  font-size: 23rpx;
+  font-weight: 500;
 }

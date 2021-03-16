@@ -20,6 +20,7 @@
 			<van-image round width="7rem" height="7rem" src="{{userInfo.avatarUrl}}" />
 			<text>{{userInfo.nickName}}</text>
 		</view>
+
 		<van-tabs type="card" bind:click="tabclick" animated active="{{0}}">
 			<van-tab class="tab" title="微信注册">
 				<van-cell-group>
@@ -28,8 +29,8 @@
 						<van-button slot="button" size="small" type="primary" open-type="getPhoneNumber"
 							bindgetphonenumber="getphonenumber">获取手机号码</van-button>
 					</van-field>
-					<van-button disabled="{{!tel}}" type="primary" loading="{{registerloading}}"
-						bindtap="register" class="center register" round block>注册(开通消息订阅)
+					<van-button disabled="{{!tel}}" type="primary" loading="{{registerloading}}" bindtap="register"
+						class="center register" round block>注册(开通消息订阅)
 					</van-button>
 				</van-cell-group>
 			</van-tab>
@@ -44,7 +45,9 @@
 				</van-cell-group>
 			</van-tab>
 		</van-tabs>
-
+		<view class="readme">
+			<text> 本小程序用于特定范围用户(使用我司云平台物联网设备)在手机上查看个人搭配的透传设备,需要使用云平台账号或授权使用微信用户信息(手机号,用户名,头像,id)注册使用,无法在开放范围提供服务,敬请谅解
+			</text>
+		</view>
 	</view>
-
 </view>
