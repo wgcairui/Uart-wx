@@ -28,7 +28,7 @@ Page({
    */
   // 获取用户信息
   getUserInfo() {
-    (wx as any).getUserProfile({
+    wx.getUserProfile({
       desc: '用于注册小程序',
       success: (info: { userInfo: WechatMiniprogram.UserInfo }) => {
         this.setData({

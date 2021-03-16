@@ -7,7 +7,6 @@ Page({
    * 页面的初始数据
    */
   data: {
-    subMessageStat: false,
     Alarm: [] as uartAlarmObject[],
     filter: '',
     date: '',
@@ -39,23 +38,23 @@ Page({
       }
     })
     //检查告警订阅状态
-    const { subscriptionsSetting } = await wx.getSetting({
+    /* const { subscriptionsSetting } = await wx.getSetting({
       withSubscriptions: true
     })
+    console.log({subscriptionsSetting});
+    
     this.setData({
       subMessageStat: Boolean(subscriptionsSetting?.itemSettings?.['8NX6ji8ABlNAOEMcU7v2jtD4sgCB7NMHguWzxZn3HO4'] === 'accept')
-    })
+    }) */
   },
   /**
    * 订阅下次告警
    */
   async subMessage() {
-    if (!this.data.subMessageStat) {
       const res = await SubscribeMessage(['设备告警提醒'])
       this.setData({
         subMessageStat: (res as any)['8NX6ji8ABlNAOEMcU7v2jtD4sgCB7NMHguWzxZn3HO4'] === 'accept'
       })
-    }
 
   },
   // 获取告警信息

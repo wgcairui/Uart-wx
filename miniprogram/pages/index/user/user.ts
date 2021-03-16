@@ -57,7 +57,7 @@ Page({
   },
   // 更新用户头像和名称
   updateAvanter() {
-    (wx as any).getUserProfile({
+    wx.getUserProfile({
       desc: '用于更新用户头像和昵称',
       success: (info: { userInfo: WechatMiniprogram.UserInfo }) => {
         const { nickName, avatarUrl } = info.userInfo
