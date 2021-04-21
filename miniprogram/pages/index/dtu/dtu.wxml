@@ -1,27 +1,51 @@
 <!--miniprogram/pages/index/dtu/dtu.wxml-->
 <page-meta>
-    <navigation-bar front-color="#ffffff" background-color="#487ed9" />
-  </page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
 <view class="container">
-  <view class="dev">
-  </view>
-
-  <view class="bg">
-    <my-input label="别名" value="{{terminal.name}}" bind:submit="nameChange"></my-input>
-    <van-cell title="IMEI" value="{{terminal.DevMac}}" />
-    <van-cell title="IP" value="{{terminal.ip}}" />
-    <van-cell title="定位(仅参考)" bindtap="updateGps" class="jw">
-      <text>{{terminal.jw}}</text>
-      <van-icon name="location" />
-    </van-cell>
-    <van-cell title="端口" value="{{terminal.port}}" />
-    <van-cell title="通讯" value="{{terminal.uart}}" />
-    <van-cell title="更新时间" value="{{terminal.uptime}}" />
-  </view>
-  <view wx:if="{{jwSupport}}">
-    <van-cell title="地址" value="{{address}}"></van-cell>
-    <van-cell title="详情" value="{{recommend}}"></van-cell>
-    <map id="map" longitude="{{longitude}}" latitude="{{latitude}}" markers="{{markers}}" scale="14"
-      bindmarkertap="markertap" style="width: 100%; height: 200px;"></map>
-  </view>
+  <van-tabs  sticky swipeable animated  type="card" lazy-render>
+    <van-tab title="设备">
+      <view class="devs">
+            <view class="devs-item" wx:for="{{dtuItem}}" wx:key="key" bindtap="showMountDevData" data-item="{{item}}">
+              <view class="devs-item-card">
+                <view class="devs-item-card-body">
+                  <text style="font-size:26rpx;">{{item.mountDev}}</text>
+                  <view class="devs-item-card-content">
+                    <view>
+                      <view>
+                        <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
+                        <text> {{item.online?'在线':'离线'}}</text>
+                      </view>
+                      <text class="">{{item.protocol}}</text>
+                    </view>
+                    <view class="devs-item-card-pic">
+                      <image src="{{item.pic}}"></image>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+    </van-tab>
+    <van-tab title="参数">
+      <view class="bg">
+        <my-input label="别名" value="{{terminal.name}}" bind:submit="nameChange"></my-input>
+        <van-cell title="IMEI" value="{{terminal.DevMac}}" />
+        <van-cell title="IP" value="{{terminal.ip}}" />
+        <van-cell title="定位(仅参考)" bindtap="updateGps" class="jw">
+          <text>{{terminal.jw}}</text>
+          <van-icon name="location" />
+        </van-cell>
+        <van-cell title="端口" value="{{terminal.port}}" />
+        <van-cell title="通讯" value="{{terminal.uart}}" />
+        <van-cell title="更新时间" value="{{terminal.uptime}}" />
+      </view>
+      <view wx:if="{{jwSupport}}">
+        <van-cell title="地址" value="{{address}}"></van-cell>
+        <van-cell title="详情" value="{{recommend}}"></van-cell>
+        <map id="map" longitude="{{longitude}}" latitude="{{latitude}}" markers="{{markers}}" scale="14"
+          bindmarkertap="markertap" style="width: 100%; height: 200px;"></map>
+      </view>
+    </van-tab>
+  </van-tabs>
 </view>

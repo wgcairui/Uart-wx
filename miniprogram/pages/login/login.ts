@@ -8,7 +8,7 @@ Page({
   data: {
     // img:"https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png",
     userInfo: {
-      avatarUrl: "https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png",
+      avatarUrl: "http://www.ladishb.com/admin/upload/11122020__LADS108.png",
     } as WechatMiniprogram.UserInfo,
     tel: '',
     registerloading: false,

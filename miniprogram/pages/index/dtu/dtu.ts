@@ -1,4 +1,4 @@
-import { parseTime } from "../../../utils/util"
+import { ObjectToStrquery, parseTime } from "../../../utils/util"
 import api from "../../../utils/api"
 
 // miniprogram/pages/index/dtu/dtu.js
@@ -8,39 +8,46 @@ Page({
    * 页面的初始数据
    */
   data: {
-    id: '',
+    mac: '',
     terminal: {} as Terminal,
+    dtuItem: [] as TerminalMountDevs[],
     jwSupport: false,
     longitude: '',
     latitude: '',
     markers: [] as any[],
     address: '',
-    recommend: ''
-
+    recommend: '',
+    devPics: {
+      "UPS": '/assert/ups.png',
+      "温湿度": '/assert/th.png',
+      "电量仪": '/assert/em.png',
+      "空调": '/assert/air.png'
+    },
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options: { id: any }) {
-    const id = options.id
-    if (id) {
-      this.setData({
-        id
-      })
-      this.start()
-    }
-
+  onLoad: function (options: { mac: string }) {
+    this.setData({
+      mac: options.mac
+    })
+    this.start()
   },
 
-  start() {
-    const id = this.data.id
-    const terminal = wx.getStorageSync(id) as Terminal
+  async start() {
+    const terminal = (await api.getDTUInfo(this.data.mac)).arg
     const jw = terminal.jw && terminal.jw.length > 10 ? terminal.jw.split(',') : false
     // console.log(jw);
     terminal.uptime = parseTime(terminal.uptime)
+    //
+    const devs = terminal.mountDevs.map(dev => {
+      dev.pic = (this.data.devPics as any)[dev.Type]
+      return dev
+    })
     this.setData({
       terminal,
+      dtuItem: devs,
       jwSupport: Boolean(jw),
     })
     if (jw) {
@@ -70,6 +77,15 @@ Page({
     wx.setNavigationBarTitle({ title: terminal.name })
   },
 
+  // 查看设备数据
+  showMountDevData(event: vantEvent<TerminalMountDevs>) {
+    const { pid, mountDev, protocol, Type } = event.currentTarget.dataset.item
+    const { DevMac } = this.data.terminal
+    wx.navigateTo({
+      url: '/pages/index/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac, Type })
+    })
+  },
+
   markertap(_e: vantEvent) {
     /* const map = wx.createMapContext(e.currentTarget.id)
     map.getCenterLocation({
@@ -95,7 +111,7 @@ Page({
         "terminal.name": value
       })
       wx.setStorage({
-        key: this.data.id,
+        key: this.data.terminal._id,
         data: this.data.terminal
       })
     }
@@ -134,13 +150,13 @@ Page({
 
   // 设置Gps
   setupGps() {
-    const { terminal, id } = this.data
+    const { terminal } = this.data
     wx.getLocation({
       success: (location) => {
         terminal.jw = [location.longitude.toFixed(5), location.latitude.toFixed(5)].join(',')
         wx.hideLoading()
         wx.setStorage({
-          key: id,
+          key: terminal._id,
           data: terminal,
           success: () => {
             this.start()

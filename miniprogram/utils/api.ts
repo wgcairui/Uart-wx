@@ -439,6 +439,8 @@ class api {
         url: this.url + object.url,
         data: object.data,//Object.assign({ token: token }, object.data),
         method: object.method || "GET",
+        enableHttp2:true,
+        
         header: { token: token },
         success: res => {
           // console.log(res);

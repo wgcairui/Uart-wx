@@ -36,96 +36,55 @@
     </view>
 
     <view class="tab">
-      <van-tabs sticky active="0" bind:change="tabChange">
-        <van-tab title="全部"></van-tab>
-        <van-tab wx:for="{{devTypes}}" title="{{item}}" wx:key="item"></van-tab>
-      </van-tabs>
-    </view>
-
-    <view class="devs">
-      <view class="devs-item" wx:for="{{dtuItem}}" wx:key="key" bindtap="showMountDevData" data-item="{{item}}">
-        <view class="devs-item-card">
-          <view class="devs-item-card-body">
-            <text style="font-size:26rpx;">{{item.mountDev}} | {{item.dtu}}</text>
-            <view class="devs-item-card-content">
-              <view>
-                <view>
-                  <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
-                  <text> {{item.online?'在线':'离线'}}</text>
+      <van-tabs sticky swipeable animated border lazy-render>
+        <van-tab title="设备">
+          <view class="devs">
+            <view class="devs-item" wx:for="{{dtuItem}}" wx:key="key" bindtap="showMountDevData" data-item="{{item}}">
+              <view class="devs-item-card">
+                <view class="devs-item-card-body">
+                  <text style="font-size:26rpx;">{{item.mountDev}} | {{item.dtu}}</text>
+                  <view class="devs-item-card-content">
+                    <view>
+                      <view>
+                        <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
+                        <text> {{item.online?'在线':'离线'}}</text>
+                      </view>
+                      <text class="">{{item.protocol}}</text>
+                    </view>
+                    <view class="devs-item-card-pic">
+                      <image src="{{item.pic}}"></image>
+                    </view>
+                  </view>
                 </view>
-                <text class="">{{item.protocol}}</text>
-              </view>
-              <view class="devs-item-card-pic">
-                <image src="{{item.pic}}"></image>
               </view>
             </view>
           </view>
-        </view>
-      </view>
-
-    </view>
-
-  </view>
-  <view wx:else>
-  </view>
-  <!-- <van-notice-bar wx:if="{{alarm}}" left-icon="volume-o" text="{{alarm}}" mode="link" bindtap="seeAlarm" />
-  <van-notice-bar color="#1989fa" background="#ecf9ff" left-icon="info-o" text="{{state}}" />
-  <view class="content1">
-    <view class="card" wx:for="{{DTUs}}" wx:key="_id">
-      <view class="terminal" data-item="{{item._id}}" bindtap="showDTUInfo">
-        <text class="name">设备名称: {{item.name}}</text>
-        <view>
-          <text class="mac">设备ID: {{item.DevMac}}</text>
-          <van-tag type="{{item.online?'success':'danger'}}">{{item.online?'在线':'离线'}}</van-tag>
-        </view>
-      </view>
-      <van-cell wx:if="{{!item.mountDevs || item.mountDevs.length === 0}}">
-        <van-button size="small" round type="primary" bindtap="addMonutDev" data-item="{{item}}">添加设备</van-button>
-      </van-cell>
-      <van-cell is-link wx:for="{{item.mountDevs}}" wx:for-item="item2" wx:key="pid" bind:click="showMountDevData"
-        data-item="{{item2}}" data-id="{{item._id}}" use-label-slot center value="{{item2.protocol}}">
-        <view slot="title">
-          <view class="van-cell-text">{{item2.mountDev}}</view>
-        </view>
-        <view slot="label" class="tags">
-          <van-tag type="primary">{{item2.pid}}</van-tag>
-          <van-tag type="primary">{{item2.Type}}</van-tag>
-          <van-tag type="{{item2.online?'success':'warning'}}">{{item2.online?'在线':'离线'}}</van-tag>
-          <view></view>
-        </view>
-      </van-cell>
+        </van-tab>
+        <van-tab title="透传终端">
+          <view class="devs">
+            <view class="devs-item" wx:for="{{DTUs}}" wx:key="key" bindtap="toDev" data-item="{{item}}">
+              <view class="devs-item-card">
+                <view class="devs-item-card-body">
+                  <text style="font-size:26rpx;">{{item.name}}</text>
+                  <view class="devs-item-card-content">
+                    <view>
+                      <view>
+                        <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
+                        <text> {{item.online?'在线':'离线'}}</text>
+                      </view>
+                      <text class="">{{item.mountDevs.length || 0}}个设备</text>
+                    </view>
+                    <view class="devs-item-card-pic">
+                      <van-icon size="2em" name="cluster-o"></van-icon>
+                    </view>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </van-tab>
+      </van-tabs>
     </view>
   </view>
-  <view class="wm" wx:if="{{!DTUs || DTUs.length ===0}}">
-    <view wx:if="{{!Vm || Vm.length ===0}}">
-      <van-button block round bindtap="addVm" type="info">添加虚拟设备体验</van-button>
-    </view>
-
-    <view class="content">
-      <view class="card" wx:for="{{Vm}}" wx:key="_id" style="margin-bottom:1.2rem">
-        <view class="terminal" data-item="{{item._id}}" bindtap="showDTUInfo">
-          <text class="name">设备名称: {{item.name}}</text>
-          <view>
-            <text class="mac">设备ID: {{item.DevMac}}</text>
-            <van-tag type="{{item.online?'success':'danger'}}">{{item.online?'在线':'离线'}}</van-tag>
-          </view>
-        </view>
-        <van-cell wx:if="{{!item.mountDevs || item.mountDevs.length === 0}}">
-          <van-button size="small" round type="primary" bindtap="addMonutDev" data-item="{{item}}">添加设备</van-button>
-        </van-cell>
-        <van-cell is-link wx:for="{{item.mountDevs}}" wx:for-item="item2" wx:key="pid" bind:click="showMountDevData"
-          data-item="{{item2}}" data-id="{{item._id}}" use-label-slot center value="{{item2.protocol}}">
-          <view slot="title">
-            <view class="van-cell-text">{{item2.mountDev}}</view>
-            <van-tag type="primary">{{item2.Type}}</van-tag>
-          </view>
-          <view slot="label">
-            <van-tag type="{{item2.online?'success':'warning'}}">{{item2.online?'在线':'离线'}}</van-tag>
-            <view></view>
-          </view>
-        </van-cell>
-      </view>
-    </view>
-  </view> -->
   <official-account bindload="bindload" binderror="binderror"></official-account>
 </view>

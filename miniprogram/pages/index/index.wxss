@@ -105,6 +105,7 @@
 .devs {
   display: flex;
   flex-wrap: wrap;
+  margin-top: 1rem;
 }
 
 .devs-item {
@@ -175,7 +176,15 @@
   justify-content: unset;
   /* background-color: #f6f6f6; */
   /* background-image: url("http://www.ladishb.com/upload/342021__bg.png"); */
-  background-image: linear-gradient(to bottom, #487ed9 0%, #f6f6f6 50%);
+  background-image: url(http://www.ladishb.com/upload/342021__bg.png),linear-gradient(to bottom,rgba(220,38,38,0) 16%, #222938 19%, #607d8b 40% );
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: 0 -100vw,0vw,0vw;
+  background-blend-mode: darken;
+}
+
+::-webkit-scrollbar {
+  display: none; /* Chrome Safari */
 }
 
 @import "./index.skeleton.wxss";

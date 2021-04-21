@@ -4,5 +4,82 @@
 }
 
 .bg{
-  background-image: linear-gradient(to right, #1e3d58 0%, #8e8888 100%);
+  background-color: #fff;
+  margin-top: 1rem;
+}
+
+.devs {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.devs-item {
+  width: 48%;
+  min-height: 110px;
+  margin-bottom: 12rpx;
+}
+
+.devs-item:nth-child(2n) {
+  margin-left: 4%;
+}
+
+.devs-item-card {
+  background-color: #fff;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  position: relative;
+  /* box-shadow: 1px 1px 3px #fff; */
+}
+
+.devs-item-card-body {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 16rpx 12rpx 12rpx 22rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.devs-item-card-content {
+  margin-top: auto;
+  display: flex;
+}
+
+.devs-item-card-pic {
+  margin-left: auto;
+  width: 100rpx;
+  height: 100rpx;
+}
+
+.devs-item-card-pic>image {
+  width: 100%;
+  height: 100%;
+}
+
+.devs-item-card-content text {
+  font-size: 24rpx;
+  color: #717171;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* white-space: nowrap; */
+}
+
+.text-sm {
+  font-size: 24rpx;
+  color: #717171;
+}
+.container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  justify-content: unset;
+  /* background-color: #f6f6f6; */
+  /* background-image: url("http://www.ladishb.com/upload/342021__bg.png"); */
+  background-image: linear-gradient(to bottom, #487ed9 0%, #e9f3fb 30%);
 }

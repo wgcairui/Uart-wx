@@ -7,8 +7,6 @@ Page({
     ready: false,
     /** DTU设备信息 */
     DTUs: [] as Terminal[],
-    // 设备类型
-    devTypes: [] as string[],
     // 刷选挂载设备列表
     dtuItem: [] as TerminalMountDevs[],
     // 挂载状态信息
@@ -64,46 +62,6 @@ Page({
     })
   },
 
-  /**
-   * tab点击触发
-   * @param e 
-   */
-  tabChange(e: vantEvent) {
-    const type = e.detail.title as string
-    this.selectTab(type)
-  },
-
-  selectTab(type: string = "全部") {
-    const devs = this.data.DTUs.map(dtu => {
-      return dtu.mountDevs.map(dev => {
-        dev.online = dev.online && dtu.online
-        dev.pic = (this.devPics as any)[dev.Type]
-        dev.dtu = dtu.name
-        return dev
-      })
-    }).flat()
-    switch (type) {
-      /* case "UPS":
-      case "IO":
-      case "电量仪":
-      case "温湿度":
-      case "空调":
-        this.setData({
-          dtuItem: devs.filter(el => el.Type === type)
-        })
-        break; */
-      case "全部":
-        this.setData({
-          dtuItem: devs
-        })
-        break
-      default:
-        this.setData({
-          dtuItem: devs.filter(el => el.dtu === type)
-        })
-        break
-    }
-  },
   // 登录运行
   start() {
     this.bindDev()
@@ -154,33 +112,39 @@ Page({
             }
           }
         })
-      }else{
+      } else {
         this.addVm()
       }
     }
   },
 
   // 处理设备分类
-  sortDevs(UTs:Terminal[]){
-    const devTypes = new Set<string>()
-      UTs.forEach(el => {
-        devTypes.add(el.name)
-        wx.setStorage({
-          key: el._id,
-          data: el
-        })
-        // el.mountDevs?.forEach(dev => devTypes.add(dev.Type))
+  sortDevs(UTs: Terminal[]) {
+    wx.setStorage({
+      key: 'Uts',
+      data: UTs
+    })
+    this.countDev(UTs)
+    const devs = UTs.map(dtu => {
+      return dtu.mountDevs.map(dev => {
+        dev.online = dev.online && dtu.online
+        dev.pic = (this.devPics as any)[dev.Type]
+        dev.dtu = dtu.name
+        return dev
       })
-      wx.setStorage({
-        key: 'Uts',
-        data: UTs
-      })
-      this.countDev(UTs)
-      this.setData({
-        DTUs: UTs,
-        devTypes: [...devTypes].sort()
-      })
-      this.selectTab()
+    }).flat()
+    this.setData({
+      DTUs: UTs,
+      dtuItem: devs
+    })
+  },
+
+  // 查看挂载
+  toDev(event: vantEvent<Terminal>) {
+    const { DevMac } = event.currentTarget.dataset.item
+    wx.navigateTo({
+      url: '/pages/index/dtu/dtu' + ObjectToStrquery({ mac: DevMac })
+    })
   },
 
   // 查看设备数据

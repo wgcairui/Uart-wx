@@ -3,7 +3,7 @@
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
 
-<view class="container"> 
+<view class="container">
   <view wx:for="{{devs}}" wx:key="_id">
     <van-cell icon="cluster" title="{{item.name}}" class="bg-dark-cell">
       <van-icon name="clear" data-item="{{item}}" bindtap="deleteDTU" />
@@ -19,7 +19,7 @@
     </van-cell>
     <van-cell>
       <van-button type="primary" round size="small" data-item="{{item}}" bindtap="addMonutDev">添加设备</van-button>
-      <van-button type="info" round size="small"  data-item="{{item._id}}" bindtap="showDTUInfo">DTU信息</van-button>
+      <van-button type="info" round size="small" data-item="{{item.DevMac}}" bindtap="showDTUInfo">DTU信息</van-button>
     </van-cell>
   </view>
 </view>

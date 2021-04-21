@@ -4,13 +4,17 @@
   "description": "",
   "scripts": {
     "compile": "./node_modules/typescript/bin/tsc",
-    "tsc": "node ./node_modules/typescript/lib/tsc.js"
+    "tsc": "node ./node_modules/typescript/lib/tsc.js",
+    "test": "tsc test/*.ts ;  jest test/*.test.js"
   },
   "keywords": [],
   "author": "",
   "license": "",
   "devDependencies": {
-    "miniprogram-api-typings": "^3.3.0",
+    "@types/jest": "^26.0.21",
+    "jest": "^26.6.3",
+    "miniprogram-api-typings": "^3.3.1",
+    "miniprogram-automator": "^0.10.0",
     "typescript": "^4.2.2"
   }
 }

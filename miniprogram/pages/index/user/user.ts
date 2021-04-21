@@ -61,9 +61,9 @@ Page({
       desc: '用于更新用户头像和昵称',
       success: (info: { userInfo: WechatMiniprogram.UserInfo }) => {
         const { nickName, avatarUrl } = info.userInfo
-        api.updateAvanter(nickName, avatarUrl).then(el=>{
-          console.log(el);
-          
+        api.updateAvanter(nickName, avatarUrl).then(() => {
+          wx.showToast({ title: '更新成功' })
+          this.start()
         })
       }
     })

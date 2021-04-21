@@ -21,7 +21,7 @@
 			<text>{{userInfo.nickName}}</text>
 		</view>
 
-		<van-tabs type="card" bind:click="tabclick" animated active="{{0}}">
+		<van-tabs type="card" bind:click="tabclick" animated active="{{1}}">
 			<van-tab class="tab" title="微信注册">
 				<van-cell-group>
 					<van-field title-width="3em" model:value="{{tel}}" center clearable label="phone" placeholder="输入手机号码"
@@ -39,8 +39,8 @@
 					<van-field model:value="{{ accontUser }}" required clearable label="用户名" placeholder="请输入用户名" />
 					<van-field model:value="{{ accontPasswd }}" type="password" label="密码" placeholder="请输入密码" required
 						border="{{ false }}" />
-					<van-button disabled="{{!accontUser && !accontPasswd}}" type="primary" loading="{{loginloading}}"
-						bindtap="login" class="center register" round block>登录(开通消息订阅)
+					<van-button id="login" disabled="{{!accontUser && !accontPasswd}}" type="primary" loading="{{loginloading}}"
+						bindtap="login" class="center register login" round block>登录(开通消息订阅)
 					</van-button>
 				</van-cell-group>
 			</van-tab>
