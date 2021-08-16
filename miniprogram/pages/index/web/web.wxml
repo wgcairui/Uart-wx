@@ -1,0 +1,4 @@
+<!--miniprogram/pages/index/web/web.wxml-->
+<view class="container" style="ma">
+  <web-view src="{{url}}" bindload="load" binderror="error"></web-view>
+</view>

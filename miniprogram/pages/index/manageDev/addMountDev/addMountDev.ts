@@ -1,7 +1,7 @@
 import api from "../../../../utils/api"
 interface devModals {
   text: string,
-  value: string
+  value: string | number
 }
 // miniprogram/pages/index/manageDev/addMountDev/addMountDev.js
 Page({
@@ -10,47 +10,51 @@ Page({
    * 页面的初始数据
    */
   data: {
-    terminal: {} as Terminal,
-    columns: [] as any[],
+    terminal: {} as Uart.Terminal,
+    columns: [] as devModals[],
     devType: 'UPS',
     devTypes: [{ text: 'UPS', value: 'UPS' }, { text: '空调', value: '空调' }, { text: '电量仪', value: '电量仪' }, { text: '温湿度', value: '温湿度' }] as devModals[],
     devModal: '',
     devModals: [] as devModals[],
-    devModesMap: new Map() as Map<string, DevsType>,
+    devModesMap: new Map() as Map<string, Uart.DevsType>,
     devProtocol: '',
-    devProtocols: [] as devModals[],
+    pids: [] as devModals[],
     pid: 1
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
-    if (options.item) {
-      const item = JSON.parse(options.item) as Terminal
-      const hasPid = new Set(item.mountDevs.map(el => el.pid))
-      let columns = [] as any[]
+  onLoad: async function (options: { mac: string }) {
+    if (options.mac) {
+      const { data: terminal } = await api.getTerminal(options.mac)
+      const hasPid = new Set(terminal.mountDevs.map(el => el.pid))
+      let columns = [] as devModals[]
       for (let i = 0; i < 255; i++) {
-        columns.push({ text: i, disabled: hasPid.has(i) })
+        if (!hasPid.has(i)) {
+          columns.push({ text: String(i), value: i })
+        }
       }
       this.setData({
-        terminal: item,
+        terminal,
         columns
       })
       this.devTypeChange()
-      wx.setNavigationBarTitle({ title: item.name })
+      wx.setNavigationBarTitle({ title: terminal.name })
     } else {
       wx.switchTab({ url: '/pages/index/index' })
     }
+
+
   },
   // 监听设备类型变化
   async devTypeChange() {
-    const { arg } = await api.DevTypes(this.data.devType)
-    const devModals = arg.map(el => ({ text: el.DevModel, value: el.DevModel }))
+    const { data } = await api.getDevTypes(this.data.devType)
+    const devModals = data.map(el => ({ text: el.DevModel, value: el.DevModel }))
     this.setData({
       devModals,
       devProtocols: [],
-      devModesMap: new Map(arg.map(el => [el.DevModel, el]))
+      devModesMap: new Map(data.map(el => [el.DevModel, el]))
     })
   },
   // 监听设备型号变化
@@ -62,21 +66,19 @@ Page({
     })
   },
   // 监听pid
-  pidChange(event: vantEvent) {
+ /*  pidChange(event: vantEvent) {
     this.setData({
       pid: event.detail.value.text
     })
-    console.log({event,p:this.data.pid});
-    
-  },
+    console.log({ event, p: this.data.pid });
+
+  }, */
   // 提交新增
   async addMountDev() {
     const { devModal, devType, devProtocol, pid, terminal } = this.data
-    console.log(this.data);
-    
     if (devProtocol && devType && devProtocol) {
-      const { ok } = await api.addTerminalMountDe(terminal.DevMac, devType, devModal, devProtocol, pid as any)
-      if (ok) {
+      const { code } = await api.addTerminalMountDev(terminal.DevMac, { Type: devType, mountDev: devModal, protocol: devProtocol, pid })
+      if (code) {
         const event = this.getOpenerEventChannel()
         event.emit("addSuccess", { stat: true })
         wx.navigateBack()

@@ -8,7 +8,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    devs: [] as Terminal[],
+    devs: [] as Uart.Terminal[],
     tels: '',
     mails: ''
   },
@@ -22,27 +22,19 @@ Page({
   },
 
   sortDevslist() {
-    wx.getStorage({
-      key: 'Uts'
-    }).then(({ data }: { data: Terminal[] }) => {
-      this.setData({
-        devs: data
-      })
-    }).catch(() => {
-      wx.showModal({
-        title: '设备错误',
-        content: '缓存被清理或没有绑定设备,请在首页下拉刷新',
-        success() {
-          wx.switchTab({ url: '/pages/index/index' })
-        }
-      })
+    api.BindDev().then(el => {
+      if (el.code) {
+        this.setData({
+          devs: el.data.UTs
+        })
+      }
     })
   },
   async getuserTels() {
-    const el = await api.getUserAlarmTels()
+    const el = await api.getUserAlarmSetup()
     this.setData({
-      tels: el.arg.tels.join('\n'),
-      mails: el.arg.mails.join('\n')
+      tels: el.data.tels.join('\n'),
+      mails: el.data.mails.join('\n')
     })
   },
   // 修改用户联系方式
@@ -93,10 +85,18 @@ Page({
       tels: tels ? tels.join('\n') : this.data.tels,
       mails: mails ? mails.join('\n') : this.data.mails
     })
-    api.setUserSetupContact(this.data.tels.split('\n'), this.data.mails.split('\n')).then(() => {
+    api.modifyUserAlarmSetupTel(this.data.tels.split('\n'), this.data.mails.split('\n')).then(() => {
       wx.startPullDownRefresh()
     })
 
+  },
+
+  /**
+   * 订阅下次告警
+   */
+  async subMessage() {
+    const url = encodeURIComponent('http://mp.weixin.qq.com/s?__biz=MjM5MjA1MTgxOQ==&mid=304819939&idx=1&sn=d0bcd922033075afa2b5219fc95ebb1e&chksm=3173a9e7060420f1a98d0040d964a2f82af25289a731d1400c5224ca9bb3d225d737700700a8#rd')
+    wx.navigateTo({ url: '/pages/index/web/web?url=' + url })
   },
   /**
    * 生命周期函数--监听页面初次渲染完成

@@ -23,7 +23,8 @@
     "typeRoots": [],
     "types": [
       "miniprogram-api-typings",
-      "./typings"
+      "./typings",
+      "types-uart"
     ],
     "baseUrl": ".",
     "paths": {

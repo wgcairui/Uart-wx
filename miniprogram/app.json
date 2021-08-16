@@ -20,7 +20,12 @@
     "pages/util/smsValidation/smsValidation",
     "pages/util/setVal/setVal",
     "pages/admin/register/register",
-    "pages/admin/node/node"
+    "pages/admin/node/node",
+    "pages/index/web/web",
+    "pages/index/manageDev/mountDevs/mountDevs",
+    "pages/admin/registerDev/registerDev",
+    "pages/admin/devs/devs",
+    "pages/admin/dev/dev"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -45,7 +50,7 @@
   },
   "tabBar": {
     "color": "#000",
-    "selectedColor": "#000",
+    "selectedColor": "#1296db",
     "backgroundColor": "#ffffff",
     "borderStyle": "black",
     "position": "bottom",

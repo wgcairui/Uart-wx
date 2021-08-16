@@ -11,7 +11,8 @@ Page({
     name: '',
     avanter: '',
     rgwx: false,
-    rgTime: ''
+    rgTime: '',
+    wxId: ''
   },
 
   /**
@@ -23,38 +24,21 @@ Page({
 
   //
   async start() {
-    const { arg } = await api.getUserInfo()
-    this.setData({
-      name: arg.name,
-      avanter: arg.avanter,
-      rgwx: arg.rgtype === 'wx',
-      rgTime: new Date(arg.creatTime!).toLocaleDateString()
-    })
-    wx.setStorage({ key: 'userinfo', data: arg })
-  },
-  // webLogin
-  webLogin() {
-    wx.showModal({
-      title: 'Web登录',
-      content: '打开https://uart.ladishb.com',
-      success: (r) => {
-        if (r.confirm) {
-          wx.scanCode({
-            success: async (res) => {
-              api.webLogin(res.result).then(result => {
-                if (result.ok) {
-                  wx.showModal({
-                    title: 'Scan',
-                    content: '扫码登录成功'
-                  })
-                }
-              })
-            }
-          })
-        }
+    api.userInfo().then(({ code, data }) => {
+      if (code) {
+        this.setData({
+          name: data.name,
+          avanter: data.avanter,
+          rgwx: data.rgtype === 'wx',
+          rgTime: new Date(data.creatTime!).toLocaleDateString(),
+          wxId: data.wxId
+        })
+        wx.setStorage({ key: 'userinfo', data })
       }
     })
+
   },
+
   // 更新用户头像和名称
   updateAvanter() {
     wx.getUserProfile({
@@ -70,39 +54,24 @@ Page({
   },
   // 解绑微信
   async unbindwx() {
-    const { ok, msg } = await api.unbindwx()
-    if (ok) {
-      this.clearCache()
-      wx.reLaunch({ url: '/pages/index/index' })
-    } else {
-      wx.showModal({
-        title: '操作失败',
-        content: msg
-      })
+    const d = await wx.showModal({
+      title: '解绑微信',
+      content: this.data.rgwx ? '这将会删除您所有的配置和信息!!!' : '这将会解除小程序和透传账号之间的连接',
+    })
+
+    if (d.confirm) {
+      const { code } = await api.unbindwx()
+      if (code) {
+        this.clearCache()
+        await wx.showModal({
+          title: 'success',
+          content: '已成功解绑,确定退出小程序'
+        });
+        (wx as any).exitMiniProgram()
+      }
     }
   },
-  // 注销账号
-  async cancelwx() {
-    wx.showModal({
-      title: '注销操作',
-      content: '是否确定注销此账号？',
-      success: (res) => {
-        if (res.confirm) {
-          api.cancelwx().then(({ ok, msg }) => {
-            if (ok) {
-              this.clearCache()
-              wx.reLaunch({ url: '/pages/index/index' })
-            } else {
-              wx.showModal({
-                title: '操作失败',
-                content: msg
-              })
-            }
-          })
-        }
-      }
-    })
-  },
+
   // 打开微信设置
   openSetting() {
     wx.openSetting({
@@ -142,10 +111,21 @@ Page({
   },
 
   /**
+   * 订阅下次告警
+   */
+  async subMessage() {
+    const url = encodeURIComponent('http://mp.weixin.qq.com/s?__biz=MjM5MjA1MTgxOQ==&mid=304819939&idx=1&sn=d0bcd922033075afa2b5219fc95ebb1e&chksm=3173a9e7060420f1a98d0040d964a2f82af25289a731d1400c5224ca9bb3d225d737700700a8#rd')
+    wx.navigateTo({ url: '/pages/index/web/web?url=' + url })
+  },
+
+  /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: async function () {
     await this.start()
     wx.stopPullDownRefresh()
+  },
+  onShow() {
+    this.start()
   }
 })

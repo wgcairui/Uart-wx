@@ -8,16 +8,17 @@ Component({
   properties: {
     result: {
       type: null,
-      observer(newval: queryResult, old: queryResult) {
+      observer(newval: Uart.queryResult, old: Uart.queryResult) {
         // console.log({ newval, old });
         if (newval.result) {
-          const successData = [] as queryResultArgument[]
-          const dangerData = [] as queryResultArgument[]
+          const successData = [] as Uart.queryResultArgument[]
+          const dangerData = [] as Uart.queryResultArgument[]
           newval.result.forEach(el => {
+            if (!el.issimulate) el.parseValue = el.parseValue + el.unit
             if (el.alarm) dangerData.push(el)
             else successData.push(el)
           })
-          if (old?.result && old.updatedAt !== newval.updatedAt && old.result.length === newval.result.length) {
+          /* if (old?.result && old.updatedAt !== newval.updatedAt && old.result.length === newval.result.length) {
             // 声明两个不同的数组存放告警和正常数据
             [...successData, ...dangerData].forEach((el, index) => {
               // 比较新老数据，添加上下箭头
@@ -30,7 +31,7 @@ Component({
               } else el.step = ''
             })
 
-          }
+          } */
           this.setData({
             successData,
             dangerData
@@ -41,8 +42,8 @@ Component({
   },
   data: {
     filter: '',
-    successData: [] as queryResultArgument[],
-    dangerData: [] as queryResultArgument[]
+    successData: [] as Uart.queryResultArgument[],
+    dangerData: [] as Uart.queryResultArgument[]
   },
 
   /**
@@ -53,7 +54,7 @@ Component({
       this.triggerEvent('filter', { filter: this.data.filter })
     },
     // 进入参数状态
-    onLine(event: vantEvent<queryResultArgument>) {
+    onLine(event: vantEvent<Uart.queryResultArgument>) {
       if (event.currentTarget.dataset.item.unit) {
         this.triggerEvent('line', { name: event.target.id })
       }

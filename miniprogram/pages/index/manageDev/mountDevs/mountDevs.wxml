@@ -1,0 +1,34 @@
+<!--miniprogram/pages/index/manageDev/mountDevs/mountDevs.wxml-->
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
+
+<view class="container">
+  <view class="main">
+    <van-button type="info" round block bindtap="deleteDTU">删除DTU</van-button>
+    <van-button type="primary" round block bindtap="addMonutDev">添加设备</van-button>
+  </view>
+  <view class="devs">
+    <view class="devs-item" wx:for="{{terminal.mountDevs}}" wx:key="key">
+      <view class="devs-item-card">
+        <view class="devs-item-card-body">
+          <text style="font-size:26rpx;">{{item.mountDev}} | {{item.pid}}</text>
+          <view class="devs-item-card-content">
+            <view>
+              <view>
+                <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
+                <text> {{item.online?'在线':'离线'}}</text>
+              </view>
+              <text class="">{{item.protocol}}</text>
+            </view>
+            <view class="devs-item-card-pic">
+              <van-button type="warning" round size="small" data-item="{{item}}" data-key="{{item.DevMac}}"
+                bindtap="deleteMountDev">删除</van-button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+</view>

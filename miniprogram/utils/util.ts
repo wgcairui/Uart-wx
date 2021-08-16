@@ -39,6 +39,18 @@ export const parseTime = (time?: string | number | Date) => {
 }
 
 /**
+ * @method await等待
+ * @param time 等待时间,ms
+ */
+export const sleep = (time: number = 1000) => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(0)
+    }, time);
+  })
+}
+
+/**
  * 开通订阅消息
  */
 type SubscribeType = "设备告警提醒" | "注册成功提醒"

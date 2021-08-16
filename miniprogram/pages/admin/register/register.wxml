@@ -4,6 +4,9 @@
     <van-cell-group>
       <van-field model:value="{{mac}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描DTU的编号"
         bind:click-icon="scanMac" />
+
+      <!-- <van-field model:value="{{bind}}" required clearable label="设备ID" icon="scan" placeholder="输入或扫描设备编号"
+        bind:click-icon="scanBind" /> -->
     </van-cell-group>
     <view class="center" wx:if="mac.length===12">
       <van-button round type="info" bind:click="scanRequst" disabled="{{!mac}}">添加设备</van-button>
@@ -11,9 +14,9 @@
   </view>
 
   <view>
-    <van-cell-group title="设备列表">
-      <van-cell wx:for="{{dtus}}" wx:key="key" title="{{item}}">
-        <van-button round type="info" size="small" bindtap="rmDtu" data-key="{{item}}">删除设备</van-button>
+    <van-cell-group title="设备列表/{{dtus.length}}">
+      <van-cell wx:for="{{dtus}}" wx:key="key" title="{{item.DevMac}}">
+        <van-button round type="info" size="small" bindtap="rmDtu" data-key="{{item.DevMac}}">删除设备</van-button>
       </van-cell>
     </van-cell-group>
   </view>

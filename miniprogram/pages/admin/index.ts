@@ -6,7 +6,8 @@ Page({
    */
   data: {
     name: '',
-    avanter: ''
+    avanter: '',
+    rgwx: false
   },
 
   /**
@@ -18,24 +19,30 @@ Page({
 
   //
   async start() {
-    const { arg } = await api.getUserInfo()
+    const { data } = await api.userInfo()
     this.setData({
-      name: arg.name,
-      avanter: arg.avanter
+      name: data.name,
+      avanter: data.avanter,
+      rgwx: data.rgtype === 'wx',
     })
-    wx.setStorage({ key: 'userinfo', data: arg })
   },
   // 解绑微信
   async unbindwx() {
-    const { ok, msg } = await api.unbindwx()
-    if (ok) {
-      this.clearCache()
-      wx.reLaunch({ url: '/pages/index/index' })
-    } else {
-      wx.showModal({
-        title: '操作失败',
-        content: msg
-      })
+    const d = await wx.showModal({
+      title: '解绑微信',
+      content: this.data.rgwx ? '这将会删除您所有的配置和信息!!!' : '这将会解除小程序和透传账号之间的连接',
+    })
+
+    if (d.confirm) {
+      const { code } = await api.unbindwx()
+      if (code) {
+        this.clearCache()
+        await wx.showModal({
+          title: 'success',
+          content: '已成功解绑,确定退出小程序'
+        });
+        (wx as any).exitMiniProgram()
+      }
     }
   },
   //

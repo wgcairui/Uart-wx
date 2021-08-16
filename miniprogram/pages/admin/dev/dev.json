@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "van-field": "@vant/weapp/field/index"
+  },
+  "enablePullDownRefresh": false,
+  "navigationBarTitleText": "查询注册设备"
+}

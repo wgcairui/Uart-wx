@@ -11,7 +11,7 @@
   </view>
   <view class="info card" wx:if="{{terminal.name}}">
     <van-cell-group>
-      <van-cell title="IMEI" value="{{mac}}" />
+      <van-cell title="IMEI" value="{{terminal.DevMac}}" />
       <van-cell title="DTU名称" value="{{terminal.name}}" />
       <van-cell title="接入节点" value="{{terminal.mountNode}}" />
     </van-cell-group>

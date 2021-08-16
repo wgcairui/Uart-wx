@@ -4,5 +4,6 @@
     "van-dropdown-menu": "@vant/weapp/dropdown-menu/index",
   "van-dropdown-item": "@vant/weapp/dropdown-item/index"
   },
-  "enablePullDownRefresh": false
+  "enablePullDownRefresh": false,
+  "navigationBarTitleText": "添加绑定设备"
 }

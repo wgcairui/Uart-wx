@@ -5,10 +5,11 @@
 
 <view class="container">
   <view class="tels card">
-    <van-cell-group title="告警信息发送(最多三个号码,以回车分隔)">
+    <van-cell-group title="告警信息发送(最多三个号码,以回车分隔),如果绑定LADS公众号,优先推送消息到公众号">
       <my-input label="告警手机:" value="{{tels}}" bind:submit="modifyTell" data-key="tel" type="textarea"></my-input>
       <my-input label="告警邮箱:" value="{{mails}}" bind:submit="modifyTell" data-key="mail" type="textarea"></my-input>
     </van-cell-group>
+    <van-button size="small" round type="info" bindtap="subMessage" block>订阅告警</van-button>
   </view>
   <view class="devslist">
     <view wx:for="{{devs}}" wx:key="_id" wx:if="item.mountDevs.length > 0" style="margin-bottom:12px">

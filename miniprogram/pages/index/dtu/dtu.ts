@@ -9,8 +9,8 @@ Page({
    */
   data: {
     mac: '',
-    terminal: {} as Terminal,
-    dtuItem: [] as TerminalMountDevs[],
+    terminal: {} as Uart.Terminal,
+    dtuItem: [] as Uart.TerminalMountDevs[],
     jwSupport: false,
     longitude: '',
     latitude: '',
@@ -36,7 +36,7 @@ Page({
   },
 
   async start() {
-    const terminal = (await api.getDTUInfo(this.data.mac)).arg
+    const { data: terminal } = await api.getTerminal(this.data.mac)
     const jw = terminal.jw && terminal.jw.length > 10 ? terminal.jw.split(',') : false
     // console.log(jw);
     terminal.uptime = parseTime(terminal.uptime)
@@ -65,20 +65,22 @@ Page({
         markers: [mark]
       })
       // 根据gps获取地址
-      api.getGPSaddress([jw[1], jw[0]].join(',')).then(({ ok, arg }) => {
-        if (ok) {
+      api.getGPSaddress([jw[1], jw[0]].join(',')).then(({ code, data, msg }) => {
+        if (code) {
           this.setData({
-            address: arg.result.address,
-            recommend: arg.result.formatted_addresses.recommend
+            address: data.address,
+            recommend: data.formatted_addresses.recommend
           })
+        } else {
+          wx.showToast({ title: msg })
         }
       })
     }
-    wx.setNavigationBarTitle({ title: terminal.name })
+    wx.setNavigationBarTitle({ title: terminal.name || terminal.DevMac })
   },
 
   // 查看设备数据
-  showMountDevData(event: vantEvent<TerminalMountDevs>) {
+  showMountDevData(event: vantEvent<Uart.TerminalMountDevs>) {
     const { pid, mountDev, protocol, Type } = event.currentTarget.dataset.item
     const { DevMac } = this.data.terminal
     wx.navigateTo({
@@ -100,8 +102,8 @@ Page({
   //
   async nameChange(event: vantEvent) {
     const value = event.detail.value
-    const { ok, msg } = await api.modifyDTUName(this.data.terminal.DevMac, value)
-    if (!ok) {
+    const { code, msg } = await api.modifyTerminal(this.data.terminal.DevMac, value)
+    if (!code) {
       wx.showModal({
         title: "Error",
         content: msg
@@ -131,7 +133,7 @@ Page({
           wx.getSetting({
             success(res) {
               if (!res.authSetting["scope.userLocation"]) {
-                wx.hideLoading()
+
                 wx.authorize({
                   scope: "scope.userLocation",
                   success() {
@@ -164,11 +166,12 @@ Page({
         })
         // 上传定位到服务端
         api.updateGps(terminal.DevMac, terminal.jw).then(el => {
-          if (el.ok) {
+          if (el.code) {
             wx.showToast({ title: '更新定位成功' })
           } else {
             wx.showToast({ title: el.msg, icon: 'none' })
           }
+          wx.hideLoading()
         })
       }
     })

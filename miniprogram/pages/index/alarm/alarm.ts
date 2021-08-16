@@ -7,7 +7,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    Alarm: [] as uartAlarmObject[],
+    Alarm: [] as Uart.uartAlarmObject[],
     filter: '',
     date: '',
     dateShow: false,
@@ -19,58 +19,58 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: async function () {
+    wx.showLoading({ title: '加载数据' })
     const date = new Date()
+    date.setMonth(date.getMonth() - 1)
     const start = this.formatDate(date)
-    const end = this.formatDate(date)
+    const end = this.formatDate(new Date())
     this.setData({
       date: start + '-' + end
     })
-    wx.getStorage({
-      key: 'alarm_list',
-      success: (el) => {
-        this.setData({
-          Alarm: el.data
-        })
-        wx.setTabBarBadge({ index: 1, text: this.data.Alarm.filter(el => !el.isOk).length.toString() })
-      },
-      fail: () => {
-        this.getAlarmInfo()
-      }
-    })
-    //检查告警订阅状态
-    /* const { subscriptionsSetting } = await wx.getSetting({
-      withSubscriptions: true
-    })
-    console.log({subscriptionsSetting});
-    
-    this.setData({
-      subMessageStat: Boolean(subscriptionsSetting?.itemSettings?.['8NX6ji8ABlNAOEMcU7v2jtD4sgCB7NMHguWzxZn3HO4'] === 'accept')
-    }) */
+    setTimeout(() => {
+      this.getAlarmInfo().then(() => {
+        wx.hideLoading()
+      })
+    }, 2000)
+
   },
   /**
    * 订阅下次告警
    */
   async subMessage() {
-      const res = await SubscribeMessage(['设备告警提醒'])
-      this.setData({
-        subMessageStat: (res as any)['8NX6ji8ABlNAOEMcU7v2jtD4sgCB7NMHguWzxZn3HO4'] === 'accept'
-      })
+    wx.showModal({
+      title: '订阅长期告警',
+      content: '小程序限制,单次订阅只能发送一条订阅消息,如需长期订阅请关注关联公众号',
+      success: async (res) => {
+        if (res.confirm) {
+          const url = encodeURIComponent('http://mp.weixin.qq.com/s?__biz=MjM5MjA1MTgxOQ==&mid=304819939&idx=1&sn=d0bcd922033075afa2b5219fc95ebb1e&chksm=3173a9e7060420f1a98d0040d964a2f82af25289a731d1400c5224ca9bb3d225d737700700a8#rd')
+          wx.navigateTo({ url: '/pages/index/web/web?url=' + url })
+        }
+      }
+    })
 
   },
   // 获取告警信息
   async getAlarmInfo() {
-    wx.showLoading({ title: '加载数据' })
     const [start, end] = this.data.date.split('-')
-    const { ok, msg, arg } = await api.getAlarm(start + ' 00:00:00', end + " 23:59:59")
-    wx.hideLoading()
-    if (ok) {
-      const Alarm = arg.map(el => {
-        el.time = this.formattime(el.timeStamp)
-        return el
-      })
+    const { code, data, msg } = await api.getAlarm(start + ' 0:0:0', end + ' 23:59:59')
+    if (code) {
+      const Alarm = data
+        .map(el => {
+          el.time = this.formattime(el.timeStamp)
+          return el
+        })
+        .reverse()
       this.setData({
-        Alarm
+        Alarm: Alarm.slice(0, 10)
       })
+      if (Alarm.length > 10) {
+        setTimeout(() => {
+          this.setData({
+            Alarm: Alarm.slice(10, -1)
+          })
+        }, 1000);
+      }
       // 计算未确认告警数量
       const alarmNum = Alarm.filter(el => !el.isOk).length
       if (alarmNum > 0) wx.setTabBarBadge({ index: 1, text: alarmNum.toString() })
@@ -82,6 +82,7 @@ Page({
         content: msg || '未知错误'
       })
     }
+
   },
   // 显示日期选择器
   showCalendar() {
@@ -107,7 +108,7 @@ Page({
     this.getAlarmInfo()
   },
   // 确认告警信息
-  showalarm(event: vantEvent<uartAlarmObject>) {
+  showalarm(event: vantEvent<Uart.uartAlarmObject>) {
     const alarm = event.currentTarget.dataset.item
     const key = event.currentTarget.dataset.key as number
     wx.showModal({
@@ -119,7 +120,7 @@ Page({
       success: async (res) => {
         if (res.confirm && !alarm.isOk) {
           wx.showLoading({ title: '确认告警信息' })
-          await api.alarmConfirmed(alarm._id)
+          await api.confrimAlarm(alarm._id)
           this.setData({
             [`Alarm[${key}].isOk`]: true
           })
@@ -138,7 +139,7 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           wx.showLoading({ title: '确认告警信息' })
-          await api.alarmConfirmed()
+          await api.confrimAlarm()
           wx.startPullDownRefresh()
           wx.hideLoading()
           this.subMessage()
@@ -147,12 +148,8 @@ Page({
     })
   },
 
-  onShow() {
-    wx.startPullDownRefresh()
-  },
   // 下拉刷新
   async onPullDownRefresh() {
-    await this.getAlarmInfo()
     wx.stopPullDownRefresh()
   }
   ,

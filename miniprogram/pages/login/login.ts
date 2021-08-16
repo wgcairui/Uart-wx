@@ -1,44 +1,43 @@
 import { SubscribeMessage } from "../../utils/util";
-// miniprogram/pages/login/login.js
 import api from "../../utils/api";
 Page({
   /**
    * 页面的初始数据
    */
   data: {
+    active: 0,
     // img:"https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png",
     userInfo: {
-      avatarUrl: "http://www.ladishb.com/admin/upload/11122020__LADS108.png",
+      avatarUrl: "https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png",
     } as WechatMiniprogram.UserInfo,
     tel: '',
     registerloading: false,
     loginloading: false,
     openid: '',
+    unionid: '',
     accontUser: '',
     accontPasswd: ''
   },
-  onLoad(opt: { openid: string; }) {
+  onLoad(opt: { openid: string; unionid: string }) {
     this.setData({
-      openid: opt.openid
+      openid: opt.openid,
+      unionid: opt.unionid
     })
   },
 
   /**
-   * 生命周期函数--监听页面加载
+   * 获取用户信息
    */
-  // 获取用户信息
-  getUserInfo() {
-    wx.getUserProfile({
-      desc: '用于注册小程序',
-      success: (info: { userInfo: WechatMiniprogram.UserInfo }) => {
-        this.setData({
-          userInfo: info.userInfo
-        })
-      }
+  async getUserInfo() {
+    const s = await wx.getUserProfile({
+      desc: '用于注册小程序'
     })
-    /* this.setData({
-      userInfo: e.detail.userInfo
-    }) */
+    if (s.userInfo) {
+      this.setData({
+        userInfo: s.userInfo
+      })
+
+    }
   },
   tabclick(event: vantEvent) {
     wx.setNavigationBarTitle({ title: event.detail.title })
@@ -47,8 +46,8 @@ Page({
   async getphonenumber(e: vantEvent) {
     if (!e.detail.encryptedData) return
     wx.showLoading({ title: '获取手机号' })
-    const telObj = await api.getphonenumber<any>({ openid: this.data.openid, encryptedData: e.detail.encryptedData, iv: e.detail.iv })
-    const tel = telObj.arg.phoneNumber
+    const { data } = await api.getphonenumber({ openid: this.data.openid, encryptedData: e.detail.encryptedData, iv: e.detail.iv })
+    const tel = data.phoneNumber
     this.setData({
       tel,
       "userInfo.nickName": this.data.userInfo.nickName || 'user' + tel.slice(-4)
@@ -57,12 +56,18 @@ Page({
   },
   // 注册用户
   async register() {
-    await SubscribeMessage(['注册成功提醒', '设备告警提醒'])
+    // await this.getUserInfo()
+    const tel = this.data.tel
+    if (!tel || !/^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/.test(tel.toString())) {
+      wx.showToast({ title: "需要手机号码", icon: "error" })
+      return
+    }
+    // await SubscribeMessage(['注册成功提醒'])
     this.setData({ registerloading: true })
-    const { userInfo: { nickName, avatarUrl }, tel } = this.data
-    const { ok, msg } = await api.registerUser({ user: this.data.openid, name: nickName, avanter: avatarUrl, tel })
+    const { userInfo: { nickName, avatarUrl }, unionid, openid } = this.data
+    const { code, msg } = await api.registerUser({ user: unionid, openid, name: nickName, avanter: avatarUrl || 'http://www.ladishb.com/upload/11122020__LADS108.png', tel })
     this.setData({ registerloading: false })
-    if (!ok) {
+    if (!code) {
       wx.showModal({ title: msg, icon: "none", duration: 5000 })
     } else {
       wx.reLaunch({ url: '/pages/index/index' })
@@ -71,17 +76,22 @@ Page({
   },
   // 登录
   async login() {
-    await SubscribeMessage(['设备告警提醒'])
-    const { accontUser, accontPasswd, openid } = this.data
+    //await SubscribeMessage(['设备告警提醒'])
+    const { accontUser, accontPasswd, openid, unionid } = this.data
     this.setData({ loginloading: true })
-    const { ok, msg } = await api.userlogin({ avanter: this.data.userInfo.avatarUrl, openid, user: accontUser, passwd: accontPasswd })
+    const { code, msg } = await api.userlogin({ avanter: this.data.userInfo.avatarUrl, openid, unionid, user: accontUser, passwd: accontPasswd })
     this.setData({ loginloading: false })
-    if (ok) {
+    if (code) {
       wx.reLaunch({ url: '/pages/index/index' })
     } else {
       wx.showModal({
         title: '登录错误',
-        content: msg
+        content: msg,
+        success: () => {
+          this.setData({
+            active: 0
+          })
+        }
       })
     }
   }

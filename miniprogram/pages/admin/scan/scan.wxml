@@ -7,13 +7,11 @@
     </van-cell-group>
   </view>
   <view style="display:flex;justify-content: space-evenly;">
-    <van-button round type="info" bind:click="scanRequst" disabled="{{!mac}}">查询设备</van-button>
-    <van-button type="primary" bindtap="iotRemoteUrl" round>获取远程调试地址</van-button>
+    <van-button round type="info" bind:click="scanRequst" disabled="{{!mac}}" block>查询设备</van-button>
   </view>
   <view class="info card" wx:if="{{terminal.name}}">
     <van-cell-group title="设备信息">
-
-      <van-cell title="IMEI" value="{{mac}}" />
+      <van-cell title="IMEI" value="{{terminal.DevMac}}" />
       <van-cell title="DTU名称" value="{{terminal.name}}" />
       <van-cell title="接入节点" value="{{terminal.mountNode}}" />
       <van-cell title="上线时间" value="{{terminal.uptime}}" />
@@ -21,15 +19,26 @@
       <van-cell title="Gps" value="{{terminal.jw}}" />
       <van-cell title="Port" value="{{terminal.port}}" />
       <van-cell title="通讯" value="{{terminal.uart}}" />
+      <van-cell title="状态" value="{{terminal.online?'在线':'离线'}}" />
       <van-cell wx:if="{{terminal.mountDevs}}" title="挂载设备数目" value="{{terminal.mountDevs.length}}" />
+
+      <van-button block round type="info" bind:click="bindDevId">绑定设备Id</van-button>
+      <van-button block type="info" round bindtap="modifyUart">修改波特率</van-button>
+      <van-button size="small" type="primary" bindtap="iotRemoteUrl" round>获取远程调试地址</van-button>
+      <van-button size="small" type="warning" round bindtap="initTerminal" style="margin-left:1rem">初始化设备</van-button>
     </van-cell-group>
   </view>
-  <view wx:if="{{terminal.mountDevs}}" class="info card">
+  <view wx:if="{{terminal.mountDevs && terminal.mountDevs.length>0}}" class="info card">
     <van-cell-group wx:for="{{terminal.mountDevs}}" wx:key="index" title="{{index}}">
       <van-cell title="设备类型" value="{{item.Type}}"></van-cell>
       <van-cell title="设备型号" value="{{item.mountDev}}"></van-cell>
       <van-cell title="设备地址" value="{{item.pid}}"></van-cell>
       <van-cell title="设备协议" value="{{item.protocol}}"></van-cell>
+      <van-cell title="设备Id" value="{{item.bindDev}}"></van-cell>
+      <van-cell title="状态" value="{{terminal.online?'在线':'离线'}}" />
+      <van-button block size="small" type="info" round bindtap="see" data-item="{{item}}">查看</van-button>
+      <van-button block size="small" type="warning" round bindtap="rmBind" data-item="{{item}}">删除</van-button>
     </van-cell-group>
+
   </view>
 </view>

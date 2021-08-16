@@ -1,7 +1,5 @@
 import api from "../../../utils/api"
 import { RgexpMail, RgexpTel } from "../../../utils/util"
-
-// miniprogram/pages/index/userinfo/userinfo.js
 Page({
 
   /**
@@ -28,9 +26,9 @@ Page({
   },
   //
   start() {
-    wx.getStorage({
-      key: 'userinfo',
-      success: ({ data }: { data: UserInfo }) => {
+    api.userInfo().then(async ({ code, data }) => {
+      if (code) {
+        
         this.setData({
           avanter: data.avanter,
           name: data.name,
@@ -40,39 +38,29 @@ Page({
           tel: data.tel as any,
           user: data.user,
           company: data.company,
-          address: data.address,
           rgtype: data.rgtype || 'web'
         })
-      },
-      fail(){
-        wx.navigateBack()
-        /* wx.showModal({
-          title: '设备错误',
-          content: '缓存被清理,请在首页下拉刷新',
-          success() {
-            wx.switchTab({ url: '/pages/index/index' })
-          }
-        }) */
+        const jw= await api.V2_API_Aamp_ip2local(data.address?.split(":").reverse()[0]!)
+        const ad = await api.getGPSaddress(jw.data.split(',').reverse().join(","))
+        this.setData({
+          address:ad.data.address
+        })
       }
     })
   },
 
-  bindViewTap(){
+  bindViewTap() {
   },
   //
   telChange(event: vantEvent) {
     const value = event.detail.value as string
     if (RgexpTel(value)) {
-      api.modifyUserInfo("tel", value).then(({ ok, msg }) => {
-        if (ok) {
+      api.modifyUserInfo({ tel: Number(value) }).then(({ code, msg }) => {
+        if (code) {
           this.setData({
             tel: value
           })
-          const userinfo = wx.getStorageSync('userinfo')
-          wx.setStorage({
-            key: 'userinfo',
-            data: Object.assign(userinfo, { tel: value })
-          })
+
         } else {
           wx.showModal({
             title: 'Error',
@@ -91,16 +79,12 @@ Page({
   mailChange(event: vantEvent) {
     const value = event.detail.value as string
     if (RgexpMail(value)) {
-      api.modifyUserInfo('mail', value).then(({ ok, msg }) => {
-        if (ok) {
+      api.modifyUserInfo({ 'mail': value }).then(({ code, msg }) => {
+        if (code) {
           this.setData({
             mail: value
           })
-          const userinfo = wx.getStorageSync('userinfo')
-          wx.setStorage({
-            key: 'userinfo',
-            data: Object.assign(userinfo, { mail: value })
-          })
+
         } else {
           wx.showModal({
             title: 'Error',
@@ -117,15 +101,10 @@ Page({
   },
   nameChange(event: vantEvent) {
     const value = event.detail.value as string
-    api.modifyUserInfo('name', value).then(({ ok, msg }) => {
-      if (ok) {
+    api.modifyUserInfo({ 'name': value }).then(({ code, msg }) => {
+      if (code) {
         this.setData({
           name: value
-        })
-        const userinfo = wx.getStorageSync('userinfo')
-        wx.setStorage({
-          key: 'userinfo',
-          data: Object.assign(userinfo, { name: value })
         })
       } else {
         wx.showModal({

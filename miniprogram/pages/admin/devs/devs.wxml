@@ -1,0 +1,9 @@
+<!--miniprogram/pages/index/devs/devs.wxml-->
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
+<view class="container">
+  <my-table result="{{result}}" bind:filter="filter" bind:line="toline">
+    <van-cell value="{{result.time}}"></van-cell>
+  </my-table>
+</view>

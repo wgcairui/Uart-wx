@@ -3,25 +3,16 @@
 	<navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
 <view class="container">
-
-	<!-- <view class="userinfo">
-		<block>
-			<image bindtap="bindViewTap" class="userinfo-avatar" src="{{img}}" mode="cover"></image>
-			<van-button bindtap="getUserInfo" round type="primary" class="getUserInfo"> 获取头像昵称
-			</van-button>
-		</block>
-	</view> -->
-	<!-- 	<view   class="getAvanter">
-	<image src="{{img}}"></image>
-		
-	</view> -->
 	<view>
 		<view class="avanter" bindtap="getUserInfo">
-			<van-image round width="7rem" height="7rem" src="{{userInfo.avatarUrl}}" />
+			<van-image round width="7rem" height="7rem" src="{{userInfo.avatarUrl}}" use-error-slot>
+				<text slot="error">更新头像</text>
+			</van-image>
+
 			<text>{{userInfo.nickName}}</text>
 		</view>
 
-		<van-tabs type="card" bind:click="tabclick" animated active="{{1}}">
+		<van-tabs type="card" bind:click="tabclick" animated active="{{active}}">
 			<van-tab class="tab" title="微信注册">
 				<van-cell-group>
 					<van-field title-width="3em" model:value="{{tel}}" center clearable label="phone" placeholder="输入手机号码"
@@ -29,8 +20,8 @@
 						<van-button slot="button" size="small" type="primary" open-type="getPhoneNumber"
 							bindgetphonenumber="getphonenumber">获取手机号码</van-button>
 					</van-field>
-					<van-button disabled="{{!tel}}" type="primary" loading="{{registerloading}}" bindtap="register"
-						class="center register" round block>注册(开通消息订阅)
+					<van-button type="primary" loading="{{registerloading}}" bindtap="register" class="center register" round
+						block>注册
 					</van-button>
 				</van-cell-group>
 			</van-tab>
@@ -40,7 +31,7 @@
 					<van-field model:value="{{ accontPasswd }}" type="password" label="密码" placeholder="请输入密码" required
 						border="{{ false }}" />
 					<van-button id="login" disabled="{{!accontUser && !accontPasswd}}" type="primary" loading="{{loginloading}}"
-						bindtap="login" class="center register login" round block>登录(开通消息订阅)
+						bindtap="login" class="center register login" round block>登录
 					</van-button>
 				</van-cell-group>
 			</van-tab>

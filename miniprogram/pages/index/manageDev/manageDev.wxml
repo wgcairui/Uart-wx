@@ -4,22 +4,44 @@
 </page-meta>
 
 <view class="container">
-  <view wx:for="{{devs}}" wx:key="_id">
+  <view class="main">
+    <van-button type="primary" round block bindtap="addDTU">添加设备</van-button>
+  </view>
+  <view class="devs">
+    <view class="devs-item" wx:for="{{devs}}" wx:key="key" bindtap="toDev" data-item="{{item}}">
+      <view class="devs-item-card">
+        <view class="devs-item-card-body">
+          <text style="font-size:26rpx;">{{item.name || item.DevMac}}</text>
+          <view class="devs-item-card-content">
+            <view>
+              <view>
+                <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
+                <text> {{item.online?'在线':'离线'}}</text>
+              </view>
+              <text class="">{{item.mountDevs.length || 0}}个设备</text>
+            </view>
+            <view class="devs-item-card-pic">
+              <van-icon size="2em" name="cluster-o"></van-icon>
+            </view>
+          </view>
+
+        </view>
+      </view>
+    </view>
+  </view>
+  <!-- <view wx:for="{{devs}}" wx:key="_id">
     <van-cell icon="cluster" title="{{item.name}}" class="bg-dark-cell">
       <van-icon name="clear" data-item="{{item}}" bindtap="deleteDTU" />
-      <!-- <van-button type="danger" round size="small" data-item="{{item}}" bindtap="deleteDTU">删除DTU</van-button> -->
     </van-cell>
     <van-cell wx:for="{{item.mountDevs}}" wx:key="index" wx:for-item="item2" title="{{item2.mountDev}}"
       label="{{item2.protocol}}" center>
       <van-tag type="primary" size="medium">{{item2.Type}}</van-tag>
       <van-tag type="primary" size="medium">{{item2.pid}}</van-tag>
       <van-icon name="clear" data-item="{{item2}}" data-key="{{item.DevMac}}" bindtap="deleteMountDev" />
-      <!-- <van-button type="danger" data-item="{{item2}}" data-key="{{item.DevMac}}" round size="small"
-        bindtap="deleteMountDev">删除</van-button> -->
     </van-cell>
     <van-cell>
       <van-button type="primary" round size="small" data-item="{{item}}" bindtap="addMonutDev">添加设备</van-button>
       <van-button type="info" round size="small" data-item="{{item.DevMac}}" bindtap="showDTUInfo">DTU信息</van-button>
     </van-cell>
-  </view>
+  </view> -->
 </view>

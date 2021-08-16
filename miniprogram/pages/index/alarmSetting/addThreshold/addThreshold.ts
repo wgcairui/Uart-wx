@@ -1,3 +1,5 @@
+import api from "../../../../utils/api"
+
 // miniprogram/pages/index/alarmSetting/addThreshold/addThreshold.js
 Page({
 
@@ -10,29 +12,28 @@ Page({
     unit: '',
     min: 0,
     max: 0,
-    icon:'star',
+    icon: 'star',
     columns: [] as string[],
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
-    wx.getStorage({
-      key: 'protocolSetup' + options.protocol,
-      success: ({ data }: { data: protocol }) => {
-        const setups = data.instruct.map(el => el.formResize.filter(el2 => !el2.isState))
-          .reduce((pre, cur) => [...pre, ...cur])
-        const cache = new Map(setups.map(el => [el.name, el]))
-        const keysSet = new Set((<string>options.keys).split(","))
-        this.setData({
-          columns: Array.from(cache.keys()).filter(el=>!keysSet.has(el)),
-          cache
-        })
-      },
-      fail() {
-        wx.navigateBack()
-      }
+  onLoad: async function (options) {
+    console.log(options);
+    const protocol = options.protocol!
+    const setup = await api.getAlarmProtocol(protocol)
+    const showSet = new Set(setup.data.ShowTag)
+    api.getProtocol(protocol).then(({ code, data }) => {
+      const setups = data.instruct
+        .map(el => el.formResize.filter(el2 => !el2.isState))
+        .reduce((pre, cur) => [...pre, ...cur])
+      const cache = new Map(setups.map(el => [el.name, el]))
+      const keysSet = new Set((<string>options.keys).split(","))
+      this.setData({
+        columns: Array.from(cache.keys()).filter(el => showSet.has(el) && !keysSet.has(el)),
+        cache
+      })
     })
   },
   minonChange(event: vantEvent) {

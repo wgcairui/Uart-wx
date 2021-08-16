@@ -13,13 +13,20 @@
   </view>
   <view class="grid">
     <van-cell title="常用操作"></van-cell>
-    <van-grid clickable gutter="{{6}}">
-      <van-grid-item icon="cluster" icon-color="#29d" text="批量登记" url="/pages/admin/register/register" />
-      <van-grid-item icon="scan" icon-color="#29d" text="查询DTU" url="/pages/admin/scan/scan" />
+    <van-grid clickable gutter="{{12}}" column-num="{{2}}" clickable>
+      <van-grid-item icon="cluster" icon-color="#29d" text="批量登记设备" url="/pages/admin/registerDev/registerDev" />
+      <van-grid-item icon="scan" icon-color="#29d" text="查询透传DTU" url="/pages/admin/scan/scan" />
+      <van-grid-item icon="scan" icon-color="#29d" text="查询LADS设备" url="/pages/admin/dev/dev" />
+    </van-grid>
+  </view>
+  <view class="grid">
+    <van-cell title="其它操作"></van-cell>
+    <van-grid clickable gutter="{{12}}" column-num="{{2}}" clickable>
+      <van-grid-item icon="cluster" icon-color="#29d" text="批量登记DTU" url="/pages/admin/register/register" />
       <van-grid-item icon="wap-home" icon-color="#29d" text="查询节点" url="/pages/admin/node/node" />
       <van-grid-item icon="clear" icon-color="#29d" text="清除缓存" url="" bindtap="clearCache" />
       <!-- <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="/pages/index/updatelog/updatelog" /> -->
-      <van-grid-item wx:if="{{!rgwx}}" icon="delete" icon-color="#29d" text="解绑微信" url="" bindtap="unbindwx" />
+      <van-grid-item icon="delete" icon-color="#29d" text="解绑微信" url="" bindtap="unbindwx" />
     </van-grid>
   </view>
 </view>

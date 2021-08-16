@@ -5,7 +5,7 @@
   },
   "miniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
-  "libVersion": "2.15.0",
+  "libVersion": "2.16.1",
   "projectname": "ladis%E9%80%8F%E4%BC%A0%E5%B9%B3%E5%8F%B0",
   "scripts": {
     "beforeCompile": "npm run tsc",
@@ -39,14 +39,12 @@
       "outputPath": ""
     },
     "enableEngineNative": false,
-    "bundle": false,
     "useIsolateContext": true,
-    "useCompilerModule": true,
-    "userConfirmedUseCompilerModuleSwitch": false,
     "userConfirmedBundleSwitch": false,
     "packNpmManually": false,
     "packNpmRelationList": [],
-    "minifyWXSS": true
+    "minifyWXSS": true,
+    "showES6CompileOption": false
   },
   "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},

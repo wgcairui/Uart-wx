@@ -1,7 +1,6 @@
 // miniprogram/pages/index/devs/devs.js
 import { ObjectToStrquery, parseTime } from "../../../utils/util"
 import api from "../../../utils/api"
-import unitCache from "../../../utils/unitCache"
 Page({
 
   /**
@@ -12,18 +11,20 @@ Page({
     mac: '',
     pid: '',
     mountDev: "",
-    result: {} as queryResult,
+    result: {} as Uart.queryResultSave,
     filter: '',
-    interval: 0,
+    interval: 0 as any,
     protocol: '',
     Type: '',
     Constant: {} as {
-      sys: ProtocolConstantThreshold
+      sys: Uart.ProtocolConstantThreshold,
+      user: Uart.ProtocolConstantThreshold,
+      show: Set<string>
     },
     upsPic: 'http://www.ladishb.com/upload/342021__ups.gif',
     th: {
-      temperature: 0,
-      humidity: 0,
+      temperature: '0',
+      humidity: '0',
     },
     _oprateStat: false
   },
@@ -43,10 +44,23 @@ Page({
   },
   async onReady() {
     wx.showLoading({ title: '获取运行数据' })
-    const { arg } = await api.getUserDevConstant(this.data.protocol)
+    const sys = await api.getAlarmProtocol(this.data.protocol)
+    const user = await api.getUserAlarmProtocol(this.data.protocol)
+    if (sys.code) {
+      this.setData({
+        "Constant.sys": sys.data
+      })
+    }
+    if (user.code) {
+      this.setData({
+        "Constant.user": user.data,
+        "Constant.show": new Set([sys.data || [], user.data])
+      })
+    }
     this.setData({
-      Constant: arg
+      "Constant.show": new Set([sys.data?.ShowTag || [], user.data?.ShowTag || []].flat())
     })
+
     await this.GetDevsRunInfo()
     wx.hideLoading()
   },
@@ -80,24 +94,26 @@ Page({
     await this.GetDevsRunInfo()
     wx.stopPullDownRefresh()
   },
+
+
   async GetDevsRunInfo() {
     const { mac, pid, filter } = this.data
-    const { ok, arg, msg } = await api.getDevsRunInfo(mac, pid)
-    if (ok && arg) {
+    const { code, data, msg } = await api.getTerminalData(mac, pid)
+    if (code && data.result) {
       const regStr = new RegExp(filter)
-      arg.result = arg.result.filter(el => !filter || regStr.test(el.name)).map(obj => Object.assign(obj, unitCache.get(obj.value, obj.unit || '')))
-      arg.time = parseTime(arg.time)
+      data.result = data.result.filter(el => this.data.Constant.show.has(el.name) && (!filter || regStr.test(el.name)))
+      data.time = parseTime(data.time)
       this.setData({
-        result: arg,
+        result: data,
         interval: setTimeout(() => {
           this.GetDevsRunInfo()
-        }, arg.Interval || 5000)
+        }, data.Interval && data.Interval >= 2000 ? data.Interval : 5000)
       })
       //
 
       switch (this.data.Type) {
         case "UPS":
-          const workMode = arg.result.find(el => el.name === this.data.Constant.sys.Constant.WorkMode)?.value as string
+          const workMode = data.result.find(el => el.name === this.data.Constant.sys.Constant.WorkMode)?.parseValue as string
           switch (workMode) {
             case "电池模式":
               this.setData({
@@ -126,8 +142,8 @@ Page({
           const { Temperature, Humidity } = this.data.Constant.sys.Constant
           this.setData({
             th: {
-              temperature: arg.result.find(el => el.name === Temperature)?.value,
-              humidity: arg.result.find(el => el.name === Humidity)?.value
+              temperature: data.result.find(el => el.name === Temperature)?.parseValue!,
+              humidity: data.result.find(el => el.name === Humidity)?.parseValue!
             }
           })
           break
@@ -156,15 +172,19 @@ Page({
   },
   // 导航到图表
   toline(e: vantEvent) {
+    const url = '/pages/index/line/line' + ObjectToStrquery({ name: e.detail.name, mac: this.data.mac, pid: this.data.pid, protocol: this.data.protocol })
+    console.log(url);
+
     wx.navigateTo({
-      url: '/pages/index/line/line' + ObjectToStrquery({ name: e.detail.name, mac: this.data.mac, pid: this.data.pid, protocol: this.data.protocol })
+      url
     })
   },
+
   // 发送操作指令
-  async oprate(e: Pick<vantEvent, 'detail'>) {
+  async oprate(e: Pick<vantEvent<Uart.OprateInstruct>, 'detail'>) {
     if (this.data._oprateStat) return
-    const item: OprateInstruct = e.detail
-    if (item.value.includes("%i") && !item.val) {
+    const item: Uart.OprateInstruct = e.detail
+    if (item.value.includes("%i") && !item.val && item.val !== 0) {
       wx.navigateTo({
         url: '/pages/util/setVal/setVal' + ObjectToStrquery({ item }),
         events: {
@@ -180,13 +200,13 @@ Page({
     this.setData({
       _oprateStat: true
     })
-    const { ok, msg } = await api.SendProcotolInstructSet({ mountDev: this.data.mountDev, pid: Number(this.data.pid), protocol: this.data.protocol, DevMac: this.data.mac }, item)
+    const { code, data, msg } = await api.SendProcotolInstructSet({ mountDev: this.data.mountDev, pid: Number(this.data.pid), protocol: this.data.protocol, DevMac: this.data.mac } as any, item)
     this.setData({
       _oprateStat: false
     })
     wx.hideLoading()
     // 如果设备未通过校验，则跳转到校验短信验证码页面
-    if (ok === 4) {
+    /* if (ok === 4) {
       wx.showModal({
         title: '权限验证',
         content: '操作指令需要验证您的设备,是否通过短信开始验证？',
@@ -204,12 +224,12 @@ Page({
           }
         }
       })
-    } else {
-      wx.showModal({
-        title: ok ? 'Success' : 'Error',
-        content: msg
-      })
-    }
+    }  */
+    wx.showModal({
+      title: code ? 'Success' : 'Error',
+      content: code ? data.msg : msg
+    })
+
   },
   // 跳转告警设置
   alarm(e: vantEvent) {

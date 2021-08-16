@@ -1,0 +1,23 @@
+<!--miniprogram/pages/admin/dev/dev.wxml-->
+<view class="container">
+  <view>
+    <van-cell-group>
+      <van-field model:value="{{id}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描设备编号条码"
+        bind:click-icon="scanMac" />
+    </van-cell-group>
+  </view>
+  <view style="display:flex;justify-content: space-evenly;">
+    <van-button round type="info" bind:click="scanRequst" disabled="{{!id}}" block>查询设备</van-button>
+  </view>
+  <view class="info card" wx:if="{{dev.id}}">
+    <van-cell-group title="设备信息">
+      <van-cell title="ID" value="{{dev.id}}" />
+      <van-cell title="类型" value="{{dev.Type}}" />
+      <van-cell title="设备" value="{{dev.mountDev}}" />
+      <van-cell title="协议" value="{{dev.protocol}}" />
+      <van-cell title="地址" value="{{dev.pid}}" />
+      <van-cell title="注册时间" value="{{dev.timeStamp}}" />
+    </van-cell-group>
+    <van-button round type="warning" size="small" bind:click="delRegisterDev" block>删除!!</van-button>
+  </view>
+</view>

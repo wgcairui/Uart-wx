@@ -7,16 +7,16 @@ Page({
    * 页面的初始数据
    */
   data: {
-    nodes: [] as NodeClient[]
+    nodes: [] as Uart.NodeClient[]
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function () {
-    api.getNodes().then(el => {
+    api.Nodes().then(el => {
       this.setData({
-        nodes: el.arg
+        nodes: el.data
       })
     })
   },

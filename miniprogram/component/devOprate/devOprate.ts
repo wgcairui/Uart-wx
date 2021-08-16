@@ -1,3 +1,4 @@
+import { sleep } from "../../utils/util"
 import api from "../../utils/api"
 
 // component/devOprate/devOprate.js
@@ -29,15 +30,22 @@ Component({
    * 组件的方法列表
    */
   methods: {
-    oprate() {
+    async oprate() {
       wx.showLoading({ title: '获取指令列表' })
-      api.getDevOprate(this.data.protocol).then(({ arg }) => {
+      await sleep(500)
+      api.getAlarmProtocol(this.data.protocol).then(({ data }) => {
         wx.hideLoading()
-        const items = arg.OprateInstruct?.map(el => el) || [{ name: '设备不支持操作指令' }]
-        this.setData({
-          actionItems: items,
-          actionShow: true
-        })
+        const items = data.OprateInstruct.map(el => el)
+        if (items.length > 0) {
+          this.setData({
+            actionItems: items,
+            actionShow: true
+          })
+        } else {
+          wx.showToast({
+            title: '设备不支持指令'
+          })
+        }
       })
     },
     actionClose() {
@@ -47,7 +55,7 @@ Component({
     },
     // 选择发送指令
     async actionSelect(event: vantEvent) {
-      const oprate = event.detail as OprateInstruct
+      const oprate = event.detail as Uart.OprateInstruct
       if (oprate.value) this.triggerEvent("oprate", { ...oprate })
     },
 

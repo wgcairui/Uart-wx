@@ -3,10 +3,12 @@
   <view class="content">
     <van-cell-group title="是否发送验证码到 {{tel}}">
       <van-field model:value="{{ sms }}" center clearable label="短信验证码" placeholder="请输入短信验证码" border="{{ false }}"
-        use-button-slot bind:change="checkSms">
+        use-button-slot>
         <van-button slot="button" size="small" type="primary" bindtap="sendValidation" disabled="{{senddisable}}">
           {{sendtext}}</van-button>
       </van-field>
     </van-cell-group>
+    <van-button block round type="primary" bindtap="checkSms" disabled="{{!sms}}" style="margin-top:20px">
+      确定</van-button>
   </view>
 </view>

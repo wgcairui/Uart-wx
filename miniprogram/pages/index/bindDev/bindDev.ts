@@ -6,8 +6,8 @@ Page({
     terminal: {
       name: '',
       mountNode: '',
-      mountDevs: [] as TerminalMountDevs[]
-    } as Terminal
+      mountDevs: [] as Uart.TerminalMountDevs[]
+    } as Uart.Terminal
   },
   // 调用微信api，扫描DTU条形码
   async scanMac() {
@@ -18,39 +18,52 @@ Page({
     this.scanRequst()
   },
   // 查询DTU设备信息
-  async scanRequst() { 
-    wx.showLoading({title:'查询中'})
-    const { ok, arg } = await api.getDTUInfo(this.data.mac)
+  async scanRequst() {
+    wx.showLoading({ title: '查询中' })
+    const { code, data } = await api.getTerminalOnline(this.data.mac)
     wx.hideLoading()
-    if (ok) {
+    if (code && data) {
       this.setData({
-        terminal: arg
+        terminal: data
       })
     } else {
       wx.showModal({
         title: 'search',
-        content: '此设备没有注册，请核对设备是否在我司渠道购买'
+        content: '设备未注册或未上线，请核对设备是否在我司渠道购买'
       })
     }
   },
   // 绑定设备
   async bindDev() {
-    const { ok, msg } = await api.bindDev(this.data.mac)
-    if (ok) {
-      wx.showModal({
-        title: 'bind success',
-        content: `绑定DTU:${this.data.mac} 成功，是否现在添加挂载设备？`,
-        success:(res)=> {
-          if (res.confirm) {
+    wx.showLoading({ title: '正在绑定' })
+    const { code, msg } = await api.addUserTerminal(this.data.mac)
+    if (code) {
+      const r = await api.getTerminal(this.data.terminal.DevMac)
+      wx.hideLoading()
+      if (r.data?.mountDevs?.length > 0) {
+        wx.navigateBack()
+      } else {
+        wx.showModal({
+          title: 'bind success',
+          content: `绑定DTU:${this.data.mac} 成功，是否现在添加挂载设备？`,
+          success: (res) => {
             const events = this.getOpenerEventChannel()
-            if(events) {
-              events.emit("addSuccess",{})
+            if (res.confirm) {
+
+              if (events) {
+                events.emit("addSuccess", {})
+                wx.navigateBack()
+              }
+              else wx.navigateTo({ url: '/pages/index/manageDev/manageDev' })
+            } else {
+              events.emit("addSuccess", {})
               wx.navigateBack()
             }
-            else wx.navigateTo({ url: '/pages/index/manageDev/manageDev' })
           }
-        }
-      })
+        })
+      }
+
+
     } else {
       wx.showModal({
         title: 'bind error',

@@ -2,71 +2,52 @@ import unitCache from "../../../utils/unitCache"
 import api from "../../../utils/api"
 import { ObjectToStrquery } from "../../../utils/util"
 
-// miniprogram/pages/index/alarmSetting/alarmSetting.js
 Page({
-  /**
-   * 页面的初始数据
-   */
   data: {
     active: 0,
     protocol: '',
-    usersetup: {} as ProtocolConstantThreshold || undefined,
-    syssetup: {} as ProtocolConstantThreshold,
-    Protocols: {} as protocol,
+    usersetup: {} as Uart.ProtocolConstantThreshold,
+    syssetup: {} as Uart.ProtocolConstantThreshold,
+    Protocols: {} as Uart.protocol,
     showTag: [] as string[],
-    alarmStat: [] as ConstantAlarmStat[] || undefined,
-    Threshold: [] as Threshold[] || undefined
+    alarmStat: [] as Uart.ConstantAlarmStat[],
+    Threshold: [] as Uart.Threshold[]
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: async function (options) {
+  onLoad: async function (options: any) {
     const protocol = options.protocol
     if (!protocol) {
       wx.navigateTo({
         url: '/pages/index/alarmSetting/index'
       })
-    } else {
-      const active = Number(options.type) || 0
-      this.setData({
-        active: active,
-        protocol
-      })
-      await this.getUserProtocolSetup()
-      if (active === 1) this.updateThre()
-      if (active === 2) this.updateAlarm()
-      /* wx.getStorage({
-        key: 'protocolSetup' + protocol,
-        success: (res) => {
-          this.setData({
-            usersetup: res.data.user,
-            syssetup: res.data.sys,
-            Protocols: res.data.protocol
-          })
-        },
-        fail: (_e) => {
-          this.getUserProtocolSetup()
-        }
-      }) */
+      return
     }
+    const active = Number(options.type) || 0
+    this.setData({
+      active: active,
+      protocol
+    })
+    await this.getUserProtocolSetup()
+    if (active === 1) this.updateThre()
+    if (active === 2) this.updateAlarm()
   },
 
   // 获取用户协议配置
   async getUserProtocolSetup() {
     wx.showLoading({ title: '获取协议配置' })
-    const { ok, arg } = await api.getUserDevConstant(this.data.protocol)
+    const userSetup = await api.getUserAlarmProtocol(this.data.protocol)
+    const sysSetup = await api.getAlarmProtocol(this.data.protocol)
+    const Protocols = await api.getProtocol(this.data.protocol)
     wx.hideLoading()
-    if (ok && arg) {
+    if (userSetup && sysSetup) {
       this.setData({
-        usersetup: arg.user || {},
-        syssetup: arg.sys,
-        Protocols: arg.protocol,
-        showTag: arg?.user?.ShowTag || []
-      })
-      wx.setStorage({
-        key: 'protocolSetup' + this.data.protocol,
-        data: arg.protocol
+        usersetup: userSetup.data,
+        syssetup: sysSetup.data,
+        Protocols: Protocols.data,
+        showTag: userSetup.data.ShowTag
       })
 
     } else {
@@ -131,34 +112,43 @@ Page({
   },
   //  监听显示参数变化
   async ShowTagonChange(event: vantEvent) {
+    console.log({event});
+    
     const tags = event.detail as string[]
     this.setData({
       showTag: tags
     })
+    await api.setUserSetupProtocol(this.data.protocol, 'ShowTag', tags || [])
   },
   // 修改显示参数变化值
   ShowTagtoggle(event: vantEvent) {
-    const { index } = event.currentTarget.dataset;
+    //console.log(event);
+    
+    /* const { index } = event.currentTarget.dataset;
     const checkbox = this.selectComponent(`.checkboxes-${index}`);
-    checkbox.toggle();
+    checkb.toggle(); */
   },
   // 监听参数状态变化
-  async AlarmStatonChange(event: vantEvent<ConstantAlarmStat>) {
+  async AlarmStatonChange(event: vantEvent<Uart.ConstantAlarmStat>) {
     const item = event.currentTarget.dataset.item
     const value = event.detail as string[]
     const index = this.data.alarmStat.findIndex(el => el.name === item.name)
     this.setData({
       ["alarmStat[" + index + "].alarmStat"]: value
     })
+    const data = this.data.alarmStat[index]
+    await api.setUserSetupProtocol(this.data.protocol, 'AlarmStat', data)
+
   },
   // 跳转到参数限值修改页面
-  ThresholdClick(event: vantEvent<Threshold>) {
+  ThresholdClick(event: vantEvent<Uart.Threshold>) {
     const item = event.currentTarget.dataset.item
     const index = event.currentTarget.dataset.index
     wx.navigateTo({
       url: '/pages/index/alarmSetting/threshold/threshold' + ObjectToStrquery({ ...item }),
       events: {
-        modifyThreshold: (data: Threshold) => {
+        modifyThreshold: async (data: Uart.Threshold) => {
+          await api.setUserSetupProtocol(this.data.protocol, "Threshold", { type: 'add', data })
           this.setData({
             [`Threshold[${index}]`]: { ...data, icon: "star" }
           })
@@ -174,7 +164,8 @@ Page({
     wx.navigateTo({
       url: '/pages/index/alarmSetting/addThreshold/addThreshold' + ObjectToStrquery({ protocol: this.data.protocol, keys: Array.from(keys) }),
       events: {
-        addThreshold: (data: Threshold) => {
+        addThreshold: async (data: Uart.Threshold) => {
+          await api.setUserSetupProtocol(this.data.protocol, "Threshold", { type: 'add', data })
           const newThre = this.data.Threshold.concat(data)
           this.setData({
             Threshold: newThre
@@ -191,7 +182,7 @@ Page({
       const userShowtags = usersetup.ShowTag || []
       const showtag = this.data.showTag || []
       if (userShowtags.sort().join("") !== showtag.sort().join('')) {
-        await api.pushThreshold(showtag || [], 'ShowTag', protocol)
+        await api.setUserSetupProtocol(protocol, 'ShowTag', showtag || [])
       }
     }
     // 更新用户alarmStat配置
@@ -201,13 +192,13 @@ Page({
       const alarm = alarmStat || []
       const b1 = userAlarm.map(el => el.name).sort().join('') !== alarm.map(el => el.name).sort().join('')
       if (b1) {
-        await api.pushThreshold(alarmStat, 'AlarmStat', protocol)
+        await api.setUserSetupProtocol(protocol, 'AlarmStat', alarmStat)
       } else if (alarm.length !== 0) {
         const ua = userAlarm.sort()
         const ka = alarm.sort()
         const compare = ua.every((el, index) => el.alarmStat.sort().join('') !== ka[index].alarmStat.sort().join(''))
         if (compare) {
-          await api.pushThreshold(alarmStat, 'AlarmStat', protocol)
+          await api.setUserSetupProtocol(protocol, 'AlarmStat', alarmStat)
         }
       }
     }
@@ -217,14 +208,15 @@ Page({
       const userThre = usersetup.Threshold || []
       const thre = Threshold || []
       const b1 = userThre.map(el => el.name).sort().join('') !== thre.map(el => el.name).sort().join('')
+      const data = thre.map(el => ({ name: el.name, min: el.min, max: el.max }))
       if (b1) {
-        await api.pushThreshold(thre.map(el => ({ name: el.name, min: el.min, max: el.max })), "Threshold", protocol)
+        await api.setUserSetupProtocol(protocol, "Threshold", data)
       } else if (thre.length !== 0) {
         const ua = userThre.sort()
         const ka = thre.sort()
         const compare = ua.every((el, index) => el.min !== ka[index].min || el.max !== ka[index].max)
         if (compare) {
-          await api.pushThreshold(thre.map(el => ({ name: el.name, min: el.min, max: el.max })), "Threshold", protocol)
+          await api.setUserSetupProtocol(protocol, "Threshold", data)
         }
       }
     }
@@ -234,7 +226,7 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-    this.saveSetup()
+    //this.saveSetup()
   },
 
   /**

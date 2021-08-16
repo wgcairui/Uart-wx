@@ -9,7 +9,7 @@
 <view class="container">
 
   <view class="content" wx:if="{{ready}}">
-    <view wx:if="{{alarmNum>0}}" class=" alarmCard" bindtap="seeAlarm">
+    <!-- <view wx:if="{{alarmNum>0}}" class=" alarmCard" bindtap="seeAlarm">
       <swiper indicator-dots="true" indicator-active-color="#00a1ff" autoplay="true" interval="2000" duration="500">
         <swiper-item class="alarmItem" wx:for="{{alarmData}}" wx:key="key">
           <view class="alarmItemChild">
@@ -26,7 +26,7 @@
           </view>
         </swiper-item>
       </swiper>
-    </view>
+    </view> -->
 
     <view class="pan">
       <van-notice-bar scrollable="{{ false }}" wx:if="{{alarm}}" left-icon="volume-o" text="{{alarm}}" mode="link"

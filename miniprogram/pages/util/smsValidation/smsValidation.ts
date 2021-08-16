@@ -17,23 +17,21 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function () {
-    this.getTel()
+
   },
-  // 获取用户手机号码
-  async getTel() {
-    wx.showLoading({ title: '获取用户手机号码' })
-    const { arg } = await api.getUserTel()
-    wx.hideLoading()
-    this.setData({
-      tel: arg
-    })
-  },
+
   // 发送短信验证码
   async sendValidation() {
     wx.showLoading({ title: '正在发送' })
-    const { ok, msg } = await api.sendValidation()
+    const { code, msg } = await api.fetch('smsValidation')
     wx.hideLoading()
-    if (!ok) wx.showModal({ title: '发送失败', content: msg })
+    if (!code) wx.showModal({ title: '发送失败', content: msg })
+    else {
+      wx.showModal({
+        title: '发送成功',
+        content: '已发送到' + msg
+      })
+    }
     this.setData({
       senddisable: true,
       sendtext: '60秒后再试'
@@ -46,20 +44,9 @@ Page({
     }, 1000 * 60)
   },
   // 检查验证码，如果是4位则上传验证
-  checkSms(_event: vantEvent) {
-    if (this.data.sms.length > 3) {
-      api.ValidationCode(Number(this.data.sms)).then(el => {
-        if (el.ok) {
-          const event = this.getOpenerEventChannel()
-          event.emit("validationSuccess", { code: this.data.sms })
-          wx.navigateBack()
-        } else {
-          wx.showModal({
-            title: '检验失败',
-            content: el.msg
-          })
-        }
-      })
-    }
+  checkSms() {
+    const event = this.getOpenerEventChannel()
+    event.emit("code", this.data.sms)
+    wx.navigateBack()
   }
 })

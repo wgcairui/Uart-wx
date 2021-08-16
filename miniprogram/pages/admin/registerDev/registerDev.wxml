@@ -1,0 +1,43 @@
+<view class="container">
+  <view>
+    <van-cell-group>
+      <van-field model:value="{{id}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描设备的编号"
+        bind:click-icon="scanMac" />
+    </van-cell-group>
+    <view class="center" wx:if="mac.length===12" style="margin-top:12px">
+      <van-button round type="info" bind:click="scanRequst" disabled="{{!id}}">添加设备</van-button>
+    </view>
+  </view>
+
+  <view>
+    <van-cell-group title="设备列表/{{ids.length}}">
+      <van-cell wx:for="{{ids}}" wx:key="key" title="{{item}}">
+        <van-button round type="info" size="small" bindtap="rmid" data-key="{{item}}">删除id</van-button>
+      </van-cell>
+    </van-cell-group>
+  </view>
+  <view>
+    <van-cell title="添加设备参数" class="bg-dark-cell"></van-cell>
+    <van-cell title="设备类型">
+      <van-dropdown-menu>
+        <van-dropdown-item model:value="{{ devType }}" options="{{ devTypes }}" bind:change="devTypeChange" />
+      </van-dropdown-menu>
+    </van-cell>
+    <van-cell title="设备型号">
+      <van-dropdown-menu>
+        <van-dropdown-item model:value="{{ devModal }}" options="{{ devModals }}" bind:change="devModalChange" />
+      </van-dropdown-menu>
+    </van-cell>
+    <van-cell title="设备协议">
+      <van-dropdown-menu>
+        <van-dropdown-item model:value="{{ devProtocol }}" options="{{ devProtocols }}" />
+      </van-dropdown-menu>
+    </van-cell>
+    <van-cell title="设备地址" visible-item-count="{{3}}">
+      <van-field type="number" model:value="{{pid}}" required clearable placeholder="输入设备地址" />
+    </van-cell>
+  </view>
+  <view>
+    <van-button round type="info" bind:click="submit" disabled="{{ids.length===0}}" block>提交</van-button>
+  </view>
+</view>

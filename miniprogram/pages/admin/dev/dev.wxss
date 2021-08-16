@@ -1,0 +1,12 @@
+/* miniprogram/pages/admin/dev/dev.wxss */
+.info {
+  padding: 1rem .5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.info>text {
+  margin-top: 1rem;
+  padding-bottom: 3px;
+  border-bottom: solid steelblue 1px;
+}
