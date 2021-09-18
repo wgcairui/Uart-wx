@@ -1,4 +1,3 @@
-import { SubscribeMessage } from "../../utils/util";
 import api from "../../utils/api";
 Page({
   /**
@@ -8,7 +7,7 @@ Page({
     active: 0,
     // img:"https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png",
     userInfo: {
-      avatarUrl: "https://www.ladishb.com/upload/5y2wYWklE0usgYG0VwLTdRnc.png",
+      avatarUrl: "https://www.ladishb.com/upload/11122020__LADS108.png",
     } as WechatMiniprogram.UserInfo,
     tel: '',
     registerloading: false,
@@ -53,6 +52,7 @@ Page({
       "userInfo.nickName": this.data.userInfo.nickName || 'user' + tel.slice(-4)
     })
     wx.hideLoading()
+
   },
   // 注册用户
   async register() {

@@ -2,7 +2,7 @@
 <view class="container">
   <view class="userinfo card">
     <block>
-      <image class="userinfo-avatar" src="{{avanter}}" mode="cover"></image>
+      <image class="userinfo-avatar" src="{{avanter}}" mode="cover" bindtap="updateAvanter"></image>
       <view class="info">
         <text class="userinfo-nickname">{{name}}</text>
       </view>

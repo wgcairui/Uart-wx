@@ -2,7 +2,7 @@ import { ObjectToStrquery } from "../../../utils/util"
 import api from "../../../utils/api"
 Page({
   data: {
-    mac: '',
+    mac: '262045427977',
     terminal: {
       name: '',
       mountNode: '',
@@ -89,6 +89,25 @@ Page({
     }
 
   },
+
+  async resetDtu() {
+    wx.showModal({
+      title: "重启Dtu",
+      content: "确定现在重启Dtu吗?",
+      success: async () => {
+        const uart = `+++AT+Z`
+        wx.showLoading({ title: '正在修改' })
+        const { code, data } = await api.sendATInstruct(this.data.terminal.DevMac, uart)
+        wx.hideLoading()
+        if (code) {
+          wx.showToast({
+            title: 'success',
+            content: data.msg
+          })
+        }
+      }
+    })
+  },
   /**
    * 绑定设备id
    */
@@ -135,7 +154,7 @@ Page({
   see(event: vantEvent<Uart.TerminalMountDevs>) {
     const { pid, mountDev, protocol, Type } = event.currentTarget.dataset.item
     wx.navigateTo({
-      url: '/pages/admin/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac: this.data.mac, Type })
+      url: '/pages/admin/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac: this.data.terminal.DevMac, Type })
     })
   },
 
@@ -185,5 +204,78 @@ Page({
         })
       }
     }
+  },
+
+
+
+  /**
+   * 生成标签
+   */
+  async generateLabel() {
+    const mac = this.data.terminal.DevMac
+    const pic_readmeqr = await this.dowmPic("https://www.ladishb.com/upload/9_18_2021_qrcode_www.yuque.com.png")
+    const pic_wpqr = await this.dowmPic("https://www.ladishb.com/upload/3312021__LADS_Uart.5df2cc6.png")
+    wx.createSelectorQuery()
+      .select("#canvas1")
+      .fields({ node: true, size: true })
+      .exec(res => {
+        const canvas = res[0].node as WechatMiniprogram.Canvas
+        canvas.height = 200
+        canvas.width = 350
+        const ctx = canvas.getContext("2d") as WechatMiniprogram.CanvasContext
+        console.log(ctx);
+        this.generateCanvasImg(canvas, pic_readmeqr).then(img => {
+          ctx.drawImage(img, 20, 20, 100, 85)
+        })
+        this.generateCanvasImg(canvas, pic_wpqr).then(img => {
+          ctx.drawImage(img, 120, 20, 100, 85)
+        })
+      })
+
+    /* console.log({
+      mac,
+      pic_readmeqr,
+      pic_wpqr
+    }); */
+
+  },
+
+  generateCanvasImg(canvas: WechatMiniprogram.Canvas, path: string) {
+    return new Promise<string>(resolve => {
+      const img = canvas.createImage()
+      img.onload = () => resolve(img as any)
+      img.src = path
+    })
   }
+
+  /**
+   * 下载文件
+   */
+  dowmPic(url: string) {
+    const nArr = url.split("/")
+    const name = nArr[nArr.length - 1]
+    const filename = `${wx.env.USER_DATA_PATH}/${name}`
+    return new Promise<string>(resolve => {
+      // 判断文件是否存在,不存在就下载文件
+      const m = wx.getFileSystemManager()
+      m.stat({
+        path: filename,
+        success() {
+          resolve(filename)
+        },
+        fail(e) {
+          console.log(e.errMsg);
+          wx.downloadFile({
+            url,
+            filePath: filename,
+            success(res) {
+              resolve(res.filePath)
+            }
+          })
+        }
+      })
+    })
+  },
+
+
 })

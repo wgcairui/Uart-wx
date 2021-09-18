@@ -4,7 +4,7 @@
 </page-meta>
 <view>
   <view class="userinfo">
-    <image bindtap="updateUserInfo" class="userinfo-avatar" src="{{avanter}}" mode="cover" bindtap="updateAvanter">
+    <image class="userinfo-avatar" src="{{avanter}}" mode="cover" bindtap="updateAvanter"> 
     </image>
 
     <view class="info">

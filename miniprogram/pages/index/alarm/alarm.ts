@@ -1,6 +1,6 @@
-import { SubscribeMessage } from "../../../utils/util"
 // miniprogram/pages/index/alarm/alarm.js
 import api from "../../../utils/api"
+
 Page({
 
   /**
@@ -12,7 +12,8 @@ Page({
     date: '',
     dateShow: false,
     minDate: new Date(2020, 0, 1).getTime(),
-    maxDate: Date.now()
+    maxDate: Date.now(),
+    userInfo: {} as Uart.UserInfo
   },
 
   /**
@@ -24,8 +25,11 @@ Page({
     date.setMonth(date.getMonth() - 1)
     const start = this.formatDate(date)
     const end = this.formatDate(new Date())
+    //
+    const user = await api.userInfo()
     this.setData({
-      date: start + '-' + end
+      date: start + '-' + end,
+      userInfo: user.data
     })
     setTimeout(() => {
       this.getAlarmInfo().then(() => {
@@ -33,11 +37,14 @@ Page({
       })
     }, 2000)
 
+
+
   },
   /**
    * 订阅下次告警
    */
   async subMessage() {
+    if (this.data.userInfo.wxId) return
     wx.showModal({
       title: '订阅长期告警',
       content: '小程序限制,单次订阅只能发送一条订阅消息,如需长期订阅请关注关联公众号',
@@ -48,7 +55,6 @@ Page({
         }
       }
     })
-
   },
   // 获取告警信息
   async getAlarmInfo() {
@@ -108,7 +114,7 @@ Page({
     this.getAlarmInfo()
   },
   // 确认告警信息
-  showalarm(event: vantEvent<Uart.uartAlarmObject>) {
+  showalarm(event: vantEvent<Uart.uartAlarmObject & { _id: string }>) {
     const alarm = event.currentTarget.dataset.item
     const key = event.currentTarget.dataset.key as number
     wx.showModal({

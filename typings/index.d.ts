@@ -1,6 +1,6 @@
 interface IAppOption {
   globalData: {
-    userInfo?: Partial<WechatMiniprogram.UserInfo>,
+    userInfo?: Partial<Uart.UserInfo>,
     user: string,
     userGroup: string,
     userName: string,

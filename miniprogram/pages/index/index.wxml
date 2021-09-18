@@ -33,6 +33,8 @@
         bindtap="seeAlarm" />
       <van-notice-bar scrollable="{{ false }}" color="#1989fa" background="#ecf9ff" left-icon="info-o"
         text="{{state}}" />
+        <van-notice-bar scrollable="{{ false }}" wx:if="{{!sub}}" left-icon="volume-o" text="订阅公众号,告警消息及时提醒!!!" mode="link"
+        bindtap="subMessage" />
     </view>
 
     <view class="tab">

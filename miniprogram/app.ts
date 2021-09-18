@@ -2,7 +2,7 @@
 
 App({
     globalData: {
-        userInfo: {},
+        userInfo: {} as Uart.UserInfo,
         user: '',
         userGroup: '',
         userName: '',

@@ -10,7 +10,9 @@ Page({
     tel: '',
     sms: '',
     senddisable: false,
-    sendtext: '发送验证码'
+    sendtext: '发送验证码',
+    int: 60,
+    interval: 0
   },
 
   /**
@@ -32,16 +34,28 @@ Page({
         content: '已发送到' + msg
       })
     }
+    const interval = setInterval(() => {
+      if (this.data.int === 0) {
+        clearInterval(this.data.interval)
+        this.setData({
+          senddisable: false,
+          sendtext: '发送验证码',
+          interval
+        })
+      } else {
+        this.setData({
+          int: this.data.int - 1,
+          sendtext: this.data.int - 1 + '秒后再试'
+        })
+      }
+    }, 1000) as any
     this.setData({
       senddisable: true,
-      sendtext: '60秒后再试'
+      sendtext: '60秒后再试',
+      interval
     })
-    setTimeout(() => {
-      this.setData({
-        senddisable: false,
-        sendtext: '发送验证码'
-      })
-    }, 1000 * 60)
+
+
   },
   // 检查验证码，如果是4位则上传验证
   checkSms() {

@@ -1,6 +1,6 @@
 import { urlRequest } from "../config"
 
-interface tencetMap {
+export interface tencetMap {
   /* 状态码，0为正常,
 310请求参数信息有误，
 311Key格式错误,
@@ -697,6 +697,8 @@ class api {
             resolve(res.data as any)
         },
         fail: e => {
+          console.log({e});
+          
           wx.showToast({ title: '服务器错误', content: e.errMsg })
           wx.hideLoading()
           reject(e)

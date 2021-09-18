@@ -1,5 +1,5 @@
 // index.ts
-import { ObjectToStrquery, parseTime } from "../../utils/util";
+import { ObjectToStrquery } from "../../utils/util";
 import api from "../../utils/api";
 // 获取应用实例
 Page({
@@ -19,7 +19,9 @@ Page({
     alarmData: [] as Uart.uartAlarmObject[],
     // 虚拟设备
     Vm: [] as Uart.Terminal[],
-    confirm: false
+    confirm: false,
+    // 是否订阅
+    sub: false
   },
 
   devPics: {
@@ -27,7 +29,7 @@ Page({
     "温湿度": '/assert/th.png',
     "电量仪": '/assert/em.png',
     "空调": '/assert/air.png'
-  },
+  } as Record<string, string>,
   onLoad(query: any) {
     wx.showLoading({ title: 'loading' })
     wx.login({
@@ -37,7 +39,6 @@ Page({
         if (code) {
           const user = await api.userInfo()
           wx.hideLoading()
-          console.log(user);
 
           // 判断user用户组,如果是admin则跳转到专有页面
           switch (user.data.userGroup) {
@@ -46,7 +47,7 @@ Page({
               wx.reLaunch({ url: "/pages/admin/index" })
               break
             default:
-              this.setData({ ready: true })
+              this.setData({ ready: true, sub: Boolean(user.data.wxId) })
               this.start()
               break
           }
@@ -64,6 +65,15 @@ Page({
     this.bindDev()
 
   },
+
+  /**
+   * 订阅下次告警
+   */
+  async subMessage() {
+    const url = encodeURIComponent('http://mp.weixin.qq.com/s?__biz=MjM5MjA1MTgxOQ==&mid=304819939&idx=1&sn=d0bcd922033075afa2b5219fc95ebb1e&chksm=3173a9e7060420f1a98d0040d964a2f82af25289a731d1400c5224ca9bb3d225d737700700a8#rd')
+    wx.navigateTo({ url: '/pages/index/web/web?url=' + url })
+  },
+
   // 获取用户绑定设备
   async bindDev() {
     wx.showLoading({ title: '获取DTU' })
@@ -124,12 +134,7 @@ Page({
     })
     this.countDev(UTs)
     const devs = UTs.map(dtu => {
-      return dtu.mountDevs.map(dev => {
-        dev.online = dev.online && dtu.online
-        dev.pic = (this.devPics as any)[dev.Type]
-        dev.dtu = dtu.name
-        return dev
-      })
+      return dtu.mountDevs.map(dev => ({ ...dev, pic: this.devPics[dev.Type], dtu: dtu.name, online: dev.online && dtu.online }))
     }).flat()
     this.setData({
       DTUs: UTs,
@@ -146,7 +151,7 @@ Page({
   },
 
   // 查看设备数据
-  showMountDevData(event: vantEvent<Uart.TerminalMountDevs>) {
+  showMountDevData(event: vantEvent<Uart.TerminalMountDevs & { dtu: string }>) {
     const { pid, mountDev, protocol, dtu, Type } = event.currentTarget.dataset.item
     const { DevMac } = this.data.DTUs.find(el => el.name === dtu)!
     wx.navigateTo({
