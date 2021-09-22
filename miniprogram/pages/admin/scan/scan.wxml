@@ -29,10 +29,10 @@
         <van-cell title="使用比例" value="{{((terminal.iccidInfo.flowUsed/terminal.iccidInfo.flowResource)*100)}}%" />
         <van-cell title="套餐" value="{{terminal.iccidInfo.resName}}" />
       </van-cell-group>
-      <canvas id="canvas1" type="2d" style="height: 200px;width: 350;"></canvas>
+      <canvas id="canvas1" type="2d" style="height: 200px;width: 350px;"></canvas>
       <van-button block round type="info" bind:click="bindDevId">绑定设备Id</van-button>
       <van-button block type="info" round bindtap="modifyUart">修改波特率</van-button>
-      <van-button block type="info" round bindtap="generateLabel">生成标签</van-button>
+      <van-button block type="info" round bindtap="downLabel">下载标签</van-button>
       <van-button size="small" type="info" bindtap="resetDtu" round>重启设备</van-button>
       <van-button size="small" type="primary" bindtap="iotRemoteUrl" round style="margin-left:1rem">获取远程调试地址
       </van-button>

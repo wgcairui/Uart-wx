@@ -13,6 +13,7 @@
       <my-input label="名称" value="{{name}}" bind:submit="nameChange"></my-input>
       <my-input label="电话" value="{{tel}}" bind:submit="telChange"></my-input>
       <my-input label="邮箱" value="{{mail}}" bind:submit="mailChange"></my-input>
+      <my-input label="代理" value="{{proxy}}" bind:submit="proxyChange"></my-input>
       <van-cell title="注册途径" value="{{rgtype}}"></van-cell>
       <van-cell title="组织" value="{{company}}"></van-cell>
       <van-cell title="登录地址" value="{{address}}"></van-cell>

@@ -2,7 +2,7 @@ import { ObjectToStrquery } from "../../../utils/util"
 import api from "../../../utils/api"
 Page({
   data: {
-    mac: '262045427977',
+    mac: '',
     terminal: {
       name: '',
       mountNode: '',
@@ -26,9 +26,12 @@ Page({
     const { code, data } = await api.getRootTerminal(this.data.mac)
     wx.hideLoading()
     if (code && data) {
+
       this.setData({
+        mac: data.DevMac,
         terminal: data
       })
+      this.generateLabel()
     } else {
       wx.showModal({
         title: 'search',
@@ -215,38 +218,95 @@ Page({
     const mac = this.data.terminal.DevMac
     const pic_readmeqr = await this.dowmPic("https://www.ladishb.com/upload/9_18_2021_qrcode_www.yuque.com.png")
     const pic_wpqr = await this.dowmPic("https://www.ladishb.com/upload/3312021__LADS_Uart.5df2cc6.png")
-    wx.createSelectorQuery()
-      .select("#canvas1")
-      .fields({ node: true, size: true })
-      .exec(res => {
-        const canvas = res[0].node as WechatMiniprogram.Canvas
-        canvas.height = 200
-        canvas.width = 350
-        const ctx = canvas.getContext("2d") as WechatMiniprogram.CanvasContext
-        console.log(ctx);
-        this.generateCanvasImg(canvas, pic_readmeqr).then(img => {
-          ctx.drawImage(img, 20, 20, 100, 85)
-        })
-        this.generateCanvasImg(canvas, pic_wpqr).then(img => {
-          ctx.drawImage(img, 120, 20, 100, 85)
-        })
-      })
+    const pic_mac = await this.generateFile(mac)
 
-    /* console.log({
-      mac,
-      pic_readmeqr,
-      pic_wpqr
-    }); */
-
+    const res = await new Promise<any>(resolve => {
+      wx.createSelectorQuery()
+        .select("#canvas1")
+        .fields({ node: true, size: true })
+        .exec(res => resolve(res))
+    })
+    const canvas = res[0].node as WechatMiniprogram.Canvas
+    canvas.height = 150
+    canvas.width = 400
+    const ctx = canvas.getContext("2d") as WechatMiniprogram.CanvasContext
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, 350, 200);
+    ctx.fillStyle = "#000000";
+    ctx.drawImage(await this.generateCanvasImg(canvas, pic_readmeqr), 10, 20, 110, 95)
+    ctx.fillText('操作说明', 50, 130)
+    ctx.drawImage(await this.generateCanvasImg(canvas, pic_wpqr), 120, 20, 110, 95)
+    ctx.fillText('小程序', 165, 130)
+    ctx.drawImage(await this.generateCanvasImg(canvas, pic_mac), 230, 20, 110, 95)
+    ctx.fillText('mac:' + mac, 240, 130)
   },
 
+  /**
+   * 下载标签
+   */
+  async downLabel() {
+    const res = await new Promise<any>(resolve => {
+      wx.createSelectorQuery()
+        .select("#canvas1")
+        .fields({ node: true, size: true })
+        .exec(res => resolve(res))
+    })
+    const canvas = res[0].node as WechatMiniprogram.Canvas
+    wx.canvasToTempFilePath({
+      canvasId: "canvas1",
+      quality: 1,
+      canvas,
+      fileType: "jpg",
+      destHeight: 300,
+      destWidth: 700,
+      success(res) {
+        wx.saveImageToPhotosAlbum({
+          filePath: res.tempFilePath,
+          success(res) {
+            if (res.errMsg = "saveImageToPhotosAlbum:ok") {
+              wx.showToast({
+                title: "已保存到照片库",
+                icon: "success"
+              })
+            }
+          }
+        })
+      }
+    })
+  },
+
+  async generateFile(code: string) {
+    const base = await api.qr(code)
+    const filePath = `${wx.env.USER_DATA_PATH}/${code}.png`
+    const m = wx.getFileSystemManager()
+    return await new Promise<string>(resolve => {
+      m.writeFile({
+        filePath,
+        data: base.data.replace(/[\r\n]/g, '').slice(22),
+        encoding: "base64",
+        success() {
+          resolve(filePath)
+        }
+      })
+    })
+  },
+
+  /**
+   * 
+   * @param canvas 
+   * @param path 
+   */
   generateCanvasImg(canvas: WechatMiniprogram.Canvas, path: string) {
     return new Promise<string>(resolve => {
       const img = canvas.createImage()
       img.onload = () => resolve(img as any)
+      img.onerror = (e) => {
+        console.log({ e });
+
+      }
       img.src = path
     })
-  }
+  },
 
   /**
    * 下载文件

@@ -651,6 +651,14 @@ class api {
     return this.fetch("root/initTerminal", { mac })
   }
 
+  /**
+   * 获取code对应的base64QR图片数据
+   * @param code 
+   */
+  qr(code: string) {
+    return this.fetch<string>("qr", { code })
+  }
+
 
 
 
@@ -697,8 +705,8 @@ class api {
             resolve(res.data as any)
         },
         fail: e => {
-          console.log({e});
-          
+          console.log({ e });
+
           wx.showToast({ title: '服务器错误', content: e.errMsg })
           wx.hideLoading()
           reject(e)

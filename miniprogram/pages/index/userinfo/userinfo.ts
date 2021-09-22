@@ -13,6 +13,7 @@ Page({
     user: "",
     tel: "",
     mail: "",
+    proxy: "",
     company: "",
     address: "",
     rgtype: ''
@@ -28,22 +29,23 @@ Page({
   start() {
     api.userInfo().then(async ({ code, data }) => {
       if (code) {
-        
+
         this.setData({
           avanter: data.avanter,
           name: data.name,
           creatTime: new Date(data.creatTime as any).toLocaleString(),
           modifyTime: new Date(data.modifyTime as any).toLocaleString(),
           mail: data.mail,
+          proxy: data.proxy,
           tel: data.tel as any,
           user: data.user,
           company: data.company,
           rgtype: data.rgtype || 'web'
         })
-        const jw= await api.V2_API_Aamp_ip2local(data.address?.split(":").reverse()[0]!)
+        const jw = await api.V2_API_Aamp_ip2local(data.address?.split(":").reverse()[0]!)
         const ad = await api.getGPSaddress(jw.data.split(',').reverse().join(","))
         this.setData({
-          address:ad.data.address
+          address: ad.data.address
         })
       }
     })
@@ -113,6 +115,30 @@ Page({
         })
       }
     })
+  },
+
+  proxyChange(event: vantEvent) {
+    const value = event.detail.value as string
+    if (/^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i.test(value)) {
+      api.modifyUserInfo({ 'proxy': value }).then(({ code, msg }) => {
+        if (code) {
+          this.setData({
+            proxy: value
+          })
+        } else {
+          wx.showModal({
+            title: 'Error',
+            content: msg
+          })
+        }
+      })
+    } else {
+      wx.showModal({
+        title: '值错误',
+        content: "url格式不正确,请重新输入"
+      })
+    }
+
   },
   /**
    * 生命周期函数--监听页面初次渲染完成
