@@ -154,11 +154,15 @@ Page({
     })
   },
 
+
+
   // 下拉刷新
   async onPullDownRefresh() {
+    this.getAlarmInfo()
     wx.stopPullDownRefresh()
-  }
-  ,
+  },
+
+  
   formattime(time: number) {
     const Dates = new Date(time)
     return `${Dates.getMonth() + 1}-${Dates.getDate()} ${Dates.getHours()}:${Dates.getMinutes()}:${Dates.getSeconds()}`

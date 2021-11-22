@@ -1,4 +1,4 @@
-import { urlRequest } from "../config"
+import { urlRequest, urlWs } from "../config"
 
 export interface tencetMap {
   /* 状态码，0为正常,
@@ -25,35 +25,90 @@ interface result<T = any> {
 class api {
   token: string
   ws!: WechatMiniprogram.SocketTask
+
+
+  /**
+   * ws事件收集,避免重复注册监听对象
+   */
+  wsEventMap: Map<string, (e: any) => void>
+
   constructor() {
     this.token = ""
+    this.wsEventMap = new Map()
   }
 
   setToken(token: string) {
     this.token = token
     wx.setBackgroundFetchToken({
       token
-    })/* 
-    wx.setStorage({ key: 'token', data: token })
-    const ws = wx.connectSocket({
+    })
+
+
+    this.ws = wx.connectSocket({
       url: urlWs,
       header: {
         'content-type': 'application/json',
         token
       },
-      success:(res) =>{
-        console.log({res});
-        
+      success: (res) => {
+        console.log({ res });
+
 
       },
-      fail(err){
-        console.log({err});
-        
+      fail(err) {
+        console.log({ err });
       }
     })
-    this.ws = ws
-    ws.send({data:'sssssss'}) */
+
+    this.ws.onOpen(() => {
+      this.ws.send({
+        data: JSON.stringify({ token: token })
+      })
+    })
+
+    this.ws.onMessage(res => {
+      // console.log({ res });
+      if (/^{.*}$/.test(res.data as string)) {
+        const { type, data }: { type: string, data: any } = JSON.parse(res.data as string)
+        const fun = this.wsEventMap.get(type)
+        if (fun) {
+          fun(data)
+        }
+      }
+    })
+
+
+    this.onMessage('info', msg => {
+      wx.showModal({
+        content: msg,
+        title: 'info'
+      })
+    })
+
+    this.onMessage<Uart.uartAlarmObject>('alarm', (data) => {
+      wx.showModal({
+        content: (data as Uart.uartAlarmObject).msg,
+        title: '设备告警提醒',
+        success() {
+          wx.switchTab({
+            url: '/pages/index/alarm/alarm'
+          })
+        }
+      })
+    })
   }
+
+  onMessage<T = any>(event: string, fun: (data?: T) => void) {
+    if (!this.wsEventMap.has(event)) {
+      this.wsEventMap.set(event, fun)
+    }
+  }
+
+  offWs(event: string) {
+    this.wsEventMap.delete(event)
+  }
+
+
 
   /**
    * 登录- 域名
@@ -648,7 +703,7 @@ class api {
    * @param mac 
    */
   initTerminal(mac: string) {
-    return this.fetch("root/initTerminal", { mac })
+    return this.fetch("root/initTerminal", { mac }, "POST", 1000 * 60 * 5)
   }
 
   /**
@@ -669,11 +724,11 @@ class api {
    * @method api通用requst方法
    * @param object 
    */
-  async fetch<T>(url: string, data: Object = {}, method: "GET" | "POST" = "POST") {
+  async fetch<T>(url: string, data: Object = {}, method: "GET" | "POST" = "POST", timeout: number = 1000 * 60) {
     const token: string = this.token || await wx.getStorage({ key: 'token' }).then(el => el.data).catch(() => "")
     return await new Promise<result<T>>((resolve, reject) => {
       wx.request<result<T>>({
-        timeout: 1000 * 60,
+        timeout,
         url: urlRequest + "/api/" + url,
         data,
         method,
@@ -706,7 +761,6 @@ class api {
         },
         fail: e => {
           console.log({ e });
-
           wx.showToast({ title: '服务器错误', content: e.errMsg })
           wx.hideLoading()
           reject(e)

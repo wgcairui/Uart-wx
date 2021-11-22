@@ -1,8 +1,8 @@
- 
-// export const urlRequest = `http://120.202.61.88:9010`
-/*export const urlWs = `ws://120.202.61.88:9010/ws`
- */
+
+/* export const urlRequest = `http://127.0.0.1:9010`
+export const urlWs = `ws://127.0.0.1:9010/ws` */
+
 
 export const urlRequest = `https://uart.ladishb.com`
-// export const urlWs = `wss://uart.ladishb.com/wx
+export const urlWs = `ws://uart.ladishb.com:9010/ws`
 

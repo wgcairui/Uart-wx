@@ -25,7 +25,8 @@
     "pages/index/manageDev/mountDevs/mountDevs",
     "pages/admin/registerDev/registerDev",
     "pages/admin/devs/devs",
-    "pages/admin/dev/dev"
+    "pages/admin/dev/dev",
+    "pages/index/alarmSetting/modifyTel/modifyTel"
   ],
   "window": {
     "backgroundTextStyle": "dark",

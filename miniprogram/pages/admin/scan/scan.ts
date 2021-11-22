@@ -10,7 +10,8 @@ Page({
       uptime: ''
     } as Uart.Terminal,
     remoteUrl: '',
-    uarts: ['2400,8,1,NONE,NFC', '4800,8,1,NONE,HD', '9600,8,1,NONE,HD', '19200,8,1,NONE,HD', '115200,8,1,NONE,HD']
+    uarts: ['2400,8,1,NONE,NFC', '4800,8,1,NONE,HD', '9600,8,1,NONE,HD', '19200,8,1,NONE,HD', '115200,8,1,NONE,HD'],
+    qrReady: false
   },
   // 调用微信api，扫描DTU条形码
   async scanMac() {
@@ -215,11 +216,16 @@ Page({
    * 生成标签
    */
   async generateLabel() {
+    this.setData({
+      qrReady: false
+    })
     const mac = this.data.terminal.DevMac
     const pic_readmeqr = await this.dowmPic("https://www.ladishb.com/upload/9_18_2021_qrcode_www.yuque.com.png")
     const pic_wpqr = await this.dowmPic("https://www.ladishb.com/upload/3312021__LADS_Uart.5df2cc6.png")
     const pic_mac = await this.generateFile(mac)
-
+    this.setData({
+      qrReady: true
+    })
     const res = await new Promise<any>(resolve => {
       wx.createSelectorQuery()
         .select("#canvas1")
@@ -227,18 +233,18 @@ Page({
         .exec(res => resolve(res))
     })
     const canvas = res[0].node as WechatMiniprogram.Canvas
-    canvas.height = 150
-    canvas.width = 400
+    canvas.height = 180
+    canvas.width = 380
     const ctx = canvas.getContext("2d") as WechatMiniprogram.CanvasContext
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, 350, 200);
     ctx.fillStyle = "#000000";
-    ctx.drawImage(await this.generateCanvasImg(canvas, pic_readmeqr), 10, 20, 110, 95)
-    ctx.fillText('操作说明', 50, 130)
-    ctx.drawImage(await this.generateCanvasImg(canvas, pic_wpqr), 120, 20, 110, 95)
-    ctx.fillText('小程序', 165, 130)
-    ctx.drawImage(await this.generateCanvasImg(canvas, pic_mac), 230, 20, 110, 95)
-    ctx.fillText('mac:' + mac, 240, 130)
+    ctx.drawImage(await this.generateCanvasImg(canvas, pic_readmeqr), 10, 5, 110, 95)
+    ctx.fillText('操作说明', 50, 110)
+    ctx.drawImage(await this.generateCanvasImg(canvas, pic_wpqr), 120, 5, 110, 95)
+    ctx.fillText('小程序', 165, 110)
+    ctx.drawImage(await this.generateCanvasImg(canvas, pic_mac), 230, 5, 110, 95)
+    ctx.fillText('mac:' + mac, 240, 110)
   },
 
   /**
@@ -286,6 +292,12 @@ Page({
         encoding: "base64",
         success() {
           resolve(filePath)
+        },
+        fail(e) {
+          wx.showToast({
+            title: e.errMsg,
+            icon: "error"
+          })
         }
       })
     })
@@ -301,8 +313,10 @@ Page({
       const img = canvas.createImage()
       img.onload = () => resolve(img as any)
       img.onerror = (e) => {
-        console.log({ e });
-
+        wx.showToast({
+          title: e.errMsg,
+          icon: "error"
+        })
       }
       img.src = path
     })
@@ -315,6 +329,8 @@ Page({
     const nArr = url.split("/")
     const name = nArr[nArr.length - 1]
     const filename = `${wx.env.USER_DATA_PATH}/${name}`
+    //console.log({ nArr, name, filename });
+
     return new Promise<string>(resolve => {
       // 判断文件是否存在,不存在就下载文件
       const m = wx.getFileSystemManager()
@@ -330,12 +346,16 @@ Page({
             filePath: filename,
             success(res) {
               resolve(res.filePath)
+            },
+            fail(e) {
+              wx.showToast({
+                title: e.errMsg,
+                icon: "error"
+              })
             }
           })
         }
       })
     })
   },
-
-
 })

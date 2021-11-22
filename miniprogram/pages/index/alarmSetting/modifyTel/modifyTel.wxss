@@ -1,0 +1,5 @@
+/* pages/index/alarmSetting/modifyTel/modifyTel.wxss */
+
+.set-alarm{
+  padding: 12px;
+}

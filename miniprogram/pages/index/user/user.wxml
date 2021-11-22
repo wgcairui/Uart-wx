@@ -21,12 +21,13 @@
       <van-grid clickable>
         <van-grid-item icon="friends-o" icon-color="#000" text="用户信息" url="/pages/index/userinfo/userinfo" />
         <van-grid-item icon="cluster-o" icon-color="#000" text="管理DTU" url="/pages/index/manageDev/manageDev" />
-        <van-grid-item icon="scan" icon-color="#000" text="查询DTU" url="/pages/index/bindDev/bindDev" />
+        <van-grid-item icon="scan" icon-color="#000" text="绑定DTU" url="/pages/index/bindDev/bindDev" />
         <van-grid-item icon="browsing-history-o" icon-color="#000" text="告警设置" url="/pages/index/alarmSetting/index" />
         <van-grid-item wx:if="{{!wxId}}" icon="browsing-history-o" icon-color="#000" text="订阅告警" url=""
           bindtap="subMessage" />
         <van-grid-item icon="setting-o" icon-color="#000" text="微信权限" url="" bindtap="openSetting" />
         <van-grid-item icon="warn-o" icon-color="#000" text="清除缓存" url="" bindtap="clearCache" />
+        <van-grid-item icon="replay" icon-color="#29d" text="检查更新" url="" bindtap="checkVersion" />
         <!-- <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="/pages/index/updatelog/updatelog" /> -->
         <van-grid-item icon="delete" icon-color="#000" text="解绑微信" url="" bindtap="unbindwx" />
       </van-grid>

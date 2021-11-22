@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "incremental": true,
+    "declaration": false,
+    "removeComments":true,
     "allowUnreachableCode": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
@@ -16,7 +19,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "strict": true,
-    "removeComments": true,
     "pretty": true,
     "strictPropertyInitialization": true,
     "lib": ["ES2020", "DOM"],

@@ -13,7 +13,7 @@ Page({
     mountDev: "",
     result: {} as Uart.queryResultSave,
     filter: '',
-    interval: 0 as any,
+    //interval: 0 as any,
     protocol: '',
     Type: '',
     Constant: {} as {
@@ -40,6 +40,12 @@ Page({
       protocol: options.protocol,
       mountDev: options.mountDev,
       Type: options.Type
+    })
+
+    api.onMessage('MacDateUpdate' + options.DevMac + options.pid, () => {
+      console.log('获取运行数据');
+      
+      this.GetDevsRunInfo()
     })
   },
   async onReady() {
@@ -77,14 +83,17 @@ Page({
    * 生命周期函数--监听页面隐藏
    */
   onHide: function () {
-    clearInterval(this.data.interval)
+    //clearInterval(this.data.interval)
+    api.offWs('MacDateUpdate' + this.options.DevMac + this.options.pid)
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-    clearInterval(this.data.interval)
+    //clearInterval(this.data.interval)
+    api.offWs('MacDateUpdate' + this.options.DevMac + this.options.pid)
+
   },
 
   /**
@@ -149,12 +158,15 @@ Page({
           break
       }
     } else {
-      clearInterval(this.data.interval)
+      // clearInterval(this.data.interval)
+      api.offWs('MacDateUpdate' + this.options.DevMac + this.options.pid)
+
       wx.showModal({
         title: 'Error',
         content: msg,
         success: () => {
-          clearInterval(this.data.interval)
+          // clearInterval(this.data.interval)
+          api.offWs('MacDateUpdate' + this.options.DevMac + this.options.pid)
           //wx.navigateBack()
         }
       })

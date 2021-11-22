@@ -63,7 +63,10 @@ Page({
   // 登录运行
   start() {
     this.bindDev()
-
+    api.onMessage<string>('MacUpdate',(mac)=>{
+      console.log(`listen MacUpdate,mac:${mac}`);
+      this.bindDev()
+    })
   },
 
   /**

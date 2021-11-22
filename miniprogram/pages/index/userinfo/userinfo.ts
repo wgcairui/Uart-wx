@@ -119,7 +119,7 @@ Page({
 
   proxyChange(event: vantEvent) {
     const value = event.detail.value as string
-    if (/^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i.test(value)) {
+    if (value === '' || /^https?:\/\/(([a-zA-Z0-9_-])+(\.)?)*(:\d+)?(\/((\.)?(\?)?=?&?[a-zA-Z0-9_-](\?)?)*)*$/i.test(value)) {
       api.modifyUserInfo({ 'proxy': value }).then(({ code, msg }) => {
         if (code) {
           this.setData({

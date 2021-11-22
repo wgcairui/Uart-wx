@@ -10,3 +10,7 @@
   padding-bottom: 3px;
   border-bottom: solid steelblue 1px;
 }
+
+.remark{
+  font-size: 12px;
+}

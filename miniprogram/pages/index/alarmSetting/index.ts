@@ -1,4 +1,3 @@
-import { RgexpMail, RgexpTel } from "../../../utils/util"
 import api from "../../../utils/api"
 
 // miniprogram/pages/index/alarmSetting/index.js
@@ -38,8 +37,22 @@ Page({
     })
   },
   // 修改用户联系方式
-  modifyTell(event: vantEvent) {
-    const { detail, currentTarget: { dataset } } = event
+  modifyTell(event: vantEvent<string[]>) {
+    const [tel, mail] = event.currentTarget.dataset.item
+    //const a = this.pushuserTels//(tel, mail)
+    wx.navigateTo({
+      url: "/pages/index/alarmSetting/modifyTel/modifyTel",//+ObjectToStrquery({tel,mail}),
+      events:{
+        modifyOk:({ tel, mail }: { tel: string[], mail: string[] })=> {
+          this.pushuserTels(tel, mail)
+        }
+      },
+      success(res) {
+        res.eventChannel.emit('alarm', { tel: tel.split("\n"), mail: mail.split("\n") })
+      }
+    })
+
+    /* const { detail, currentTarget: { dataset } } = event
     const value = Array.from(new Set((detail.value as string).replace(/(\,|\，)/g, '\n').split('\n').filter(el => el)))
     const key = dataset.key as string
     console.log(value);
@@ -77,15 +90,15 @@ Page({
           }
         }
         break
-    }
+    } */
   },
   // 提交修改联系方式
-  pushuserTels(tels: string[] | null, mails: string[] | null) {
+  pushuserTels(tels: string[], mails: string[]) {
     this.setData({
-      tels: tels ? tels.join('\n') : this.data.tels,
-      mails: mails ? mails.join('\n') : this.data.mails
+      tels: tels.join('\n'),
+      mails: mails.join('\n')
     })
-    api.modifyUserAlarmSetupTel(this.data.tels.split('\n'), this.data.mails.split('\n')).then(() => {
+    api.modifyUserAlarmSetupTel([...new Set(tels)], [...new Set(mails)]).then(() => {
       wx.startPullDownRefresh()
     })
 

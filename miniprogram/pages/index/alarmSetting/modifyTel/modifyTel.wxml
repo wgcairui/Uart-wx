@@ -1,0 +1,15 @@
+<!--pages/index/alarmSetting/modifyTel/modifyTel.wxml-->
+<view class="set-alarm">
+  <van-cell-group title="手机号最多3个">
+    <my-input wx:for="{{tel}}" wx:key="*this" value="{{item}}" bind:submit="modifyTel" data-key="{{item}}"></my-input>
+    <van-cell>
+      <van-button disabled="{{tel.length>=3}}" size="small" round type="info" bindtap="addTel">添加新号码</van-button></van-cell>
+  </van-cell-group>
+  <van-cell-group title="邮箱数不限">
+    <my-input wx:for="{{mail}}" wx:key="*this" value="{{item}}" bind:submit="modifyMail" data-key="{{item}}"></my-input>
+    <van-cell>
+      <van-button size="small" round type="info" bindtap="addMail">添加新邮箱</van-button></van-cell>
+  </van-cell-group>
+
+  <van-button  round type="info" bindtap="submit" block>完成设置</van-button>
+</view>
