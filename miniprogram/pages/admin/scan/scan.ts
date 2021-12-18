@@ -3,6 +3,7 @@ import api from "../../../utils/api"
 Page({
   data: {
     mac: '',
+    macs: [] as string[],
     terminal: {
       name: '',
       mountNode: '',
@@ -12,6 +13,18 @@ Page({
     remoteUrl: '',
     uarts: ['2400,8,1,NONE,NFC', '4800,8,1,NONE,HD', '9600,8,1,NONE,HD', '19200,8,1,NONE,HD', '115200,8,1,NONE,HD'],
     qrReady: false
+  },
+
+  onLoad() {
+    wx.getStorage({
+      key: "macHis",
+      success: (res) => {
+        console.log(res.data);
+        this.setData({
+          macs: res.data
+        })
+      }
+    })
   },
   // 调用微信api，扫描DTU条形码
   async scanMac() {
@@ -27,18 +40,48 @@ Page({
     const { code, data } = await api.getRootTerminal(this.data.mac)
     wx.hideLoading()
     if (code && data) {
-
       this.setData({
         mac: data.DevMac,
         terminal: data
       })
-      this.generateLabel()
+      this.addHis(data.DevMac)
+      // this.generateLabel()
     } else {
       wx.showModal({
         title: 'search',
         content: '此设备没有注册，请核对设备是否在我司渠道购买'
       })
     }
+  },
+
+  /**
+   * 点击历史记录查询
+   * @param e 
+   */
+  search(e:vantEvent){
+    this.setData({
+      mac:e.target.id
+    })
+    this.scanRequst()
+  },
+
+  /**
+   * 添加历史记录
+   * @param mac 
+   */
+  addHis(mac: string) {
+    if (this.data.macs.length > 5) {
+      this.data.macs.pop()
+    }
+    const macSet = new Set(this.data.macs)
+    macSet.add(mac)
+    this.setData({
+      macs: [...macSet]
+    })
+    wx.setStorage({
+      key: 'macHis',
+      data: [...macSet]
+    })
   },
 
   async initTerminal() {
@@ -215,7 +258,7 @@ Page({
   /**
    * 生成标签
    */
-  async generateLabel() {
+  /* async generateLabel() {
     this.setData({
       qrReady: false
     })
@@ -245,12 +288,12 @@ Page({
     ctx.fillText('小程序', 165, 110)
     ctx.drawImage(await this.generateCanvasImg(canvas, pic_mac), 230, 5, 110, 95)
     ctx.fillText('mac:' + mac, 240, 110)
-  },
+  }, */
 
   /**
    * 下载标签
    */
-  async downLabel() {
+  /* async downLabel() {
     const res = await new Promise<any>(resolve => {
       wx.createSelectorQuery()
         .select("#canvas1")
@@ -302,13 +345,13 @@ Page({
       })
     })
   },
-
+ */
   /**
    * 
    * @param canvas 
    * @param path 
    */
-  generateCanvasImg(canvas: WechatMiniprogram.Canvas, path: string) {
+  /* generateCanvasImg(canvas: WechatMiniprogram.Canvas, path: string) {
     return new Promise<string>(resolve => {
       const img = canvas.createImage()
       img.onload = () => resolve(img as any)
@@ -321,11 +364,11 @@ Page({
       img.src = path
     })
   },
-
+ */
   /**
    * 下载文件
    */
-  dowmPic(url: string) {
+  /* dowmPic(url: string) {
     const nArr = url.split("/")
     const name = nArr[nArr.length - 1]
     const filename = `${wx.env.USER_DATA_PATH}/${name}`
@@ -357,5 +400,5 @@ Page({
         }
       })
     })
-  },
+  }, */
 })

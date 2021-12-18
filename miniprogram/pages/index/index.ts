@@ -31,7 +31,7 @@ Page({
     "空调": '/assert/air.png'
   } as Record<string, string>,
   onLoad(query: any) {
-    wx.showLoading({ title: 'loading' })
+    wx.showLoading({ title: 'login' })
     wx.login({
       success: async login => {
         // 发送网络请求，获取在线账户
@@ -47,8 +47,9 @@ Page({
               wx.reLaunch({ url: "/pages/admin/index" })
               break
             default:
+              
               this.setData({ ready: true, sub: Boolean(user.data.wxId) })
-              this.start()
+              await this.start()
               break
           }
         }
@@ -61,9 +62,10 @@ Page({
   },
 
   // 登录运行
-  start() {
-    this.bindDev()
-    api.onMessage<string>('MacUpdate',(mac)=>{
+  async start() {
+    await this.bindDev()
+    // 监听用户绑定的设备状态变更事件,及时刷新设备状态
+    api.onMessage<string>('MacUpdate', (mac) => {
       console.log(`listen MacUpdate,mac:${mac}`);
       this.bindDev()
     })
@@ -163,7 +165,7 @@ Page({
   },
   // 查看告警
   seeAlarm() {
-    wx.switchTab({ url: '/pages/index/alarm/alarm?num=' + this.data.alarmNum })
+    wx.switchTab({ url: '/pages/index/alarm/alarm' })
   },
   // 统计所有设备状态
   countDev(terminals: Uart.Terminal[]) {
@@ -193,8 +195,22 @@ Page({
     console.log(`公众号加载error,状态:${event.detail.errMsg}`);
   },
 
+  trial(){
+    wx.showLoading({ title: 'login' })
+    wx.login({
+      success: async login => {
+        // 发送网络请求，获取在线账户
+        const { code } = await api.trial({ js_code: login.code})
+        if (code) {
+          this.start()
+          wx.hideLoading()
+        }
+      }
+    })
+  }
+
   // 添加虚拟设备
-  async addVm() {
+  /* async addVm() {
     const { ok, arg } = await api.addVm()
     if (ok) {
       this.setData({
@@ -202,10 +218,10 @@ Page({
       })
       this.sortDevs(arg)
     }
-  },
-  onShow() {
+  }, 
+   onShow() {
     if (this.data.ready) {
       this.bindDev()
     }
-  }
+  } */
 })

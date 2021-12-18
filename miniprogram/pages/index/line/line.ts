@@ -1,4 +1,5 @@
-import { urlRequest } from "../../../config";
+import api from "../../../utils/api";
+import { ObjectToStrquery } from "../../../utils/util";
 
 // miniprogram/pages/index/line/line.js
 Page({
@@ -28,8 +29,16 @@ Page({
   onLoad: function (options: { name: any; mac: any; pid: any; protocol: any; }) {
     const { name, mac, pid, protocol } = options
     // console.log(options);
-    const token = wx.getStorageSync('token') as string
-    const webSrc = encodeURI(`${urlRequest}/main/line?token=${token}&DevMac=${mac}&pid=${pid}&name=${name}&protocol=${protocol}`)
+    // const token = api.token
+    const p = ObjectToStrquery({
+      token: api.token,
+      DevMac: mac,
+      pid,
+      name,
+      protocol,
+      type: 'wx'
+    })
+    const webSrc = encodeURI(`https://uart.ladishb.com/main/line?${p}`)
     // console.log(webSrc);
 
     this.setData({

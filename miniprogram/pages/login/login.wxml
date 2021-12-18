@@ -8,34 +8,32 @@
 			<van-image round width="7rem" height="7rem" src="{{userInfo.avatarUrl}}" use-error-slot>
 				<text slot="error">更新头像</text>
 			</van-image>
-
 			<text>{{userInfo.nickName}}</text>
 		</view>
-
+		<view class="trial">
+			<van-button type="info" bindtap="trial" class="center register" round>我要试用?
+			</van-button>
+		</view>
 		<van-tabs type="card" bind:click="tabclick" animated active="{{active}}">
 			<van-tab class="tab" title="微信注册">
 				<van-cell-group>
-					<van-field title-width="3em" model:value="{{tel}}" center clearable label="phone" placeholder="输入手机号码"
-						use-button-slot>
-						<van-button slot="button" size="small" type="primary" open-type="getPhoneNumber"
-							bindgetphonenumber="getphonenumber">获取手机号码</van-button>
+					<van-field title-width="3em" model:value="{{tel}}" center clearable label="phone" placeholder="输入手机号码" use-button-slot>
+						<van-button slot="button" size="small" type="primary" open-type="getPhoneNumber" bindgetphonenumber="getphonenumber">获取手机号码</van-button>
 					</van-field>
-					<van-button type="primary" loading="{{registerloading}}" bindtap="register" class="center register" round
-						block>注册
+					<van-button type="primary" loading="{{registerloading}}" bindtap="register" class="center register" round block>注册
 					</van-button>
 				</van-cell-group>
 			</van-tab>
 			<van-tab class="tab" title="账号登录">
 				<van-cell-group>
 					<van-field model:value="{{ accontUser }}" required clearable label="用户名" placeholder="请输入用户名" />
-					<van-field model:value="{{ accontPasswd }}" type="password" label="密码" placeholder="请输入密码" required
-						border="{{ false }}" />
-					<van-button id="login" disabled="{{!accontUser && !accontPasswd}}" type="primary" loading="{{loginloading}}"
-						bindtap="login" class="center register login" round block>登录
+					<van-field model:value="{{ accontPasswd }}" type="password" label="密码" placeholder="请输入密码" required border="{{ false }}" />
+					<van-button id="login" disabled="{{!accontUser && !accontPasswd}}" type="primary" loading="{{loginloading}}" bindtap="login" class="center register login" round block>登录
 					</van-button>
 				</van-cell-group>
 			</van-tab>
 		</van-tabs>
+
 		<view class="readme">
 			<text> 本小程序用于特定范围用户(使用我司云平台物联网设备)在手机上查看个人搭配的透传设备,需要使用云平台账号或授权使用微信用户信息(手机号,用户名,头像,id)注册使用,无法在开放范围提供服务,敬请谅解
 			</text>

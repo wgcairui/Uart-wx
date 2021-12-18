@@ -2,8 +2,7 @@
 <view class="container">
   <view>
     <van-cell-group>
-      <van-field model:value="{{mac}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描DTU的编号"
-        bind:click-icon="scanMac" />
+      <van-field model:value="{{mac}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描DTU的编号" bind:click-icon="scanMac" />
 
       <!-- <van-field model:value="{{bind}}" required clearable label="设备ID" icon="scan" placeholder="输入或扫描设备编号"
         bind:click-icon="scanBind" /> -->
@@ -23,14 +22,21 @@
   <view>
     <van-radio-group value="{{ radio }}" bind:change="changeNode">
       <van-cell-group title="节点名称/最大挂载数/已挂载数:{{radio}}">
-        <van-cell wx:for="{{nodes}}" wx:key="key" title="{{item.Name}}/{{item.MaxConnections}}/{{item.count}}" clickable
-          data-item="{{item}}" bind:click="selectNode">
+        <van-cell wx:for="{{nodes}}" wx:key="key" title="{{item.Name}}/{{item.MaxConnections}}/{{item.count}}" clickable data-item="{{item}}" bind:click="selectNode">
           <van-radio slot="right-icon" name="{{item.Name}}" disabled="{{item.MaxConnections <=item.count}}" />
         </van-cell>
       </van-cell-group>
     </van-radio-group>
   </view>
   <view wx:if="{{dtus.length >0}}">
-    <van-button round type="info" bind:click="submit" block>提交</van-button>
+    <van-row>
+      <van-col span="16">
+        <van-button round type="info" bind:click="submit" block>提交</van-button>
+      </van-col>
+      <van-col span="8">
+        <van-button round type="succedd" bind:click="copy" block>复制</van-button>
+      </van-col>
+    </van-row>
+
   </view>
 </view>

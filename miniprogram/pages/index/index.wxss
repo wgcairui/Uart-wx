@@ -129,4 +129,12 @@
   display: none; /* Chrome Safari */
 }
 
+.trial{
+  min-height: 200px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @import "./index.skeleton.wxss";

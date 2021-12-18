@@ -1,4 +1,15 @@
 <!--component/myInput/myInput.wxml-->
-<van-field label="{{label}}" model:value="{{ vd }}" type="{{type}}" readonly="{{readonly}}" focus="{{focus}}"
-  autosize="{{type==='textarea'}}" right-icon="{{right_icon}}" bind:focus="focus" bind:blur="blur"
-  bind:confirm="confirm" bind:click-icon="click" right-icon="edit" />
+<van-field 
+label="{{label}}" 
+model:value="{{ vd }}" 
+type="{{type}}" 
+readonly="{{readonly}}" 
+focus="{{focus}}"
+bindtap="click"
+autosize="{{type==='textarea'}}" 
+right-icon="{{right_icon}}" 
+bind:focus="focus" 
+bind:blur="blur"
+bind:confirm="confirm" 
+bind:click-icon="click" 
+right-icon="edit" />

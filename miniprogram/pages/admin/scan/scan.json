@@ -1,7 +1,10 @@
 {
   "usingComponents": {
     "van-field": "@vant/weapp/field/index",
-    "van-button": "@vant/weapp/button/index"
+    "van-button": "@vant/weapp/button/index",
+    "van-tag": "@vant/weapp/tag/index",
+    "van-row": "@vant/weapp/row/index",
+  "van-col": "@vant/weapp/col/index"
   },
   "enablePullDownRefresh": false,
   "navigationBarTitleText": "查询DTU设备"

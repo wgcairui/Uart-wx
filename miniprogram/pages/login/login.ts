@@ -95,4 +95,12 @@ Page({
       })
     }
   }
+  ,
+  trial() {
+    this.setData({
+      accontPasswd: '123456',
+      accontUser: 'test'
+    })
+    this.login()
+  }
 })

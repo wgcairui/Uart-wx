@@ -58,7 +58,8 @@ Component({
     trige() {
       const { value, vd } = this.data
       if (value !== vd) {
-        wx.showModal({
+        this.triggerEvent('submit', { value: this.data.vd })
+        /* wx.showModal({
           title: `Tip`,
           content: `确定从「${value}」修改为「${vd}」?`,
           success: (res) => {
@@ -66,7 +67,7 @@ Component({
               this.triggerEvent('submit', { value: this.data.vd })
             }
           }
-        })
+        }) */
       }
     }
   }

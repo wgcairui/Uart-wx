@@ -1,5 +1,5 @@
 // miniprogram/pages/index/devs/devs.js
-import { parseTime } from "../../../utils/util"
+import { ObjectToStrquery, parseTime } from "../../../utils/util"
 import api from "../../../utils/api"
 Page({
 
@@ -83,5 +83,15 @@ Page({
       filter,
       "result.result": result
     })
-  }
+  },
+
+  // 导航到图表
+  toline(e: vantEvent) {
+    const url = '/pages/index/line/line' + ObjectToStrquery({ name: e.detail.name, mac: this.data.mac, pid: this.data.pid, protocol: this.data.protocol, type: 'wx' })
+    console.log(url);
+
+    wx.navigateTo({
+      url
+    })
+  },
 })

@@ -9,25 +9,7 @@
 <view class="container">
 
   <view class="content" wx:if="{{ready}}">
-    <!-- <view wx:if="{{alarmNum>0}}" class=" alarmCard" bindtap="seeAlarm">
-      <swiper indicator-dots="true" indicator-active-color="#00a1ff" autoplay="true" interval="2000" duration="500">
-        <swiper-item class="alarmItem" wx:for="{{alarmData}}" wx:key="key">
-          <view class="alarmItemChild">
-            <view class="alarmItemChild-title">
-              <text>{{item.devName}}</text>
-              <van-tag type="danger" round size="medium">{{item.tag}}</van-tag>
-            </view>
-            <view class="alarmItemChild-content">
-              <text>{{item.msg}}</text>
-            </view>
-            <view class="alarmItemChild-time">
-              <text>{{item.time}}</text>
-            </view>
-          </view>
-        </swiper-item>
-      </swiper>
-    </view> -->
-
+    <!-- 顶部横幅 -->
     <view class="pan">
       <van-notice-bar scrollable="{{ false }}" wx:if="{{alarm}}" left-icon="volume-o" text="{{alarm}}" mode="link"
         bindtap="seeAlarm" />
@@ -36,7 +18,7 @@
         <van-notice-bar scrollable="{{ false }}" wx:if="{{!sub}}" left-icon="volume-o" text="订阅公众号,告警消息及时提醒!!!" mode="link"
         bindtap="subMessage" />
     </view>
-
+    <!-- 展示设备页面 -->
     <view class="tab">
       <van-tabs sticky swipeable animated border lazy-render>
         <van-tab title="设备">
@@ -59,7 +41,11 @@
                   </view>
                 </view>
               </view>
+              
             </view>
+            <view wx:if="{{dtuItem.length === 0}}" class="trial" bindtap="trial">
+                <van-button type="info">切换测试账号体验使用?</van-button>
+              </view>
           </view>
         </van-tab>
         <van-tab title="透传终端">

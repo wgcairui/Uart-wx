@@ -61,7 +61,7 @@ Page({
     } else {
       this.setData({
         mac,
-        dtus: [...this.data.dtus, { DevMac: mac, bindDev: bind, mountNode: radio }]
+        dtus: [{ DevMac: mac, bindDev: bind, mountNode: radio }, ...this.data.dtus]
       })
       const dtulen = this.data.dtus.length
       for (let node of this.data.nodes) {
@@ -143,6 +143,19 @@ Page({
             content: '提交错误'
           })
         }
+      }
+    })
+  },
+
+
+  copy() {
+    const mac = this.data.dtus.map(el => '866' + el.DevMac).join("\n")
+    wx.setClipboardData({
+      data: mac,
+      success() {
+        wx.showToast({
+          title: 'success'
+        })
       }
     })
   }

@@ -14,3 +14,7 @@
 .van-button{
   margin: 12px 0;
 }
+
+.van-col{
+  padding: 4px 8px;
+}

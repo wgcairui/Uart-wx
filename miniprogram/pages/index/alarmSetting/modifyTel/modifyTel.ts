@@ -72,16 +72,16 @@ Page({
   },
 
   submit() {
-    if(!this.disbledSumbit()) {
+    /* if(!this.disbledSumbit()) {
       wx.showToast({
         title:"联系方式不能空",
         icon:"error"
       })
       return
-    }
+    } */
     const eventChannel = this.getOpenerEventChannel()
     const { tel, mail } = this.data
-    eventChannel.emit("modifyOk", { tel, mail })
+    eventChannel.emit("modifyOk", { tel: tel.filter(el => RgexpTel(el)), mail: mail.filter(el => RgexpMail(el)) })
     wx.navigateBack()
   },
 

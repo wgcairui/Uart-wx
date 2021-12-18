@@ -6,4 +6,4 @@
   <my-table result="{{result}}" bind:filter="filter" bind:line="toline">
     <van-cell value="{{result.time}}"></van-cell>
   </my-table>
-</view>
+</view> 

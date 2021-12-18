@@ -43,6 +43,9 @@ class api {
       token
     })
 
+    if(this.ws){
+      this.ws.close({})
+    }
 
     this.ws = wx.connectSocket({
       url: urlWs,
@@ -715,9 +718,16 @@ class api {
   }
 
 
-
-
-
+  /**
+   * 切换测试账号试用
+   */
+  async trial(data: { js_code: string }) {
+    const el = await this.fetch<{ token: string }>("auth/trial", data, "GET")
+    if (el.code) {
+      this.setToken(el.data.token)
+    }
+    return el
+  }
 
 
   /**
@@ -755,6 +765,10 @@ class api {
                   })
                 }
               }
+            })
+          } else if (res.data.code === 0 && res.data.data as any === 'token null') {
+            wx.switchTab({
+              url: '/pages/index/index'
             })
           } else
             resolve(res.data as any)

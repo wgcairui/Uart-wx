@@ -12,7 +12,8 @@ Page({
     avanter: '',
     rgwx: false,
     rgTime: '',
-    wxId: ''
+    wxId: '',
+    test: false
   },
 
   /**
@@ -31,7 +32,8 @@ Page({
           avanter: data.avanter,
           rgwx: data.rgtype === 'wx',
           rgTime: new Date(data.creatTime!).toLocaleDateString(),
-          wxId: data.wxId
+          wxId: data.wxId,
+          test: Boolean(data.userGroup === 'test')
         })
         wx.setStorage({ key: 'userinfo', data })
       }
@@ -60,17 +62,21 @@ Page({
     })
 
     if (d.confirm) {
+      api.ws.close({})
       const { code } = await api.unbindwx()
       if (code) {
         this.clearCache()
-        /* await wx.showModal({
-          title: 'success',
-          content: '已成功解绑,确定退出小程序'
-        });
-        (wx as any).exitMiniProgram() */
-        wx.exitMiniProgram()
       }
+      wx.exitMiniProgram()
     }
+  },
+
+  // 退出测试模式
+  async exitTest(){
+    api.setToken('')
+    wx.reLaunch({
+      url:"/pages/index/index"
+    })
   },
 
   //检查更新
