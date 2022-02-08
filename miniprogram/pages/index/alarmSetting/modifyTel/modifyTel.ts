@@ -1,4 +1,5 @@
 // pages/index/alarmSetting/modifyTel/modifyTel.js
+import api from "../../../../utils/api"
 import { RgexpMail, RgexpTel } from "../../../../utils/util"
 Page({
 
@@ -81,8 +82,17 @@ Page({
     } */
     const eventChannel = this.getOpenerEventChannel()
     const { tel, mail } = this.data
-    eventChannel.emit("modifyOk", { tel: tel.filter(el => RgexpTel(el)), mail: mail.filter(el => RgexpMail(el)) })
-    wx.navigateBack()
+
+    const tels = tel.filter(el => RgexpTel(el))
+    const mails = mail.filter(el => RgexpMail(el))
+
+    wx.showLoading({ title: '提交中' })
+    api.modifyUserAlarmSetupTel([...new Set(tels)], [...new Set(mails)]).then(() => {
+      wx.hideLoading()
+      eventChannel.emit("modifyOk", { tel: tels, mail: mails })
+      wx.navigateBack()
+    })
+
   },
 
   disbledSumbit() {

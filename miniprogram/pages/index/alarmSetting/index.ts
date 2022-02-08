@@ -98,10 +98,7 @@ Page({
       tels: tels.join('\n'),
       mails: mails.join('\n')
     })
-    api.modifyUserAlarmSetupTel([...new Set(tels)], [...new Set(mails)]).then(() => {
-      wx.startPullDownRefresh()
-    })
-
+    wx.startPullDownRefresh()
   },
 
   /**

@@ -56,22 +56,30 @@ Page({
   // add
   async addDtus() {
     const { mac, bind, radio } = this.data
+
+    if(mac.length !== 12){
+      wx.showModal({
+        content:`${mac}长度异常,请核对是否正确??`
+      })
+    }
     if (this.data.dtus.findIndex(el => el.DevMac === mac) !== -1) {
       console.log('重复扫描');
-    } else {
-      this.setData({
-        mac,
-        dtus: [{ DevMac: mac, bindDev: bind, mountNode: radio }, ...this.data.dtus]
-      })
-      const dtulen = this.data.dtus.length
-      for (let node of this.data.nodes) {
-        if (node.MaxConnections - (node.count || 0) > dtulen) {
-          this.setData({
-            radio: node.Name
-          })
-          break
-        }
+      return
+    }
+
+    this.setData({
+      mac,
+      dtus: [{ DevMac: mac, bindDev: bind, mountNode: radio }, ...this.data.dtus]
+    })
+    const dtulen = this.data.dtus.length
+    for (let node of this.data.nodes) {
+      if (node.MaxConnections - (node.count || 0) > dtulen) {
+        this.setData({
+          radio: node.Name
+        })
+        break
       }
+
     }
   },
 

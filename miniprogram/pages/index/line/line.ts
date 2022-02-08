@@ -30,16 +30,24 @@ Page({
     const { name, mac, pid, protocol } = options
     // console.log(options);
     // const token = api.token
-    const p = ObjectToStrquery({
+    /* const p = ObjectToStrquery({
       token: api.token,
       DevMac: mac,
       pid,
       name,
       protocol,
       type: 'wx'
+    }) */
+    //const webSrc = encodeURI(`https://uart.ladishb.com/main/line?${p}`)
+
+    const p = ObjectToStrquery({
+      token: api.token,
+      mac,
+      pid,
+      name,
     })
-    const webSrc = encodeURI(`https://uart.ladishb.com/main/line?${p}`)
-    // console.log(webSrc);
+    const webSrc = encodeURI(`https://uart.ladishb.com/wline${p}`)
+    console.log(webSrc);
 
     this.setData({
       mac,

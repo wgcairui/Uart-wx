@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "skipLibCheck": true,
     "incremental": true,
     "declaration": false,
     "removeComments":true,
@@ -23,6 +24,7 @@
     "strictPropertyInitialization": true,
     "lib": ["ES2020", "DOM"],
     "typeRoots": [],
+    "skipDefaultLibCheck": true,
     "types": [
       "miniprogram-api-typings",
       "./typings",

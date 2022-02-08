@@ -4,5 +4,5 @@
     "van-button": "@vant/weapp/button/index"
   },
   "enablePullDownRefresh": false,
-  "navigationBarTitleText": "绑定DTU设备"
+  "navigationBarTitleText": "绑定透传设备/百事服卡"
 }

@@ -12,5 +12,7 @@
 }
 
 .remark{
-  font-size: 12px;
+  font-size: 14px;
+  display: block;
+  margin: 8px ;
 }
