@@ -42,9 +42,8 @@ Page({
       Type: options.Type
     })
 
-    api.onMessage('MacDateUpdate' + options.DevMac + options.pid, () => {
-      console.log('获取运行数据');
-      
+    api.onMessage(options.DevMac + options.pid, () => {
+      console.log('获取运行数据:'+options.DevMac + options.pid);
       this.GetDevsRunInfo()
     })
   },
@@ -83,7 +82,6 @@ Page({
    * 生命周期函数--监听页面隐藏
    */
   onHide: function () {
-    //clearInterval(this.data.interval)
     api.offWs('MacDateUpdate' + this.options.DevMac + this.options.pid)
   },
 
@@ -91,7 +89,6 @@ Page({
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-    //clearInterval(this.data.interval)
     api.offWs('MacDateUpdate' + this.options.DevMac + this.options.pid)
 
   },
@@ -114,12 +111,7 @@ Page({
       data.time = parseTime(data.time)
       this.setData({
         result: data,
-        interval: setTimeout(() => {
-          this.GetDevsRunInfo()
-        }, data.Interval && data.Interval >= 2000 ? data.Interval : 5000)
-      })
-      //
-
+      }) 
       switch (this.data.Type) {
         case "UPS":
           const workMode = data.result.find(el => el.name === this.data.Constant.sys.Constant.WorkMode)?.parseValue as string

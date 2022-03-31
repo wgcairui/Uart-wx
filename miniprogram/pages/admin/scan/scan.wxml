@@ -61,7 +61,7 @@
     </van-cell-group>
   </view>
   <view wx:if="{{terminal.mountDevs && terminal.mountDevs.length>0}}" class="info card">
-    <van-cell-group wx:for="{{terminal.mountDevs}}" wx:key="index" title="第[{{index}}]个设备">
+    <van-cell-group wx:for="{{terminal.mountDevs}}" wx:key="index" title="第[{{index+1}}]个设备">
       <van-cell title="设备类型" value="{{item.Type}}"></van-cell>
       <van-cell title="设备型号" value="{{item.mountDev}}"></van-cell>
       <van-cell title="设备地址" value="{{item.pid}}"></van-cell>

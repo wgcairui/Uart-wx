@@ -25,10 +25,10 @@ Page({
   },
 
   devPics: {
-    "UPS": '/assert/ups.png',
-    "温湿度": '/assert/th.png',
-    "电量仪": '/assert/em.png',
-    "空调": '/assert/air.png'
+    "UPS": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/99daa3e07c7b60ef7e16ed8b9fe7cf33.png',
+    "温湿度": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/5fc7d6fe0571b714d5a3395a8c7a9f12.png',
+    "电量仪": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/ab52d9fccdddc0fa5b0386ea0b5cbc7f.png',
+    "空调": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/c3c1852270ca35fd56135d8fda2a9977.png'
   } as Record<string, string>,
   onLoad(query: any) {
     wx.showLoading({ title: 'login' })
@@ -65,10 +65,13 @@ Page({
   async start() {
     await this.bindDev()
     // 监听用户绑定的设备状态变更事件,及时刷新设备状态
-    api.onMessage<string>('MacUpdate', (mac) => {
-      console.log(`listen MacUpdate,mac:${mac}`);
-      this.bindDev()
+    this.data.DTUs.forEach(dtu=>{
+      api.onMessage<string>('MacUpdate'+dtu.DevMac, () => {
+        console.log(`listen MacUpdate,mac:${dtu.DevMac}`);
+        this.bindDev()
+      })
     })
+    
   },
 
   /**

@@ -87,10 +87,24 @@ Page({
     const mails = mail.filter(el => RgexpMail(el))
 
     wx.showLoading({ title: '提交中' })
-    api.modifyUserAlarmSetupTel([...new Set(tels)], [...new Set(mails)]).then(() => {
+    api.modifyUserAlarmSetupTel([...new Set(tels)], [...new Set(mails)]).then((res) => {
       wx.hideLoading()
-      eventChannel.emit("modifyOk", { tel: tels, mail: mails })
-      wx.navigateBack()
+      if (res.code === 200) {
+        wx.showModal({
+          title:'更新成功',
+          icon: 'success',
+          success(){
+            eventChannel.emit("modifyOk", { tel: tels, mail: mails })
+            wx.navigateBack()
+          }
+        })
+        
+      }else{
+        wx.showToast({
+          title:'更新失败',
+          icon:'error'
+        })
+      }
     })
 
   },

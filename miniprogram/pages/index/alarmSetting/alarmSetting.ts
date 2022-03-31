@@ -112,18 +112,24 @@ Page({
   },
   //  监听显示参数变化
   async ShowTagonChange(event: vantEvent) {
-    console.log({event});
-    
+    console.log({ event });
+
     const tags = event.detail as string[]
     this.setData({
       showTag: tags
     })
     await api.setUserSetupProtocol(this.data.protocol, 'ShowTag', tags || [])
+      .then(res => {
+        wx.showToast({
+          title: res.code === 200 ? '显示参数修改成功' : '修改失败',
+          icon:res.code === 200 ? 'success' : 'error',
+        })
+      })
   },
   // 修改显示参数变化值
   ShowTagtoggle(event: vantEvent) {
     //console.log(event);
-    
+
     /* const { index } = event.currentTarget.dataset;
     const checkbox = this.selectComponent(`.checkboxes-${index}`);
     checkb.toggle(); */
@@ -138,6 +144,12 @@ Page({
     })
     const data = this.data.alarmStat[index]
     await api.setUserSetupProtocol(this.data.protocol, 'AlarmStat', data)
+    .then(res => {
+      wx.showToast({
+        title: res.code === 200 ? '状态参数修改成功' : '修改失败',
+        icon:res.code === 200 ? 'success' : 'error',
+      })
+    })
 
   },
   // 跳转到参数限值修改页面
@@ -149,6 +161,12 @@ Page({
       events: {
         modifyThreshold: async (data: Uart.Threshold) => {
           await api.setUserSetupProtocol(this.data.protocol, "Threshold", { type: 'add', data })
+          .then(res => {
+            wx.showToast({
+              title: res.code === 200 ? '约束参数修改成功' : '修改失败',
+              icon:res.code === 200 ? 'success' : 'error',
+            })
+          })
           this.setData({
             [`Threshold[${index}]`]: { ...data, icon: "star" }
           })

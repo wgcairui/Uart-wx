@@ -37,6 +37,10 @@ class api {
     this.wsEventMap = new Map()
   }
 
+  /**
+   * 设置token
+   * @param token 
+   */
   setToken(token: string) {
     this.token = token
     wx.setBackgroundFetchToken({
@@ -47,6 +51,9 @@ class api {
       this.ws.close({})
     }
 
+    /**
+     * 创建ws连接
+     */
     this.ws = wx.connectSocket({
       url: urlWs,
       header: {
@@ -63,14 +70,19 @@ class api {
       }
     })
 
+    /**
+     * 打开ws连接,发送token
+     */
     this.ws.onOpen(() => {
       this.ws.send({
         data: JSON.stringify({ token: token })
       })
     })
 
+    /**
+     * 监听
+     */
     this.ws.onMessage(res => {
-      // console.log({ res });
       if (/^{.*}$/.test(res.data as string)) {
         const { type, data }: { type: string, data: any } = JSON.parse(res.data as string)
         const fun = this.wsEventMap.get(type)
@@ -81,6 +93,9 @@ class api {
     })
 
 
+    /**
+     * 监听普通信息
+     */
     this.onMessage('info', msg => {
       wx.showModal({
         content: msg,
@@ -88,6 +103,9 @@ class api {
       })
     })
 
+    /**
+     * 监听告警信息
+     */
     this.onMessage<Uart.uartAlarmObject>('alarm', (data) => {
       wx.showModal({
         content: (data as Uart.uartAlarmObject).msg,
@@ -101,12 +119,34 @@ class api {
     })
   }
 
+  /**
+   * 订阅事件
+   * @param event 
+   * @param fun 
+   */
   onMessage<T = any>(event: string, fun: (data?: T) => void) {
+    this.ws.send({
+        data: JSON.stringify({
+          token:this.token,
+          event
+        }),
+        success(res){
+          console.log(`onMessage ${event} ${res.errMsg}`);
+        },
+        fail(err){
+          console.log(`onMessage ${event} ${err.errMsg}`);
+        }
+      })
+    
     if (!this.wsEventMap.has(event)) {
       this.wsEventMap.set(event, fun)
     }
   }
 
+  /**
+   * 取消订阅
+   * @param event 
+   */
   offWs(event: string) {
     this.wsEventMap.delete(event)
   }
