@@ -45,7 +45,10 @@ Page({
         terminal: data
       })
       this.addHis(data.DevMac)
-      // this.generateLabel()
+      api.onMessage<string>('MacUpdate'+data.DevMac, () => {
+        console.log(`listen MacUpdate,mac:${data.DevMac}`);
+        this.scanMac()
+      })
     } else {
       wx.showModal({
         title: 'search',

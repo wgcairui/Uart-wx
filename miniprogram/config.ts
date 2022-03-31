@@ -4,5 +4,5 @@
 
 
  export const urlRequest = `https://uart.ladishb.com`
-export const urlWs = `ws://uart.ladishb.com:9011/ws`
+export const urlWs = `wss://uart.ladishb.com/ws`
 

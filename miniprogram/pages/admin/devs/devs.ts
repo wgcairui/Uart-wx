@@ -30,11 +30,17 @@ Page({
       mountDev: options.mountDev,
       Type: options.Type
     })
+
+    api.onMessage(options.DevMac + options.pid, () => {
+      console.log('获取运行数据:'+options.DevMac + options.pid);
+      this.GetDevsRunInfo()
+    })
   },
   async onReady() {
     wx.showLoading({ title: '获取运行数据' })
     await this.GetDevsRunInfo()
     wx.hideLoading()
+    
   },
   /**
    * 生命周期函数--监听页面显示
