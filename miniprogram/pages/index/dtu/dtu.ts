@@ -41,7 +41,7 @@ Page({
     // console.log(jw);
     terminal.uptime = parseTime(terminal.uptime)
     //
-    const devs = terminal.mountDevs.map(dev => {
+    const devs = terminal.mountDevs.map((dev:any )=> {
       dev.pic = (this.data.devPics as any)[dev.Type]
       return dev
     })
@@ -113,67 +113,67 @@ Page({
         "terminal.name": value
       })
       wx.setStorage({
-        key: this.data.terminal._id,
+        key: this.data.terminal._id as any,
         data: this.data.terminal
       })
     }
   },
 
   // 
-  updateGps() {
-    const setupGps = this.setupGps
-    wx.showModal({
-      title: 'Tip',
-      content: '是否把DTU定位更新为当前地址?',
-      success(ok) {
-        wx.showLoading({
-          title: '请稍等'
-        })
-        if (ok.confirm) {
-          wx.getSetting({
-            success(res) {
-              if (!res.authSetting["scope.userLocation"]) {
+  // updateGps() {
+  //   const setupGps = this.setupGps
+  //   wx.showModal({
+  //     title: 'Tip',
+  //     content: '是否把DTU定位更新为当前地址?',
+  //     success(ok) {
+  //       wx.showLoading({
+  //         title: '请稍等'
+  //       })
+  //       if (ok.confirm) {
+  //         wx.getSetting({
+  //           success(res) {
+  //             if (!res.authSetting["scope.userLocation"]) {
 
-                wx.authorize({
-                  scope: "scope.userLocation",
-                  success() {
-                    setupGps()
-                  }
-                })
-              } else {
-                setupGps()
-              }
-            }
-          })
-        }
-      }
-    })
-  },
+  //               wx.authorize({
+  //                 scope: "scope.userLocation",
+  //                 success() {
+  //                   setupGps()
+  //                 }
+  //               })
+  //             } else {
+  //               setupGps()
+  //             }
+  //           }
+  //         })
+  //       }
+  //     }
+  //   })
+  // },
 
   // 设置Gps
-  setupGps() {
-    const { terminal } = this.data
-    wx.getLocation({
-      success: (location) => {
-        terminal.jw = [location.longitude.toFixed(5), location.latitude.toFixed(5)].join(',')
-        wx.hideLoading()
-        wx.setStorage({
-          key: terminal._id,
-          data: terminal,
-          success: () => {
-            this.start()
-          }
-        })
-        // 上传定位到服务端
-        api.updateGps(terminal.DevMac, terminal.jw).then(el => {
-          if (el.code) {
-            wx.showToast({ title: '更新定位成功' })
-          } else {
-            wx.showToast({ title: el.msg, icon: 'none' })
-          }
-          wx.hideLoading()
-        })
-      }
-    })
-  }
+  // setupGps() {
+  //   const { terminal } = this.data
+  //   wx.getLocation({
+  //     success: (location) => {
+  //       terminal.jw = [location.longitude.toFixed(5), location.latitude.toFixed(5)].join(',')
+  //       wx.hideLoading()
+  //       wx.setStorage({
+  //         key: terminal._id as any,
+  //         data: terminal,
+  //         success: () => {
+  //           this.start()
+  //         }
+  //       })
+  //       // 上传定位到服务端
+  //       api.updateGps(terminal.DevMac, terminal.jw).then(el => {
+  //         if (el.code) {
+  //           wx.showToast({ title: '更新定位成功' })
+  //         } else {
+  //           wx.showToast({ title: el.msg, icon: 'none' })
+  //         }
+  //         wx.hideLoading()
+  //       })
+  //     }
+  //   })
+  // }
 })

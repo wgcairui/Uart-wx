@@ -43,10 +43,14 @@ Page({
           rgtype: data.rgtype || 'web'
         })
         const jw = await api.V2_API_Aamp_ip2local(data.address?.split(":").reverse()[0]!)
-        const ad = await api.getGPSaddress(jw.data.split(',').reverse().join(","))
-        this.setData({
-          address: ad.data.address
-        })
+        console.log(jw.data);
+        const jwFormat = jw.data.split(',').reverse()
+        if(jwFormat && jwFormat.length === 2){
+          const ad = await api.getGPSaddress(jw.data.split(',').reverse().join(","))
+          this.setData({
+            address: ad.data.address
+          })
+        }
       }
     })
   },

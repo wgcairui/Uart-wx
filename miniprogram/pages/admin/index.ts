@@ -115,7 +115,7 @@ Page({
         } catch (error) {
           wx.showModal({
             title: '缓存清理失败',
-            content: error,
+            content: error as any,
             success() {
               wx.reLaunch({ url: '/pages/index/index' })
             }

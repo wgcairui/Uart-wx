@@ -1,6 +1,0 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.urlWs = exports.urlRequest = void 0;
-exports.urlRequest = `https://uart.ladishb.com`;
-exports.urlWs = `wss://uart.ladishb.com/ws`;
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY29uZmlnLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiY29uZmlnLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiI7OztBQUtjLFFBQUEsVUFBVSxHQUFHLDBCQUEwQixDQUFBO0FBQ3hDLFFBQUEsS0FBSyxHQUFHLDJCQUEyQixDQUFBIiwic291cmNlc0NvbnRlbnQiOlsiXG4gLy8gZXhwb3J0IGNvbnN0IHVybFJlcXVlc3QgPSBgaHR0cDovLzEyNy4wLjAuMTo5MDEwYFxuLy9leHBvcnQgY29uc3QgdXJsV3MgPSBgd3M6Ly80Ny4xMTAuNzMuMTc4OjkwMTEvd3NgIFxuXG5cbiBleHBvcnQgY29uc3QgdXJsUmVxdWVzdCA9IGBodHRwczovL3VhcnQubGFkaXNoYi5jb21gXG5leHBvcnQgY29uc3QgdXJsV3MgPSBgd3NzOi8vdWFydC5sYWRpc2hiLmNvbS93c2BcblxuIl19

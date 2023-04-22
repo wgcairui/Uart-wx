@@ -27,7 +27,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options: { name: any; mac: any; pid: any; protocol: any; }) {
-    const { name, mac, pid, protocol } = options
+    const { name, mac, pid } = options
     // console.log(options);
     // const token = api.token
     /* const p = ObjectToStrquery({

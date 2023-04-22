@@ -25,13 +25,13 @@ Page({
   // 发送短信验证码
   async sendValidation() {
     wx.showLoading({ title: '正在发送' })
-    const { code, msg } = await api.fetch('smsValidation')
+    const { code, data } = await api.fetch<string>('smsValidation')
     wx.hideLoading()
-    if (!code) wx.showModal({ title: '发送失败', content: msg })
+    if (!code) wx.showModal({ title: '发送失败', content: data })
     else {
       wx.showModal({
         title: '发送成功',
-        content: '已发送到' + msg
+        content: '已发送到' + data
       })
     }
     const interval = setInterval(() => {

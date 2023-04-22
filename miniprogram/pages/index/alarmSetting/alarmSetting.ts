@@ -103,7 +103,7 @@ Page({
       })
     }
     const parse = this.parseProtocol()
-    sys_alarmStatMap.forEach((el, key) => {
+    sys_alarmStatMap.forEach((el:any, key) => {
       el.parse = parse[key]
     })
     this.setData({
@@ -127,7 +127,7 @@ Page({
       })
   },
   // 修改显示参数变化值
-  ShowTagtoggle(event: vantEvent) {
+  ShowTagtoggle(_event: vantEvent) {
     //console.log(event);
 
     /* const { index } = event.currentTarget.dataset;

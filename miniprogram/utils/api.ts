@@ -1,5 +1,4 @@
 import { urlRequest, urlWs } from "../config"
-
 export interface tencetMap {
   /* 状态码，0为正常,
 310请求参数信息有误，
@@ -15,7 +14,8 @@ export interface tencetMap {
 interface result<T = any> {
   code: number
   data: T
-  msg: string
+  message: string
+  status: number
   [x: string]: any
 }
 
@@ -37,45 +37,39 @@ class api {
     this.wsEventMap = new Map()
   }
 
-  /**
-   * 设置token
-   * @param token 
-   */
-  setToken(token: string) {
-    this.token = token
-    wx.setBackgroundFetchToken({
-      token
-    })
-
-    if(this.ws){
-      this.ws.close({})
-    }
-
+  async connectWs() {
     /**
      * 创建ws连接
      */
-    this.ws = wx.connectSocket({
-      url: urlWs,
-      header: {
-        'content-type': 'application/json',
-        token
-      },
-      success: (res) => {
-        console.log({ res });
+    this.ws = await new Promise((resolve, reject) => {
+      const io = wx.connectSocket({
+        url: urlWs,
+        header: {
+          'content-type': 'application/json',
+        },
+        success: (res) => {
+          console.log({ res });
+        },
+        fail(err) {
+          console.log({ err });
+          reject(err)
+        }
+      })
+      resolve(io)
+    })
 
 
-      },
-      fail(err) {
-        console.log({ err });
-      }
+    this.ws.onClose(() => {
+      console.log('ws close');
+      setTimeout(() => this.connectWs(), 3000)
     })
 
     /**
-     * 打开ws连接,发送token
-     */
+    * 打开ws连接,发送token
+    */
     this.ws.onOpen(() => {
       this.ws.send({
-        data: JSON.stringify({ token: token })
+        data: JSON.stringify({ token: this.token })
       })
     })
 
@@ -83,6 +77,7 @@ class api {
      * 监听
      */
     this.ws.onMessage(res => {
+      console.log(res);
       if (/^{.*}$/.test(res.data as string)) {
         const { type, data }: { type: string, data: any } = JSON.parse(res.data as string)
         const fun = this.wsEventMap.get(type)
@@ -91,8 +86,22 @@ class api {
         }
       }
     })
+  }
 
+  /**
+   * 设置token
+   * @param token 
+   */
+  async setToken(token: string) {
+    this.token = token
+    wx.setBackgroundFetchToken({
+      token
+    })
 
+    if (this.ws) {
+      this.ws.close({})
+    }
+    await this.connectWs()
     /**
      * 监听普通信息
      */
@@ -126,18 +135,18 @@ class api {
    */
   onMessage<T = any>(event: string, fun: (data?: T) => void) {
     this.ws.send({
-        data: JSON.stringify({
-          token:this.token,
-          event
-        }),
-        success(res){
-          console.log(`onMessage ${event} ${res.errMsg}`);
-        },
-        fail(err){
-          console.log(`onMessage ${event} ${err.errMsg}`);
-        }
-      })
-    
+      data: JSON.stringify({
+        token: this.token,
+        event
+      }),
+      success(res) {
+        console.log(`onMessage ${event} ${res.errMsg}`);
+      },
+      fail(err) {
+        console.log(`onMessage ${event} ${err.errMsg}`);
+      }
+    })
+
     if (!this.wsEventMap.has(event)) {
       this.wsEventMap.set(event, fun)
     }
@@ -774,7 +783,7 @@ class api {
    * @method api通用requst方法
    * @param object 
    */
-  async fetch<T>(url: string, data: Object = {}, method: "GET" | "POST" = "POST", timeout: number = 1000 * 60) {
+  async fetch<T = any>(url: string, data: Object = {}, method: "GET" | "POST" = "POST", timeout: number = 1000 * 60) {
     const token: string = this.token || await wx.getStorage({ key: 'token' }).then(el => el.data).catch(() => "")
     return await new Promise<result<T>>((resolve, reject) => {
       wx.request<result<T>>({
@@ -783,41 +792,74 @@ class api {
         data,
         method,
         enableHttp2: true,
-        header: { token, type: 'wp' },
+        header: { authorization: token, type: 'wp' },
         success: res => {
-          if (res.data.code === 201) {
-            wx.navigateTo({
-              url: '/pages/util/smsValidation/smsValidation',
-              events: {
-                code: (code: string) => {
-                  this.fetch('smsCodeValidation', { code }).then(codeValidation => {
-                    if (codeValidation.code) {
-                      this.fetch(url, data, method).then(res => {
-                        resolve(res.data as any)
-                      })
-                    } else {
-                      wx.showModal({
-                        title: 'error',
-                        content: '短信校验错误'
-                      })
-                      throw new Error()
-                    }
-                  })
+          switch (res.data.code) {
+            case 201:
+              wx.navigateTo({
+                url: '/pages/util/smsValidation/smsValidation',
+                events: {
+                  code: (code: string) => {
+                    this.fetch('smsCodeValidation', { code }).then(codeValidation => {
+                      if (codeValidation.code) {
+                        this.fetch(url, data, method).then(res => {
+                          resolve(res.data as any)
+                        })
+                      } else {
+                        wx.showModal({
+                          title: 'error',
+                          content: '短信校验错误'
+                        })
+                        throw new Error()
+                      }
+                    })
+                  }
                 }
+              })
+              break;
+            case 0:
+              {
+                console.log(res.data);
+
+                switch (res.data.status) {
+                  case 403:
+                    wx.navigateTo({
+                      url: '/pages/login/login'
+                    })
+                    break;
+
+                  case 405:
+                    wx.switchTab({
+                      url: '/pages/index/index'
+                    })
+                    break
+
+                  case 500:
+                    wx.showModal({
+                      title: '请求出错',
+                      content: res.data.message
+                    })
+                    break
+
+                  default:
+                    resolve(res.data as any)
+                    break;
+                }
+
               }
-            })
-          } else if (res.data.code === 0 && res.data.data as any === 'token null') {
-            wx.switchTab({
-              url: '/pages/index/index'
-            })
-          } else
-            resolve(res.data as any)
+              break
+            default:
+              resolve(res.data as any)
+              break;
+          }
         },
         fail: e => {
           console.log({ e });
           wx.showToast({ title: '服务器错误', content: e.errMsg })
-          wx.hideLoading()
           reject(e)
+        },
+        complete: () => {
+          wx.hideLoading()
         }
       })
     })

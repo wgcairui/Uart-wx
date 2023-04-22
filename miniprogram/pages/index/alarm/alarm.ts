@@ -117,8 +117,10 @@ Page({
   showalarm(event: vantEvent<Uart.uartAlarmObject & { _id: string }>) {
     const alarm = event.currentTarget.dataset.item
     const key = event.currentTarget.dataset.key as number
+
+    console.log(alarm,key);
     wx.showModal({
-      title: alarm.devName,
+      title: alarm.mac,
       content: alarm.msg,
       showCancel: !alarm.isOk,
       // confirmColor: 'green',

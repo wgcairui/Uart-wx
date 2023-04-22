@@ -17,7 +17,7 @@ Page({
     accontUser: '',
     accontPasswd: ''
   },
-  onLoad(opt: { openid: string; unionid: string }) {
+  onLoad(opt: { openid: string; unionid: string }) { 
     this.setData({
       openid: opt.openid,
       unionid: opt.unionid
@@ -58,17 +58,17 @@ Page({
   async register() {
     // await this.getUserInfo()
     const tel = this.data.tel
-    if (!tel || !/^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/.test(tel.toString())) {
+    if (!tel || !/^(13[0-9]|15[0-9]|166|17[0-9]|18[0-9]|14[0-9])[0-9]{8}$/.test(tel.toString())) {
       wx.showToast({ title: "需要手机号码", icon: "error" })
       return
     }
     // await SubscribeMessage(['注册成功提醒'])
     this.setData({ registerloading: true })
     const { userInfo: { nickName, avatarUrl }, unionid, openid } = this.data
-    const { code, msg } = await api.registerUser({ user: unionid, openid, name: nickName, avanter: avatarUrl || 'http://www.ladishb.com/upload/11122020__LADS108.png', tel })
+    const { code, message } = await api.registerUser({ user: unionid, openid, name: nickName, avanter: avatarUrl || 'http://www.ladishb.com/upload/11122020__LADS108.png', tel })
     this.setData({ registerloading: false })
     if (!code) {
-      wx.showModal({ title: msg, icon: "none", duration: 5000 })
+      wx.showModal({ title: message, icon: "none", duration: 5000 })
     } else {
       wx.reLaunch({ url: '/pages/index/index' })
     }

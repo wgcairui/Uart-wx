@@ -19,12 +19,12 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: async function (options) {
+  onLoad: async function (options:any) {
     console.log(options);
     const protocol = options.protocol!
     const setup = await api.getAlarmProtocol(protocol)
     const showSet = new Set(setup.data.ShowTag)
-    api.getProtocol(protocol).then(({ code, data }) => {
+    api.getProtocol(protocol).then(({ data }) => {
       const setups = data.instruct
         .map(el => el.formResize.filter(el2 => !el2.isState))
         .reduce((pre, cur) => [...pre, ...cur])

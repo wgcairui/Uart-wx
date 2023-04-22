@@ -36,6 +36,8 @@ Page({
       success: async login => {
         // 发送网络请求，获取在线账户
         const { code, data } = await api.login({ js_code: login.code, scene: query.scene ? decodeURIComponent(query.scene) : '' })
+        console.log({code,data,login});
+        
         if (code) {
           const user = await api.userInfo()
           wx.hideLoading()
@@ -55,7 +57,7 @@ Page({
         }
         else {
           wx.hideLoading()
-          wx.reLaunch({ url: "/pages/login/login?openid=" + (data as any).openid + "&unionid=" + (data as any).unionid })
+          wx.reLaunch({ url: "/pages/login/login?openid=" + (data as any)?.openid + "&unionid=" + (data as any)?.unionid })
         }
       }
     })
@@ -114,7 +116,8 @@ Page({
           })
         }
       } else {
-        this.sortDevs(data.UTs)
+        
+        this.sortDevs(data.UTs as any)
         // 获取未读取的alarm数量
         api.getAlarmunconfirmed().then(({ data: len }) => {
           if (Number(len) > 0) {
@@ -142,7 +145,7 @@ Page({
     })
     this.countDev(UTs)
     const devs = UTs.map(dtu => {
-      return dtu.mountDevs.map(dev => ({ ...dev, pic: this.devPics[dev.Type], dtu: dtu.name, online: dev.online && dtu.online }))
+      return (dtu?.mountDevs || []).map(dev => ({ ...dev, pic: this.devPics[dev.Type], dtu: dtu.name, online: dev.online && dtu.online }))
     }).flat()
     this.setData({
       DTUs: UTs,
@@ -172,11 +175,10 @@ Page({
   },
   // 统计所有设备状态
   countDev(terminals: Uart.Terminal[]) {
-
     const terminal_all = terminals.length
     const terminal_on = terminals.map(el => el.online).filter(el => el).length
-    const monutDev_all = terminals.map(el => el.mountDevs.length).reduce((pre, cur) => pre + cur)
-    const mountDev_on = terminals.map(el => el.mountDevs.filter(el2 => el2.online)).reduce((pre, cur) => [...pre, ...cur]).length
+    const monutDev_all = terminals.map(el => el?.mountDevs?.length || 0).reduce((pre, cur) => pre + cur)
+    const mountDev_on = terminals.map(el => (el?.mountDevs || []).filter(el2 => el2.online)).flat().length
     // console.log({ terminal_all, terminal_on, monutDev_all, mountDev_on });
     const state = `DTU:(全部${terminal_all}/在线${terminal_on}),挂载设备:(全部${monutDev_all}/在线${mountDev_on})`
     this.setData({

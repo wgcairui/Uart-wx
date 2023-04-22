@@ -22,14 +22,26 @@ Page({
     wx.showLoading({ title: '查询中' })
     const { code, data } = await api.getTerminalOnline(this.data.mac)
     wx.hideLoading()
-    if (code && data) {
-      this.setData({
-        terminal: data
-      })
+    if (code) {
+      if(data){
+        this.setData({
+          terminal: data
+        })
+      }else if(typeof data === 'boolean'){
+        wx.showModal({
+          title: 'search',
+          content: '设备未上线，请检查设备是否连接正确和开启'
+        })
+      } else{
+        wx.showModal({
+          title: 'search',
+          content: '设备未注册，请核对设备是否在我司渠道购买'
+        })
+      }
     } else {
       wx.showModal({
-        title: 'search',
-        content: '设备未注册或未上线，请核对设备是否在我司渠道购买'
+        title: 'error',
+        content: data as any
       })
     }
   },

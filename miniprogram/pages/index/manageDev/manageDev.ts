@@ -21,7 +21,7 @@ Page({
     api.BindDev().then(el => {
       if (el.code) {
         this.setData({
-          devs: el.data.UTs
+          devs: el.data.UTs as any
         })
       }
     })

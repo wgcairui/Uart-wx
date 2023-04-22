@@ -1,19 +1,18 @@
 {
   "description": "项目配置文件",
   "packOptions": {
-    "ignore": []
+    "ignore": [],
+    "include": []
   },
   "miniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
   "libVersion": "2.16.1",
   "projectname": "ladis%E9%80%8F%E4%BC%A0%E5%B9%B3%E5%8F%B0",
   "scripts": {
-    "beforeCompile": "npm run tsc",
-    "beforePreview": "",
-    "beforeUpload": ""
+    "beforeCompile": "npm run tsc"
   },
   "setting": {
-    "urlCheck": true,
+    "urlCheck": false,
     "es6": true,
     "enhance": true,
     "postcss": true,
@@ -48,7 +47,8 @@
     "disableUseStrict": false,
     "minifyWXML": true,
     "showES6CompileOption": false,
-    "useCompilerPlugins": false
+    "useCompilerPlugins": false,
+    "condition": false
   },
   "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},
@@ -72,5 +72,10 @@
         }
       ]
     }
+  },
+  "srcMiniprogramRoot": "miniprogram/",
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
   }
 }
