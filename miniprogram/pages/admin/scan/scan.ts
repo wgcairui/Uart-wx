@@ -8,7 +8,9 @@ Page({
       name: '',
       mountNode: '',
       mountDevs: [] as Uart.TerminalMountDevs[],
-      uptime: ''
+      uptime: '',
+      signal: 0,
+      remark: ''
     } as Uart.Terminal,
     remoteUrl: '',
     uarts: ['2400,8,1,NONE,NFC', '4800,8,1,NONE,HD', '9600,8,1,NONE,HD', '19200,8,1,NONE,HD', '115200,8,1,NONE,HD'],

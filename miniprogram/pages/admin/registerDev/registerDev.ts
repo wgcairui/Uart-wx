@@ -16,7 +16,7 @@ Page({
     id: '',
     ids: [] as string[],
     devType: 'UPS',
-    devTypes: [{ text: 'UPS', value: 'UPS' }, { text: '空调', value: '空调' }, { text: '电量仪', value: '电量仪' }, { text: '温湿度', value: '温湿度' }] as devModals[],
+    devTypes: [{ text: 'UPS', value: 'UPS' }, { text: '空调', value: '空调' }, { text: '电量仪', value: '电量仪' }, { text: '温湿度', value: '温湿度' },{ text: 'IO', value: 'IO' }] as devModals[],
     devModal: '',
     devModals: [] as devModals[],
     devModesMap: new Map() as Map<string, Uart.DevsType>,

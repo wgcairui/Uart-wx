@@ -9,7 +9,6 @@ Component({
     result: {
       type: null,
       observer(newval: Uart.queryResult, _old: Uart.queryResult) {
-        // console.log({ newval, old });
         if (newval.result) {
           const successData = [] as Uart.queryResultArgument[]
           const dangerData = [] as Uart.queryResultArgument[]

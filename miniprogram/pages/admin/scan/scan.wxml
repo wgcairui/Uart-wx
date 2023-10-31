@@ -23,6 +23,8 @@
       <van-cell title="Gps" value="{{terminal.jw}}" />
       <van-cell title="Port" value="{{terminal.port}}" />
       <van-cell title="通讯" value="{{terminal.uart}}" />
+      <van-cell title="信号强度>25" value="{{terminal.signal}}" />
+      <van-cell title="备注" value="{{terminal.remark}}" />
       <van-cell title="状态">
         <van-tag size="large" type="{{terminal.online?'success':'warning'}}">{{terminal.online?'在线':'离线'}}</van-tag>
       </van-cell>
