@@ -59,12 +59,23 @@ Page({
     if (user.code) {
       this.setData({
         "Constant.user": user.data,
-        "Constant.show": new Set([sys.data || [], user.data])
+      })
+      
+      
+    }
+    if(user.data?.ShowTag?.length > 0){
+      this.setData({
+        "Constant.show": new Set(user.data?.ShowTag)
+      })
+    }else if(sys.data?.ShowTag?.length > 0){
+      this.setData({
+        "Constant.show": new Set(sys.data?.ShowTag)
+      })
+    }else{
+      this.setData({
+        "Constant.show": new Set()
       })
     }
-    this.setData({
-      "Constant.show": new Set([sys.data?.ShowTag || [], user.data?.ShowTag || []].flat())
-    })
 
     await this.GetDevsRunInfo()
     wx.hideLoading()
@@ -107,7 +118,7 @@ Page({
     const { code, data, msg } = await api.getTerminalData(mac, pid)
     if (code && data.result) {
       const regStr = new RegExp(filter)
-      data.result = data.result.filter(el => this.data.Constant.show.has(el.name) && (!filter || regStr.test(el.name)))
+      data.result = data.result.filter(el =>(this.data.Constant.show.size === 0 || this.data.Constant.show.has(el.name)) && (!filter || regStr.test(el.name)))
       data.time = parseTime(data.time)
       this.setData({
         result: data,
