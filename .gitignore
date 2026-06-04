@@ -14,6 +14,11 @@ $RECYCLE.BIN/
 node_modules/
 miniprogram/miniprogram_npm/
 miniprogram/*.js
-miniprogram/*/*.js
-miniprogram/*/*/*.js
+miniprogram/**/*.js
 
+# TSC 增量编译缓存
+*.tsbuildinfo
+
+# 本地 Agent / 工具配置（不入库）
+.opencode/
+.claude/

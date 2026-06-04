@@ -138,3 +138,200 @@
 }
 
 @import "./index.skeleton.wxss";
+
+/* === 单列设备卡片 === */
+.devs {
+  padding: 8rpx 0 24rpx;
+}
+
+.devs-item {
+  width: 100%;
+  margin-bottom: 20rpx;
+}
+
+.devs-item-card {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: #ffffff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 20rpx rgba(40, 60, 110, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.devs-item-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(40, 60, 110, 0.12);
+}
+
+/* 左侧状态色条 */
+.devs-item-card-status {
+  width: 6rpx;
+  flex-shrink: 0;
+  background: #d0d6e0;
+}
+
+.devs-item-card.is-online .devs-item-card-status {
+  background: linear-gradient(180deg, #2ecf8a 0%, #1aa86c 100%);
+}
+
+.devs-item-card.is-offline .devs-item-card-status {
+  background: linear-gradient(180deg, #ff6b6b 0%, #e54545 100%);
+}
+
+/* 中部主内容 */
+.devs-item-card-main {
+  flex: 1;
+  min-width: 0;
+  padding: 22rpx 24rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  border-right: 1rpx solid #f0f2f7;
+}
+
+/* 头部：图标 + 设备名 + 状态 pill */
+.devs-item-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+}
+
+.devs-item-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-width: 0;
+  flex: 1;
+}
+
+.devs-item-icon {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 8rpx;
+  background: #eef3fb;
+  color: #487ed9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.devs-item-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a2438;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 状态 pill */
+.devs-item-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  line-height: 1;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.devs-item-status-pill.is-online {
+  background: rgba(46, 207, 138, 0.12);
+  color: #1aa86c;
+}
+
+.devs-item-status-pill.is-offline {
+  background: rgba(229, 69, 69, 0.12);
+  color: #e54545;
+}
+
+.devs-item-status-dot {
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  position: relative;
+}
+
+.devs-item-status-pill.is-online .devs-item-status-dot {
+  background: #2ecf8a;
+  box-shadow: 0 0 0 4rpx rgba(46, 207, 138, 0.18);
+  animation: pulse-online 2s ease-in-out infinite;
+}
+
+.devs-item-status-pill.is-offline .devs-item-status-dot {
+  background: #e54545;
+}
+
+@keyframes pulse-online {
+  0%, 100% { box-shadow: 0 0 0 4rpx rgba(46, 207, 138, 0.18); }
+  50% { box-shadow: 0 0 0 8rpx rgba(46, 207, 138, 0.05); }
+}
+
+/* 元信息标签式 */
+.devs-item-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx 20rpx;
+}
+
+.devs-item-meta-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  font-size: 24rpx;
+  min-width: 0;
+}
+
+.devs-item-meta-label {
+  color: #8a93a6;
+  font-size: 22rpx;
+  flex-shrink: 0;
+}
+
+.devs-item-meta-value {
+  color: #2d3850;
+  font-weight: 500;
+  max-width: 280rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 底部更新时间 */
+.devs-item-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 22rpx;
+  color: #a8b0bf;
+  margin-top: 2rpx;
+}
+
+.devs-item-time {
+  color: #a8b0bf;
+}
+
+/* 右侧设备图 */
+.devs-item-card-pic {
+  width: 140rpx;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16rpx;
+  background: linear-gradient(135deg, #fafbfd 0%, #f1f4f9 100%);
+}
+
+.devs-item-card-pic image {
+  width: 100%;
+  height: 100%;
+  max-width: 100rpx;
+  max-height: 100rpx;
+}

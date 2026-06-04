@@ -5,7 +5,7 @@
 
 <import src="index.skeleton.wxml" />
 
-<template is="skeleton" wx-if="{{loading}}" />
+<template is="skeleton" wx:if="{{loading}}" />
 <view class="container">
 
   <view class="content" wx:if="{{ready}}">
@@ -24,24 +24,40 @@
         <van-tab title="设备">
           <view class="devs">
             <view class="devs-item" wx:for="{{dtuItem}}" wx:key="key" bindtap="showMountDevData" data-item="{{item}}">
-              <view class="devs-item-card">
-                <view class="devs-item-card-body">
-                  <text style="font-size:26rpx;">{{item.mountDev}} | {{item.dtu}}</text>
-                  <view class="devs-item-card-content">
-                    <view>
-                      <view>
-                        <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
-                        <text> {{item.online?'在线':'离线'}}</text>
+              <view class="devs-item-card {{item.online ? 'is-online' : 'is-offline'}}">
+                <view class="devs-item-card-status"></view>
+                <view class="devs-item-card-main">
+                  <view class="devs-item-card-head">
+                    <view class="devs-item-name-row">
+                      <view class="devs-item-icon">
+                        <van-icon name="chart-trending-o" size="22px" />
                       </view>
-                      <text class="">{{item.protocol}}</text>
+                      <text class="devs-item-name">{{item.mountDev}}</text>
                     </view>
-                    <view class="devs-item-card-pic">
-                      <image src="{{item.pic}}"></image>
+                    <view class="devs-item-status-pill {{item.online ? 'is-online' : 'is-offline'}}">
+                      <view class="devs-item-status-dot"></view>
+                      <text>{{item.online ? '在线' : '离线'}}</text>
                     </view>
                   </view>
+                  <view class="devs-item-card-meta">
+                    <view class="devs-item-meta-item">
+                      <text class="devs-item-meta-label">协议</text>
+                      <text class="devs-item-meta-value">{{item.protocol}}</text>
+                    </view>
+                    <view class="devs-item-meta-item">
+                      <text class="devs-item-meta-label">DTU</text>
+                      <text class="devs-item-meta-value">{{item.dtu}}</text>
+                    </view>
+                  </view>
+                  <view class="devs-item-card-foot" wx:if="{{item.updateTime}}">
+                    <van-icon name="clock-o" size="12px" color="#a8b0bf" />
+                    <text class="devs-item-time">{{item.updateTime}}</text>
+                  </view>
+                </view>
+                <view class="devs-item-card-pic">
+                  <image src="{{item.pic}}" mode="aspectFit" />
                 </view>
               </view>
-              
             </view>
             <view wx:if="{{dtuItem.length === 0}}" class="trial" bindtap="trial">
                 <van-button type="info">切换测试账号体验使用?</van-button>
@@ -51,21 +67,38 @@
         <van-tab title="透传终端">
           <view class="devs">
             <view class="devs-item" wx:for="{{DTUs}}" wx:key="key" bindtap="toDev" data-item="{{item}}">
-              <view class="devs-item-card">
-                <view class="devs-item-card-body">
-                  <text style="font-size:26rpx;">{{item.name}}</text>
-                  <view class="devs-item-card-content">
-                    <view>
-                      <view>
-                        <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
-                        <text> {{item.online?'在线':'离线'}}</text>
+              <view class="devs-item-card {{item.online ? 'is-online' : 'is-offline'}}">
+                <view class="devs-item-card-status"></view>
+                <view class="devs-item-card-main">
+                  <view class="devs-item-card-head">
+                    <view class="devs-item-name-row">
+                      <view class="devs-item-icon">
+                        <van-icon name="server-o" size="22px" />
                       </view>
-                      <text class="">{{item.mountDevs.length || 0}}个设备</text>
+                      <text class="devs-item-name">{{item.name}}</text>
                     </view>
-                    <view class="devs-item-card-pic">
-                      <van-icon size="2em" name="cluster-o"></van-icon>
+                    <view class="devs-item-status-pill {{item.online ? 'is-online' : 'is-offline'}}">
+                      <view class="devs-item-status-dot"></view>
+                      <text>{{item.online ? '在线' : '离线'}}</text>
                     </view>
                   </view>
+                  <view class="devs-item-card-meta">
+                    <view class="devs-item-meta-item" wx:if="{{item.mountDevs.length > 0}}">
+                      <text class="devs-item-meta-label">挂载</text>
+                      <text class="devs-item-meta-value">{{item.mountDevs.length}} 个</text>
+                    </view>
+                    <view class="devs-item-meta-item">
+                      <text class="devs-item-meta-label">MAC</text>
+                      <text class="devs-item-meta-value">{{item.dtu || item.mac}}</text>
+                    </view>
+                  </view>
+                  <view class="devs-item-card-foot" wx:if="{{item.updateTime}}">
+                    <van-icon name="clock-o" size="12px" color="#a8b0bf" />
+                    <text class="devs-item-time">{{item.updateTime}}</text>
+                  </view>
+                </view>
+                <view class="devs-item-card-pic">
+                  <van-icon name="server-o" size="48px" color="#b8c0d0" />
                 </view>
               </view>
             </view>
