@@ -1,135 +1,153 @@
-.van-cell-text {
-  display: inline;
-  margin-right: 12px;
+/* miniprogram/pages/index/index.wxss */
+page {
+  background: #f4f7fb;
 }
 
-.terminal {
+.page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding-bottom: 60rpx;
+}
+
+/* === Hero === */
+.hero {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  padding: 36rpx 28rpx 32rpx;
+  color: #ffffff;
+}
+
+.hero-row {
   display: flex;
-  flex-direction: column;
-  /* justify-content: center; */
-  /* text-align: center; */
-  padding: 7px;
-  margin-left: -1px;
-  margin-right: -1px;
-  border-radius: .5rem .5rem 0 0;
-  /* background-image: linear-gradient(to top, #487ed9 0%, #487ed9 100%); */
-  background-image: linear-gradient(to right, #243949 0%, #517fa4 100%);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28rpx;
 }
 
-.card {
-  padding: 0;
-  padding-bottom: 8px;
+.hero-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
 }
 
-.terminal .name {
-  /* font-size: 18px; */
-  color: aliceblue;
+.hero-actions {
+  display: flex;
+  gap: 14rpx;
 }
 
-.terminal .mac {
-  font-size: 11px;
-  color: aliceblue;
-  margin-right: .5rem
+.hero-icon-btn {
+  width: 56rpx;
+  height: 56rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1rpx solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.van-tag {
-  margin-left: 3px
+.hero-icon-btn:active {
+  background: rgba(255, 255, 255, 0.25);
 }
 
-.content {
-  position: relative;
-  height: 100%;
-  overflow: auto
+.hero-icon-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 2rpx;
+  color: #ffffff;
+  margin-top: -2rpx;
 }
 
-.fiexds {
-  height: 20px;
-  width: 50px;
-  padding: 14px 0;
-  border-radius: 45px;
-  position: fixed;
-  bottom: 100rpx;
-  right: 50rpx;
-  opacity: .7;
-  z-index: 1000;
-  background-color: #ef1f1f;
-  box-shadow: 5px 2px 20px 10px rgb(0 0 0 / 30%);
+.hero-icon-dot {
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+/* === KPI === */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+
+.kpi {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1rpx solid rgba(255, 255, 255, 0.22);
+  border-radius: 16rpx;
+  padding: 18rpx 16rpx;
   text-align: center;
-  color: #fff;
 }
 
-.container>view {
-  margin-top: 0;
+.kpi:active {
+  background: rgba(255, 255, 255, 0.22);
 }
 
-.alarmCard {
-  margin-bottom: 12rpx;
+.kpi-num {
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1.1;
+  font-family: -apple-system, "DIN Alternate", "Helvetica Neue", sans-serif;
+  color: #ffffff;
 }
 
-.alarmItem {
-  padding-left: 6rpx;
+.kpi-num.is-alarm {
+  color: #ffd54f;
 }
 
-.alarmItemChild {
-  background-image: linear-gradient(to right, #f78ca0 0%, #f9748f 19%, #fd868c 60%, #fe9a8b 100%);
-  border-radius: 12px;
-  height: 95%;
-  width: 95%;
+.kpi-label {
+  font-size: 20rpx;
+  opacity: 0.85;
+  margin-top: 6rpx;
+}
+
+/* === Subscribe hint === */
+.subscribe-hint {
+  margin: 20rpx 20rpx 0;
+  padding: 16rpx 20rpx;
+  background: #fff8e1;
+  border-left: 6rpx solid #f0a020;
+  border-radius: 12rpx;
   display: flex;
-  flex-direction: column;
-}
-
-.alarmItemChild-title {
-  margin: 4% 0 4% 10%;
-  margin-left: 10%;
-  font-size:38rpx
-}
-
-.alarmItemChild-content {
-  margin-left: 10%;
-  font-size: 28rpx;
-  color: #4e4e4e;
-}
-
-.alarmItemChild-time {
-  margin-top: 4%;
-  margin-left: 10%;
-  font-size: 26rpx
-}
-
-.tab {
-  margin-top: 24rpx;
-  margin-bottom: 24rpx;
-}
-
-
-
-.text-sm {
+  align-items: center;
+  gap: 10rpx;
   font-size: 24rpx;
-  color: #717171;
+  color: #8a5a0e;
+  box-shadow: 0 2rpx 8rpx rgba(240, 160, 32, 0.10);
 }
 
-.container {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  justify-content: unset;
-  background-color: #565656;
-  /* background-image: url("http://www.ladishb.com/upload/342021__bg.png"); */
-  /* background-image: url(http://www.ladishb.com/upload/342021__bg.png),linear-gradient(to bottom,rgba(220,38,38,0) 16%, #222938 19%, #607d8b 40% ); */
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: 0 -100vw,0vw,0vw;
-  background-blend-mode: darken;
+.subscribe-hint:active {
+  background: #fff3c4;
+}
+
+.subscribe-hint-icon {
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.subscribe-hint-text {
+  flex: 1;
+  color: #5a4a1c;
+}
+
+.subscribe-hint-action {
+  color: #d97e00;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* === Tab wrapper === */
+.tab {
+  margin-top: 16rpx;
 }
 
 ::-webkit-scrollbar {
-  display: none; /* Chrome Safari */
+  display: none;
 }
 
-.trial{
+/* === Empty state === */
+.trial {
   min-height: 200px;
   width: 100%;
   display: flex;
@@ -137,69 +155,62 @@
   align-items: center;
 }
 
-@import "./index.skeleton.wxss";
-
 /* === 单列设备卡片 === */
 .devs {
   padding: 8rpx 0 24rpx;
 }
 
-.devs-item {
-  width: 100%;
-  margin-bottom: 20rpx;
-}
-
-.devs-item-card {
+.dev-card {
   position: relative;
   display: flex;
   align-items: stretch;
   background: #ffffff;
   border-radius: 16rpx;
   overflow: hidden;
-  box-shadow: 0 4rpx 20rpx rgba(40, 60, 110, 0.08);
+  margin: 20rpx 0 0;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 4rpx 20rpx rgba(40, 60, 110, 0.06);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.devs-item-card:active {
-  transform: scale(0.98);
+.dev-card:active {
+  transform: scale(0.99);
   box-shadow: 0 2rpx 8rpx rgba(40, 60, 110, 0.12);
 }
 
-/* 左侧状态色条 */
-.devs-item-card-status {
+.dev-card-status {
   width: 6rpx;
   flex-shrink: 0;
   background: #d0d6e0;
 }
 
-.devs-item-card.is-online .devs-item-card-status {
+.dev-card.is-online .dev-card-status {
   background: linear-gradient(180deg, #2ecf8a 0%, #1aa86c 100%);
 }
 
-.devs-item-card.is-offline .devs-item-card-status {
+.dev-card.is-offline .dev-card-status {
   background: linear-gradient(180deg, #ff6b6b 0%, #e54545 100%);
 }
 
-/* 中部主内容 */
-.devs-item-card-main {
+.dev-card-main {
   flex: 1;
   min-width: 0;
   padding: 22rpx 24rpx 20rpx;
   display: flex;
   flex-direction: column;
-  gap: 14rpx;
+  gap: 12rpx;
   border-right: 1rpx solid #f0f2f7;
 }
 
-/* 头部：图标 + 设备名 + 状态 pill */
-.devs-item-card-head {
+.dev-card-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12rpx;
 }
 
-.devs-item-name-row {
+.dev-name-row {
   display: flex;
   align-items: center;
   gap: 10rpx;
@@ -207,19 +218,19 @@
   flex: 1;
 }
 
-.devs-item-icon {
+.dev-icon {
   width: 36rpx;
   height: 36rpx;
   border-radius: 8rpx;
   background: #eef3fb;
   color: #487ed9;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.devs-item-name {
+.dev-name {
   font-size: 30rpx;
   font-weight: 600;
   color: #1a2438;
@@ -229,12 +240,11 @@
   text-overflow: ellipsis;
 }
 
-/* 状态 pill */
-.devs-item-status-pill {
+.dev-pill {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  padding: 6rpx 14rpx;
+  gap: 6rpx;
+  padding: 4rpx 14rpx;
   border-radius: 999rpx;
   font-size: 22rpx;
   line-height: 1;
@@ -242,46 +252,37 @@
   font-weight: 500;
 }
 
-.devs-item-status-pill.is-online {
+.dev-pill.is-online {
   background: rgba(46, 207, 138, 0.12);
   color: #1aa86c;
 }
 
-.devs-item-status-pill.is-offline {
+.dev-pill.is-offline {
   background: rgba(229, 69, 69, 0.12);
   color: #e54545;
 }
 
-.devs-item-status-dot {
+.dev-pill-dot {
   width: 10rpx;
   height: 10rpx;
   border-radius: 50%;
-  position: relative;
 }
 
-.devs-item-status-pill.is-online .devs-item-status-dot {
+.dev-pill.is-online .dev-pill-dot {
   background: #2ecf8a;
-  box-shadow: 0 0 0 4rpx rgba(46, 207, 138, 0.18);
-  animation: pulse-online 2s ease-in-out infinite;
 }
 
-.devs-item-status-pill.is-offline .devs-item-status-dot {
+.dev-pill.is-offline .dev-pill-dot {
   background: #e54545;
 }
 
-@keyframes pulse-online {
-  0%, 100% { box-shadow: 0 0 0 4rpx rgba(46, 207, 138, 0.18); }
-  50% { box-shadow: 0 0 0 8rpx rgba(46, 207, 138, 0.05); }
-}
-
-/* 元信息标签式 */
-.devs-item-card-meta {
+.dev-card-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 10rpx 20rpx;
 }
 
-.devs-item-meta-item {
+.dev-meta-item {
   display: flex;
   align-items: baseline;
   gap: 8rpx;
@@ -289,13 +290,13 @@
   min-width: 0;
 }
 
-.devs-item-meta-label {
+.dev-meta-label {
   color: #8a93a6;
   font-size: 22rpx;
   flex-shrink: 0;
 }
 
-.devs-item-meta-value {
+.dev-meta-value {
   color: #2d3850;
   font-weight: 500;
   max-width: 280rpx;
@@ -304,8 +305,7 @@
   text-overflow: ellipsis;
 }
 
-/* 底部更新时间 */
-.devs-item-card-foot {
+.dev-card-foot {
   display: flex;
   align-items: center;
   gap: 6rpx;
@@ -314,12 +314,11 @@
   margin-top: 2rpx;
 }
 
-.devs-item-time {
+.dev-time {
   color: #a8b0bf;
 }
 
-/* 右侧设备图 */
-.devs-item-card-pic {
+.dev-card-pic {
   width: 140rpx;
   flex-shrink: 0;
   display: flex;
@@ -329,9 +328,20 @@
   background: linear-gradient(135deg, #fafbfd 0%, #f1f4f9 100%);
 }
 
-.devs-item-card-pic image {
-  width: 100%;
-  height: 100%;
-  max-width: 100rpx;
-  max-height: 100rpx;
+/* 统一图片容器：真实图 / 占位 icon 共用同一布局（无背景） */
+.dev-pic-box {
+  width: 100rpx;
+  height: 100rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
 }
+
+.dev-pic-img {
+  width: 100rpx;
+  height: 100rpx;
+}
+
+@import "./index.skeleton.wxss";

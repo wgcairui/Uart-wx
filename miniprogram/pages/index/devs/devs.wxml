@@ -2,28 +2,91 @@
 <page-meta>
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
-<view class="container">
-  <my-table result="{{result}}" bind:filter="filter" bind:line="toline">
-    <van-cell value="{{result.time}}"></van-cell>
-    <view wx:if="{{Type==='空调'}}"
-      style="background-color:#000;padding:6px 24px 6px 6px;wxcs_style_padding:12rpx 48rpx 12rpx 12rpx;">
-      <image src="http://www.ladishb.com/upload/342021__ac1.png" style="height: 120px;"></image>
-    </view>
-    <view wx:if="{{Type==='UPS'}}">
-      <image src="{{upsPic}}"></image>
-    </view>
-    <view wx:if="{{Type==='温湿度'}}" class="th-pic">
-      <view>
-        <image src="/assert/temperature.png"></image>
-        <text>{{th.temperature}}℃</text>
+<view class="page">
+  <!-- 顶部 Hero -->
+  <view class="hero">
+    <view class="hero-bg"></view>
+    <view class="hero-content">
+      <view class="hero-meta">
+        <view class="hero-status">
+          <view class="hero-dot"></view>
+          <text>在线</text>
+        </view>
+        <view class="hero-time">
+          <van-icon name="clock-o" size="11px" color="rgba(255,255,255,0.7)" />
+          <text>{{result.time}}</text>
+        </view>
       </view>
-      <view>
-        <image src="/assert/humidity.png"></image>
-        <text>{{th.humidity}}%</text>
+      <view class="hero-title">{{mountDev || '设备详情'}}</view>
+      <view class="hero-subtitle">{{Type || '物联网终端'}} · 协议 {{protocol}}</view>
+    </view>
+  </view>
+
+  <view class="content">
+    <!-- 设备图（按 Type 匹配；图片加载失败自动隐藏整块） -->
+    <view wx:if="{{Type==='空调' && showAcPic}}" class="device-pic device-pic-ac">
+      <image src="http://www.ladishb.com/upload/342021__ac1.png" mode="aspectFit"
+        binderror="onAcImageError" />
+    </view>
+    <view wx:if="{{Type==='UPS' && showUpsPic}}" class="device-pic device-pic-ups">
+      <image src="{{upsPic}}" mode="aspectFit" binderror="onUpsImageError" />
+    </view>
+    <view wx:if="{{Type==='温湿度'}}" class="device-pic device-pic-th">
+      <view class="th-block">
+        <image src="/assert/temperature.png" mode="aspectFit" />
+        <text class="th-value">{{th.temperature}}<text class="th-unit">℃</text></text>
+        <text class="th-label">温度</text>
+      </view>
+      <view class="th-divider"></view>
+      <view class="th-block">
+        <image src="/assert/humidity.png" mode="aspectFit" />
+        <text class="th-value">{{th.humidity}}<text class="th-unit">%</text></text>
+        <text class="th-label">湿度</text>
       </view>
     </view>
-    <van-cell title="运行状态">
-      <dev-oprate protocol="{{protocol}}" bind:oprate="oprate" bind:alarm="alarm"></dev-oprate>
-    </van-cell>
-  </my-table>
+
+    <!-- 搜索框 -->
+    <view class="search-bar">
+      <van-search model:value="{{filter}}" placeholder="请输入参数搜索" />
+    </view>
+
+    <!-- 运行状态卡 -->
+    <view class="param-card">
+      <view class="param-card-head">
+        <view class="param-card-label">运行状态</view>
+        <dev-oprate protocol="{{protocol}}" bind:oprate="oprate" bind:alarm="alarm"></dev-oprate>
+      </view>
+    </view>
+
+    <!-- 参数列表 -->
+    <view class="param-section-head">
+      <text class="param-section-title">运行参数</text>
+      <text class="param-section-count">{{result.result.length}} 项</text>
+    </view>
+
+    <view class="param-list">
+      <view wx:for="{{result.result}}" wx:key="name" wx:for-item="row"
+        class="param-item {{row.alarm ? 'is-alarm' : ''}} {{row.issimulate ? 'is-enum' : ''}}">
+        <view class="param-item-dot" wx:if="{{row.alarm}}"></view>
+        <view class="param-item-head" bindtap="toline" data-name="{{row.name}}">
+          <view class="param-item-name">{{row.name}}</view>
+          <view class="param-item-value">
+            <text wx:if="{{row.parseValue}}">{{row.parseValue}}</text>
+            <text wx:else class="param-item-empty">--</text>
+            <text class="param-item-unit" wx:if="{{row.unit}}">{{row.unit}}</text>
+            <van-icon name="arrow" size="14px" color="#c8cdd8" />
+          </view>
+        </view>
+
+        <!-- 枚举型：选项 pill（pill 自己处理点击，外部点空隙仍触发 head 跳转） -->
+        <view wx:if="{{row.issimulate && row.options}}" class="enum-pills">
+          <view wx:for="{{row.options}}" wx:for-item="opt" wx:key="key"
+            class="enum-pill {{opt.value === row.parseValue ? 'is-active' : ''}}"
+            data-item="{{row}}" data-opt="{{opt}}" bindtap="onEnumTap">
+            <text>{{opt.value}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

@@ -1,6 +1,15 @@
 // index.ts
 import { ObjectToStrquery } from "../../utils/util";
 import api from "../../utils/api";
+
+// 设备类型 → 占位图 URL（模块顶层常量，避免 Page() 选项字段在运行时丢失）
+const DEV_PICS: Record<string, string> = {
+  "UPS": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/99daa3e07c7b60ef7e16ed8b9fe7cf33.png',
+  "温湿度": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/5fc7d6fe0571b714d5a3395a8c7a9f12.png',
+  "电量仪": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/ab52d9fccdddc0fa5b0386ea0b5cbc7f.png',
+  "空调": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/c3c1852270ca35fd56135d8fda2a9977.png'
+}
+
 // 获取应用实例
 Page({
   data: {
@@ -9,27 +18,16 @@ Page({
     DTUs: [] as Uart.Terminal[],
     // 刷选挂载设备列表
     dtuItem: [] as Uart.TerminalMountDevs[],
-    // 挂载状态信息
-    state: '',
-    // 告警状态信息
-    alarm: '',
+    // 派生：在线挂载设备数（用于 KPI）
+    onlineCount: 0,
     // 未确认告警数量
     alarmNum: 0,
-    // 五条内告警数据
-    alarmData: [] as Uart.uartAlarmObject[],
     // 虚拟设备
     Vm: [] as Uart.Terminal[],
     confirm: false,
     // 是否订阅
     sub: false
   },
-
-  devPics: {
-    "UPS": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/99daa3e07c7b60ef7e16ed8b9fe7cf33.png',
-    "温湿度": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/5fc7d6fe0571b714d5a3395a8c7a9f12.png',
-    "电量仪": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/ab52d9fccdddc0fa5b0386ea0b5cbc7f.png',
-    "空调": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/c3c1852270ca35fd56135d8fda2a9977.png'
-  } as Record<string, string>,
   onLoad(query: any) {
     wx.showLoading({ title: 'login' })
     wx.login({
@@ -84,6 +82,26 @@ Page({
     wx.navigateTo({ url: '/pages/index/web/web?url=' + url })
   },
 
+  // 顶部右上角按钮（占位，避免无实现被点击报错；后续可接功能）
+  openMore() {
+    wx.showActionSheet({
+      itemList: ['添加设备', '刷新', '清空缓存'],
+      success: (res) => {
+        if (res.tapIndex === 0) wx.navigateTo({ url: '/pages/index/bindDev/bindDev' })
+        if (res.tapIndex === 1) this.bindDev()
+        if (res.tapIndex === 2) wx.clearStorageSync()
+      },
+    })
+  },
+
+  openLive() {
+    // TODO: 后续接入直播/录制功能
+  },
+
+  onKpiTap() {
+    // KPI「在线」点击占位（van-tabs swipeable 默认就在第一个 tab）
+  },
+
   // 获取用户绑定设备
   async bindDev() {
     wx.showLoading({ title: '获取DTU' })
@@ -120,18 +138,7 @@ Page({
         this.sortDevs(data.UTs as any)
         // 获取未读取的alarm数量
         api.getAlarmunconfirmed().then(({ data: len }) => {
-          if (Number(len) > 0) {
-            this.setData({
-              alarm: `有${len}条未确认的告警信息，点击查看?`,
-              alarmNum: Number(len)
-            })
-          } else {
-            this.setData({
-              alarm: ``,
-              alarmNum: Number(len),
-              alarmData: []
-            })
-          }
+          this.setData({ alarmNum: Number(len) || 0 })
         })
       }
     }
@@ -143,13 +150,23 @@ Page({
       key: 'Uts',
       data: UTs
     })
-    this.countDev(UTs)
     const devs = UTs.map(dtu => {
-      return (dtu?.mountDevs || []).map(dev => ({ ...dev, pic: this.devPics[dev.Type], dtu: dtu.name, online: dev.online && dtu.online }))
+      return (dtu?.mountDevs || []).map(dev => ({ ...dev, pic: DEV_PICS[dev.Type], dtu: dtu.name, online: dev.online && dtu.online }))
     }).flat()
+    // 排序：在线优先（true 在前），组内按 updateTime 倒序（最近在前）
+    // 注：如果 updateTime 是相对时间字符串（"1 分钟前更新"），new Date() 解析不了，会 fallback 到原顺序
+    const sortedDevs = devs.sort((a: any, b: any) => {
+      if (a.online !== b.online) return a.online ? -1 : 1
+      const ta = a.updateTime ? new Date(a.updateTime).getTime() : NaN
+      const tb = b.updateTime ? new Date(b.updateTime).getTime() : NaN
+      if (!isNaN(ta) && !isNaN(tb)) return tb - ta
+      return 0
+    })
+    const onlineCount = sortedDevs.filter(d => d.online).length
     this.setData({
       DTUs: UTs,
-      dtuItem: devs
+      dtuItem: sortedDevs,
+      onlineCount,
     })
   },
 
@@ -173,22 +190,9 @@ Page({
   seeAlarm() {
     wx.switchTab({ url: '/pages/index/alarm/alarm' })
   },
-  // 统计所有设备状态
-  countDev(terminals: Uart.Terminal[]) {
-    const terminal_all = terminals.length
-    const terminal_on = terminals.map(el => el.online).filter(el => el).length
-    const monutDev_all = terminals.map(el => el?.mountDevs?.length || 0).reduce((pre, cur) => pre + cur)
-    const mountDev_on = terminals.map(el => (el?.mountDevs || []).filter(el2 => el2.online)).flat().length
-    // console.log({ terminal_all, terminal_on, monutDev_all, mountDev_on });
-    const state = `DTU:(全部${terminal_all}/在线${terminal_on}),挂载设备:(全部${monutDev_all}/在线${mountDev_on})`
-    this.setData({
-      state
-    })
-  },
   //mac=98D863CC870D&pid=0&mountDev=G2K
   async onPullDownRefresh() {
     await this.bindDev()
-    this.countDev(this.data.DTUs)
     this.start()
     wx.stopPullDownRefresh()
   },
