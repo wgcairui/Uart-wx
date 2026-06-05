@@ -59,18 +59,9 @@ Component({
       if (oprate.value) this.triggerEvent("oprate", { ...oprate })
     },
 
-    // 
+    // 直接通知父组件打开告警设置页（不带 tab）
     opratealarm() {
-      const itemList = ['显示参数', '参数限值', '参数状态']
-      wx.showActionSheet({
-        itemList,
-        success: (res) => {
-          this.triggerEvent('alarm', { type: res.tapIndex })
-        },
-        fail(err) {
-          console.log(err);
-        }
-      })
+      this.triggerEvent('alarm', { type: 0 })
     },
 
   }
