@@ -2,37 +2,86 @@
 <page-meta>
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
-<view>
-  <view class="userinfo">
-    <image class="userinfo-avatar" src="{{avanter}}" mode="cover" bindtap="updateAvanter"> 
-    </image>
 
-    <view class="info">
-      <text class="userinfo-nickname">{{name}}</text>
-      <text style="font-size: 10px;">注册日期：{{rgTime}}</text>
+<view class="page">
+
+  <!-- === Hero === -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-avatar" bindtap="onEditProfileTap">
+        <image wx:if="{{avanter}}" class="hero-avatar-img" src="{{avanter}}" mode="aspectFill" />
+        <view wx:else class="hero-avatar-placeholder">{{name ? name[0] : '?'}}</view>
+        <view class="hero-avatar-edit">编辑</view>
+      </view>
+      <view class="hero-info">
+        <view class="hero-name-row">
+          <text class="hero-name">{{name || '未登录'}}</text>
+          <view wx:if="{{test}}" class="hero-badge hero-badge-test">测试</view>
+        </view>
+        <view wx:if="{{wxId}}" class="hero-meta">
+          <text class="hero-meta-icon">💬</text>
+          <text>{{wxId}}</text>
+        </view>
+        <view wx:else class="hero-meta">
+          <text class="hero-meta-icon">📅</text>
+          <text>注册于 {{rgTime || '—'}}</text>
+        </view>
+        <view wx:if="{{wxId && rgTime}}" class="hero-meta">
+          <text class="hero-meta-icon">📅</text>
+          <text>注册于 {{rgTime}}</text>
+        </view>
+      </view>
     </view>
   </view>
-  <view>
 
-  </view>
-  <view class="grid content">
-    <view class="card">
-      <text>常用操作</text>
-      <van-grid clickable>
-        <van-grid-item icon="friends-o" icon-color="#000" text="用户信息" url="/pages/index/userinfo/userinfo" />
-        <van-grid-item icon="cluster-o" icon-color="#000" text="管理DTU" url="/pages/index/manageDev/manageDev" />
-        <van-grid-item icon="scan" icon-color="#000" text="绑定DTU" url="/pages/index/bindDev/bindDev" />
-        <van-grid-item icon="browsing-history-o" icon-color="#000" text="告警设置" url="/pages/index/alarmSetting/index" />
-        <van-grid-item wx:if="{{!wxId && !test}}" icon="browsing-history-o" icon-color="#000" text="订阅告警" url=""
-          bindtap="subMessage" />
-        <van-grid-item icon="setting-o" icon-color="#000" text="微信权限" url="" bindtap="openSetting" />
-        <van-grid-item icon="warn-o" icon-color="#000" text="清除缓存" url="" bindtap="clearCache" />
-        <van-grid-item wx:if="{{!test}}" icon="replay" icon-color="#29d" text="检查更新" url="" bindtap="checkVersion" />
-        <!-- <van-grid-item icon="comment" icon-color="#29d" text="更新记录" url="/pages/index/updatelog/updatelog" /> -->
-        <van-grid-item wx:if="{{!test}}" icon="delete" icon-color="#000" text="解绑微信" url="" bindtap="unbindwx" />
-        <van-grid-item wx:if="{{test}}" icon="delete" icon-color="#F56C6C" text="退出测试" url="" bindtap="exitTest" />
-      </van-grid>
+  <!-- === 账号信息 === -->
+  <view class="card profile-card">
+    <view class="card-title">账号信息</view>
+    <view class="profile-list">
+      <view class="profile-row">
+        <text class="profile-key">名称</text>
+        <text class="profile-val">{{name || '—'}}</text>
+      </view>
+      <view class="profile-row">
+        <text class="profile-key">注册方式</text>
+        <text class="profile-val">{{rgwx ? '微信' : '账号'}}</text>
+      </view>
+      <view class="profile-row">
+        <text class="profile-key">注册时间</text>
+        <text class="profile-val">{{rgTime || '—'}}</text>
+      </view>
+      <view class="profile-row profile-row-last">
+        <text class="profile-key">用户组</text>
+        <text class="profile-val">{{test ? 'test' : '正式'}}</text>
+      </view>
     </view>
-
   </view>
+
+  <!-- === 菜单 sections === -->
+  <view class="sections">
+    <block wx:for="{{menuSections}}" wx:for-item="section" wx:key="id">
+      <view class="card section-card">
+        <view class="card-title">{{section.title}}</view>
+        <view class="menu-list">
+          <view
+            wx:for="{{section.items}}"
+            wx:for-item="item"
+            wx:key="id"
+            class="menu-row {{item.danger ? 'is-danger' : ''}} {{index === section.items.length - 1 ? 'menu-row-last' : ''}}"
+            data-url="{{item.url}}"
+            data-bindtap="{{item.bindtap}}"
+            bindtap="onMenuTap"
+          >
+            <view class="menu-icon">{{item.icon}}</view>
+            <text class="menu-label">{{item.label}}</text>
+            <text wx:if="{{item.desc}}" class="menu-desc">{{item.desc}}</text>
+            <text class="menu-arrow">›</text>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="footer">ladisuart · v{{appVersion}}</view>
+
 </view>

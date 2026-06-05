@@ -1,30 +1,165 @@
 <!--miniprogram/pages/index/manageDev/addMountDev/addMountDev.wxml-->
-<view class="container">
- 
-  <view>
-    <van-cell title="添加设备参数" class="bg-dark-cell"></van-cell>
-    <van-cell title="设备类型">
-      <van-dropdown-menu>
-        <van-dropdown-item model:value="{{ devType }}" options="{{ devTypes }}" bind:change="devTypeChange" />
-      </van-dropdown-menu>
-    </van-cell>
-    <van-cell title="设备型号">
-      <van-dropdown-menu>
-        <van-dropdown-item model:value="{{ devModal }}" options="{{ devModals }}" bind:change="devModalChange" />
-      </van-dropdown-menu>
-    </van-cell>
-    <van-cell title="设备协议">
-      <van-dropdown-menu>
-        <van-dropdown-item model:value="{{ devProtocol }}" options="{{ devProtocols }}" />
-      </van-dropdown-menu>
-    </van-cell>
-    <van-cell title="设备地址">
-      <van-dropdown-menu>
-        <van-dropdown-item model:value="{{ pid }}" options="{{ columns }}" />
-      </van-dropdown-menu>
-      
-    </van-cell>
-    <van-button block type="primary" round bindtap="addMountDev"
-      disabled="{{!devProtocol || !devType || !devProtocol }}">添加</van-button>
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
+
+<view class="page">
+
+  <!-- === Hero === -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-info">
+        <text class="hero-eyebrow">添加挂载设备</text>
+        <text class="hero-name">{{terminal.name || '未命名'}}</text>
+        <view class="hero-meta">
+          <text class="hero-meta-icon">🔗</text>
+          <text class="hero-mac">{{terminal.DevMac}}</text>
+        </view>
+      </view>
+      <view class="hero-icon-btn">
+        <text class="hero-icon-btn-text">＋</text>
+      </view>
+    </view>
   </view>
+
+  <!-- === DTU 信息卡 === -->
+  <view class="card info-card">
+    <view class="info-row">
+      <text class="info-label">终端名称</text>
+      <text class="info-value">{{terminal.name || '—'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">MAC 地址</text>
+      <text class="info-value info-mac">{{terminal.DevMac}}</text>
+    </view>
+    <view class="info-row info-row-last">
+      <text class="info-label">已挂设备</text>
+      <text class="info-value">
+        <text class="info-pill">{{terminal.mountDevs.length || 0}} 台</text>
+        <text class="info-muted">/ 255 PID</text>
+      </text>
+    </view>
+  </view>
+
+  <!-- === 协议互斥约束 banner（DTU 已挂设备时显示） === -->
+  <view wx:if="{{lockedCommTypeLabel}}" class="lock-banner">
+    <text class="lock-banner-icon">🔒</text>
+    <view class="lock-banner-text">
+      <text class="lock-banner-title">协议互斥约束</text>
+      <text class="lock-banner-sub">该 DTU 已绑定 {{lockedCommTypeLabel}} 设备，新加设备必须使用相同的 {{lockedCommTypeLabel}} 协议</text>
+    </view>
+  </view>
+
+  <!-- === 表单卡 === -->
+  <view class="card form-card">
+    <view class="card-title">设备参数</view>
+
+    <!-- 设备类型 -->
+    <picker
+      mode="selector"
+      range="{{devTypes}}"
+      range-key="text"
+      value="{{devTypeIndex}}"
+      bindchange="onTypeChange"
+    >
+      <view class="form-row">
+        <view class="form-key-cell">
+          <text class="form-key-icon">🏷</text>
+          <text class="form-key">设备类型</text>
+        </view>
+        <text class="form-value">{{devTypes[devTypeIndex].text}}</text>
+        <text class="form-arrow">›</text>
+      </view>
+    </picker>
+
+    <!-- 设备型号 -->
+    <picker
+      mode="selector"
+      range="{{devModals}}"
+      range-key="text"
+      value="{{devModalIndex}}"
+      bindchange="onModalChange"
+      disabled="{{devModals.length === 0}}"
+    >
+      <view class="form-row {{devModals.length === 0 ? 'is-disabled' : ''}}">
+        <view class="form-key-cell">
+          <text class="form-key-icon">📋</text>
+          <text class="form-key">设备型号</text>
+        </view>
+        <text wx:if="{{devModals.length === 0}}" class="form-value is-placeholder">请先选择类型</text>
+        <text wx:elif="{{devModalIndex < 0}}" class="form-value is-placeholder">请选择</text>
+        <text wx:else class="form-value">{{devModals[devModalIndex].text}}</text>
+        <text class="form-arrow">›</text>
+      </view>
+    </picker>
+
+    <!-- 设备协议 -->
+    <picker
+      mode="selector"
+      range="{{devProtocols}}"
+      range-key="text"
+      value="{{devProtocolIndex}}"
+      bindchange="onProtocolChange"
+      disabled="{{devProtocols.length === 0}}"
+    >
+      <view class="form-row {{devProtocols.length === 0 ? 'is-disabled' : ''}}">
+        <view class="form-key-cell">
+          <text class="form-key-icon">🔌</text>
+          <text class="form-key">设备协议</text>
+        </view>
+        <text wx:if="{{devProtocols.length === 0}}" class="form-value is-placeholder">请先选择型号</text>
+        <text wx:elif="{{devProtocolIndex < 0}}" class="form-value is-placeholder">请选择</text>
+        <text wx:else class="form-value">{{devProtocols[devProtocolIndex].text}}</text>
+        <text class="form-arrow">›</text>
+      </view>
+    </picker>
+
+    <!-- 设备地址（pid） -->
+    <picker
+      mode="selector"
+      range="{{pidOptions}}"
+      range-key="text"
+      value="{{pidIndex}}"
+      bindchange="onPidChange"
+      disabled="{{pidOptions.length === 0}}"
+    >
+      <view class="form-row form-row-last {{pidOptions.length === 0 ? 'is-disabled' : ''}}">
+        <view class="form-key-cell">
+          <text class="form-key-icon">🔢</text>
+          <text class="form-key">设备地址 (PID)</text>
+        </view>
+        <text wx:if="{{pidOptions.length === 0}}" class="form-value is-placeholder">无可用 PID</text>
+        <text wx:elif="{{pidIndex < 0}}" class="form-value is-placeholder">请选择</text>
+        <text wx:else class="form-value">{{pidOptions[pidIndex].text}}</text>
+        <text class="form-arrow">›</text>
+      </view>
+    </picker>
+
+    <!-- 协议规则说明（始终在 PID 行下方） -->
+    <view wx:if="{{pidHint}}" class="pid-hint">
+      <text class="pid-hint-icon">ℹ</text>
+      <text class="pid-hint-text">{{pidHint}}</text>
+    </view>
+  </view>
+
+  <!-- === 警告 banner：协议规则下无可用 PID === -->
+  <view wx:if="{{pidWarnText}}" class="warn-banner">
+    <text class="warn-banner-icon">⚠</text>
+    <view class="warn-banner-text">
+      <text class="warn-banner-title">无法添加</text>
+      <text class="warn-banner-sub">{{pidWarnText}}</text>
+    </view>
+  </view>
+
+  <!-- === 底部提交按钮 === -->
+  <view class="footer-add">
+    <view
+      class="footer-add-btn {{isReady ? '' : 'is-disabled'}}"
+      bindtap="onSubmit"
+    >
+      <text class="footer-add-icon">＋</text>
+      <text class="footer-add-text">添加挂载设备</text>
+    </view>
+  </view>
+
 </view>

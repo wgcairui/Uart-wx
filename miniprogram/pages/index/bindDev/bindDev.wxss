@@ -1,18 +1,370 @@
 /* miniprogram/pages/index/bindDev/bindDev.wxss */
-.info {
-  padding: 1rem .5rem;
+page {
+  background: #f4f7fb;
+}
+
+.page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding-bottom: 60rpx;
+}
+
+/* === Hero === */
+.hero {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  padding: 36rpx 28rpx 28rpx;
+  color: #ffffff;
+}
+
+.hero-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.hero-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 20rpx;
+  letter-spacing: 2rpx;
+  opacity: 0.7;
+  margin-bottom: 6rpx;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  margin-bottom: 6rpx;
+  max-width: 460rpx;
+}
+
+.hero-meta {
+  font-size: 22rpx;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 4rpx;
+}
+
+.hero-meta-icon {
+  font-size: 22rpx;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.hero-icon-btn {
+  width: 64rpx;
+  height: 64rpx;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-icon-btn:active {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.hero-icon-btn-text {
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+/* === Card base === */
+.card {
+  background: #ffffff;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 16rpx;
+  margin: 20rpx 20rpx 0;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 2rpx 10rpx rgba(40, 60, 110, 0.05);
+}
+
+.card-title {
+  font-size: 22rpx;
+  color: #8a93a6;
+  text-transform: uppercase;
+  letter-spacing: 1rpx;
+  margin-bottom: 14rpx;
+  font-weight: 500;
+}
+
+/* === 输入卡 === */
+.input-card {
+  padding-bottom: 20rpx;
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 18rpx 20rpx;
+  background: #fafbfd;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 12rpx;
+  transition: border-color 0.15s ease;
+}
+
+.input-row:focus-within {
+  border-color: #487ed9;
+  background: #ffffff;
+}
+
+.input-field {
+  flex: 1;
+  font-size: 28rpx;
+  color: #1f2533;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  min-height: 44rpx;
+  letter-spacing: 0.5rpx;
+}
+
+.input-placeholder {
+  color: #c0c5d2;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  letter-spacing: 0;
+}
+
+.input-scan-btn {
+  width: 56rpx;
+  height: 56rpx;
+  background: rgba(72, 126, 217, 0.10);
+  border-radius: 12rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.input-scan-btn:active {
+  background: rgba(72, 126, 217, 0.18);
+}
+
+.input-scan-icon {
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+/* === 查询按钮 === */
+.search-btn {
+  margin-top: 16rpx;
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  color: #ffffff;
+  border-radius: 999rpx;
+  padding: 20rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  box-shadow: 0 4rpx 14rpx rgba(72, 126, 217, 0.25);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
+}
+
+.search-btn:active:not(.is-disabled) {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(72, 126, 217, 0.18);
+}
+
+.search-btn.is-disabled {
+  background: #c0c5d2;
+  box-shadow: 0 2rpx 6rpx rgba(192, 197, 210, 0.18);
+  opacity: 0.85;
+}
+
+.search-btn-icon,
+.search-btn-spinner {
+  font-size: 26rpx;
+  line-height: 1;
+}
+
+/* === DTU 信息卡 === */
+.info-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.info-card-head {
+  background: rgba(46, 207, 138, 0.10);
+  padding: 16rpx 24rpx;
+  border-bottom: 1rpx solid #e9ecf3;
+}
+
+.info-status {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.info-status-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #2ecf8a;
+  box-shadow: 0 0 0 3rpx rgba(46, 207, 138, 0.3);
+}
+
+.info-status-text {
+  font-size: 24rpx;
+  color: #1aa86c;
+  font-weight: 500;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 24rpx;
+  border-bottom: 1rpx solid #f0f2f7;
+  font-size: 26rpx;
+}
+
+.info-row-last {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #8a93a6;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: #1f2533;
+  font-weight: 500;
+  max-width: 380rpx;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-mac {
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  font-size: 22rpx;
+  color: #2d3850;
+}
+
+.info-pill {
+  display: inline-block;
+  background: rgba(72, 126, 217, 0.10);
+  color: #487ed9;
+  padding: 3rpx 12rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+/* === 绑定按钮（DTU 信息卡内底部） === */
+.bind-btn {
+  margin: 16rpx 24rpx 24rpx;
+  background: linear-gradient(135deg, #2ecf8a 0%, #1aa86c 100%);
+  color: #ffffff;
+  border-radius: 999rpx;
+  padding: 22rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  box-shadow: 0 4rpx 14rpx rgba(46, 207, 138, 0.30);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.bind-btn:active:not(.is-loading) {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(46, 207, 138, 0.20);
+}
+
+.bind-btn.is-loading {
+  opacity: 0.8;
+}
+
+.bind-btn-icon {
+  font-size: 30rpx;
+  line-height: 1;
+}
+
+/* === 提示卡 === */
+.tip-card {
+  padding-bottom: 8rpx;
+}
+
+.tip-head {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+  padding-bottom: 12rpx;
+  border-bottom: 1rpx solid #f0f2f7;
+}
+
+.tip-icon {
+  font-size: 28rpx;
+  color: #487ed9;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.tip-title {
+  font-size: 26rpx;
+  color: #1f2533;
+  font-weight: 600;
+}
+
+.tip-list {
   display: flex;
   flex-direction: column;
+  gap: 8rpx;
+  padding: 4rpx 0 12rpx;
 }
 
-.info>text {
-  margin-top: 1rem;
-  padding-bottom: 3px;
-  border-bottom: solid steelblue 1px;
+.tip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
 }
 
-.remark{
-  font-size: 14px;
-  display: block;
-  margin: 8px ;
+.tip-bullet {
+  color: #487ed9;
+  font-weight: 600;
+  flex-shrink: 0;
+  width: 16rpx;
+}
+
+.tip-text {
+  color: #5a6b85;
+  flex: 1;
+}
+
+/* === 示例图 === */
+.example-image-wrap {
+  margin: 20rpx 20rpx 0;
+  padding: 16rpx;
+  background: #ffffff;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 16rpx;
+  text-align: center;
+  box-shadow: 0 2rpx 10rpx rgba(40, 60, 110, 0.05);
+}
+
+.example-image {
+  width: 100%;
+  border-radius: 8rpx;
 }

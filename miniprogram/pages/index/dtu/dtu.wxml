@@ -2,50 +2,179 @@
 <page-meta>
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
-<view class="container">
-  <van-tabs  sticky swipeable animated  type="card" lazy-render>
-    <van-tab title="设备">
-      <view class="devs">
-            <view class="devs-item" wx:for="{{dtuItem}}" wx:key="key" bindtap="showMountDevData" data-item="{{item}}">
-              <view class="devs-item-card">
-                <view class="devs-item-card-body">
-                  <text style="font-size:26rpx;">{{item.mountDev}}</text>
-                  <view class="devs-item-card-content">
-                    <view>
-                      <view>
-                        <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
-                        <text> {{item.online?'在线':'离线'}}</text>
-                      </view>
-                      <text class="">{{item.protocol}}</text>
-                    </view>
-                    <view class="devs-item-card-pic">
-                      <image src="{{item.pic}}"></image>
-                    </view>
-                  </view>
-                </view>
-              </view>
+<view class="page">
+
+  <!-- === Hero === -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-left">
+        <view class="hero-eyebrow">DTU 详情</view>
+        <view class="hero-title">{{terminal.name || '未命名 DTU'}}</view>
+        <view class="hero-meta">
+          <text>挂载 {{dtuItem.length}} 台</text>
+          <text class="hero-meta-dot">·</text>
+          <text>{{terminal.uptime || '—'}}</text>
+        </view>
+      </view>
+      <view class="hero-icon">📡</view>
+    </view>
+
+    <!-- KPI 行 -->
+    <view class="kpi-row">
+      <view class="kpi">
+        <view class="kpi-num is-online">{{onlineMountCount}}</view>
+        <view class="kpi-label">在线设备</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num is-offline">{{offlineMountCount}}</view>
+        <view class="kpi-label">离线设备</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num">{{dtuItem.length}}</view>
+        <view class="kpi-label">挂载总数</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- === 设备信息卡 === -->
+  <view class="card">
+    <view class="card-title">设备信息</view>
+
+    <view class="info-row">
+      <view class="info-row-icon">🏷</view>
+      <text class="info-row-label">别名</text>
+      <view class="info-row-value info-row-value-edit">
+        <my-input value="{{terminal.name}}" bind:submit="nameChange"></my-input>
+      </view>
+    </view>
+
+    <view class="info-divider"></view>
+
+    <view class="info-row">
+      <view class="info-row-icon">📟</view>
+      <text class="info-row-label">IMEI</text>
+      <text class="info-row-value info-mac">{{terminal.DevMac}}</text>
+    </view>
+
+    <view class="info-divider"></view>
+
+    <view class="info-row">
+      <view class="info-row-icon">🌐</view>
+      <text class="info-row-label">IP</text>
+      <text class="info-row-value">{{terminal.ip || '—'}}</text>
+    </view>
+
+    <view class="info-divider"></view>
+
+    <view class="info-row">
+      <view class="info-row-icon">📍</view>
+      <text class="info-row-label">定位</text>
+      <view class="info-row-value-row">
+        <text wx:if="{{locationValid}}" class="info-row-value info-mac">{{terminal.jw}}</text>
+        <text wx:else class="info-row-empty">无数据</text>
+        <text wx:if="{{locationValid}}" class="info-row-pill is-on">有效</text>
+        <text wx:else class="info-row-pill is-off">失效</text>
+      </view>
+    </view>
+
+    <view class="info-divider"></view>
+
+    <view class="info-row">
+      <view class="info-row-icon">🔌</view>
+      <text class="info-row-label">端口</text>
+      <text class="info-row-value">{{terminal.port || '—'}}</text>
+    </view>
+
+    <view class="info-divider"></view>
+
+    <view class="info-row">
+      <view class="info-row-icon">📡</view>
+      <text class="info-row-label">通讯</text>
+      <text class="info-row-value">{{terminal.uart || '—'}}</text>
+    </view>
+
+    <view class="info-divider"></view>
+
+    <view class="info-row">
+      <view class="info-row-icon">🕐</view>
+      <text class="info-row-label">更新时间</text>
+      <text class="info-row-value">{{terminal.uptime || '—'}}</text>
+    </view>
+  </view>
+
+  <!-- === 定位 + 地图卡（仅定位有效时） === -->
+  <view wx:if="{{locationValid}}" class="card">
+    <view class="card-title">位置</view>
+
+    <view class="map-meta-row">
+      <view class="map-meta-item">
+        <text class="map-meta-label">经度</text>
+        <text class="map-meta-value">{{longitude}}</text>
+      </view>
+      <view class="map-meta-item">
+        <text class="map-meta-label">纬度</text>
+        <text class="map-meta-value">{{latitude}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{address}}" class="loc-detail">
+      <view class="loc-detail-row">
+        <text class="loc-detail-label">📍 地址</text>
+        <text class="loc-detail-value">{{address}}</text>
+      </view>
+      <view wx:if="{{recommend}}" class="loc-detail-row">
+        <text class="loc-detail-label">📌 详情</text>
+        <text class="loc-detail-value">{{recommend}}</text>
+      </view>
+    </view>
+
+    <map id="map" class="map" longitude="{{longitude}}" latitude="{{latitude}}" markers="{{markers}}" scale="14"
+      bindmarkertap="markertap"></map>
+  </view>
+
+  <!-- === 设备列表 === -->
+  <view class="section">
+    <view class="section-title">挂载设备</view>
+
+    <view wx:if="{{dtuItem.length === 0}}" class="empty">
+      <view class="empty-icon">📟</view>
+      <view class="empty-text">暂无挂载设备</view>
+      <view class="empty-hint">前往管理后台添加设备</view>
+    </view>
+
+    <view wx:for="{{dtuItem}}" wx:key="key" class="dev-card {{item.online ? 'is-online' : 'is-offline'}}"
+      bindtap="showMountDevData" data-item="{{item}}">
+      <view class="dev-card-status"></view>
+      <view class="dev-card-main">
+        <view class="dev-card-head">
+          <view class="dev-name-row">
+            <view class="dev-pic-box">
+              <image wx:if="{{item.pic}}" src="{{item.pic}}" class="dev-pic-img" mode="aspectFit" />
+              <text wx:else class="dev-pic-emoji">📟</text>
             </view>
+            <text class="dev-name">{{item.mountDev}}</text>
           </view>
-    </van-tab>
-    <van-tab title="参数">
-      <view class="bg">
-        <my-input label="别名" value="{{terminal.name}}" bind:submit="nameChange"></my-input>
-        <van-cell title="IMEI" value="{{terminal.DevMac}}" />
-        <van-cell title="IP" value="{{terminal.ip}}" />
-        <van-cell title="定位(仅参考)" class="jw">
-          <text>{{terminal.jw}}</text>
-          <van-icon name="location" />
-        </van-cell>
-        <van-cell title="端口" value="{{terminal.port}}" />
-        <van-cell title="通讯" value="{{terminal.uart}}" />
-        <van-cell title="更新时间" value="{{terminal.uptime}}" />
+          <view class="dev-pill {{item.online ? 'is-online' : 'is-offline'}}">
+            <view class="dev-pill-dot"></view>
+            <text>{{item.online ? '在线' : '离线'}}</text>
+          </view>
+        </view>
+        <view class="dev-card-meta">
+          <view class="dev-meta-item">
+            <text class="dev-meta-label">协议</text>
+            <text class="dev-meta-value">{{item.protocol}}</text>
+          </view>
+          <view class="dev-meta-item">
+            <text class="dev-meta-label">PID</text>
+            <text class="dev-meta-value">{{item.pid}}</text>
+          </view>
+        </view>
+        <view wx:if="{{item.updateTime}}" class="dev-card-foot">
+          <view class="dev-foot-dot"></view>
+          <text class="dev-foot-time">{{item.updateTime}}</text>
+        </view>
       </view>
-      <view wx:if="{{jwSupport}}">
-        <van-cell title="地址" value="{{address}}"></van-cell>
-        <van-cell title="详情" value="{{recommend}}"></van-cell>
-        <map id="map" longitude="{{longitude}}" latitude="{{latitude}}" markers="{{markers}}" scale="14"
-          bindmarkertap="markertap" style="width: 100%; height: 200px;"></map>
-      </view>
-    </van-tab>
-  </van-tabs>
+    </view>
+  </view>
+
 </view>

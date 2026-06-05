@@ -1,6 +1,4 @@
 {
-  "usingComponents": {
-    "van-tag": "@vant/weapp/tag/index"
-  },
+  "usingComponents": {},
   "navigationBarTitleText": "管理绑定DTU"
 }
