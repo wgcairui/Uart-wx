@@ -1,16 +1,454 @@
 /* miniprogram/pages/index/alarmSetting/index.wxss */
-.van-cell-group{
-  margin-bottom: 32px;
+page {
+  background: #f4f7fb;
 }
 
-.container {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  justify-content: unset;
-  /* background-color: #f6f6f6; */
-  /* background-image: url("http://www.ladishb.com/upload/342021__bg.png"); */
-  background-image: linear-gradient(to bottom, #487ed9 0%, #f6f6f6 80%);
+.page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding-bottom: 60rpx;
+}
+
+/* === Hero === */
+.hero {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  padding: 36rpx 28rpx 28rpx;
+  color: #ffffff;
+}
+
+.hero-row {
+  margin-bottom: 24rpx;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 20rpx;
+  letter-spacing: 2rpx;
+  opacity: 0.7;
+  margin-bottom: 4rpx;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  margin-bottom: 6rpx;
+}
+
+.hero-meta {
+  font-size: 22rpx;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.hero-meta-icon {
+  font-size: 22rpx;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+/* === KPI === */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+
+.kpi {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1rpx solid rgba(255, 255, 255, 0.22);
+  border-radius: 16rpx;
+  padding: 18rpx 16rpx;
+  text-align: center;
+}
+
+.kpi-num {
+  font-size: 36rpx;
+  font-weight: 700;
+  line-height: 1.1;
+  font-family: -apple-system, "DIN Alternate", "Helvetica Neue", sans-serif;
+  color: #ffffff;
+}
+
+.kpi-num.is-online {
+  color: #2ecf8a;
+}
+
+.kpi-num.is-alarm {
+  color: #ffd54f;
+}
+
+.kpi-label {
+  font-size: 20rpx;
+  opacity: 0.85;
+  margin-top: 6rpx;
+  color: #ffffff;
+}
+
+/* === Card base === */
+.card {
+  background: #ffffff;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 16rpx;
+  margin: 20rpx 20rpx 0;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 2rpx 10rpx rgba(40, 60, 110, 0.05);
+}
+
+.card-title {
+  font-size: 22rpx;
+  color: #8a93a6;
+  text-transform: uppercase;
+  letter-spacing: 1rpx;
+  margin-bottom: 14rpx;
+  font-weight: 500;
+}
+
+/* === 联系方式卡 === */
+.contact-card {
+  padding: 20rpx 24rpx 24rpx;
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 8rpx 0;
+}
+
+.contact-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 14rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+.contact-icon-tel {
+  background: rgba(46, 207, 138, 0.12);
+  color: #1aa86c;
+}
+
+.contact-icon-mail {
+  background: rgba(72, 126, 217, 0.10);
+  color: #487ed9;
+}
+
+.contact-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.contact-label {
+  font-size: 22rpx;
+  color: #8a93a6;
+  font-weight: 500;
+}
+
+.contact-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  padding-top: 2rpx;
+}
+
+.contact-chip {
+  display: inline-block;
+  background: #f4f7fb;
+  border: 1rpx solid #e9ecf3;
+  color: #1f2533;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  line-height: 1.3;
+  max-width: 360rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-empty {
+  font-size: 24rpx;
+  color: #c0c5d2;
+  line-height: 1.4;
+}
+
+.contact-edit-btn {
+  flex-shrink: 0;
+  padding: 10rpx 22rpx;
+  background: rgba(72, 126, 217, 0.10);
+  color: #487ed9;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  transition: background 0.1s ease;
+}
+
+.contact-edit-btn:active {
+  background: rgba(72, 126, 217, 0.20);
+}
+
+.contact-edit-text {
+  line-height: 1.2;
+}
+
+.contact-divider {
+  height: 1rpx;
+  background: #f0f2f7;
+  margin: 16rpx 0;
+}
+
+/* === 微信订阅 tip === */
+.contact-tip {
+  margin: 18rpx 0 16rpx;
+  padding: 14rpx 18rpx;
+  background: #fff8e1;
+  border-left: 6rpx solid #f0a020;
+  border-radius: 10rpx;
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  box-shadow: 0 2rpx 6rpx rgba(240, 160, 32, 0.08);
+}
+
+.contact-tip-icon {
+  font-size: 24rpx;
+  line-height: 1.3;
+  flex-shrink: 0;
+}
+
+.contact-tip-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.contact-tip-title {
+  font-size: 24rpx;
+  color: #5a4a1c;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.contact-tip-sub {
+  font-size: 22rpx;
+  color: #8a5a0e;
+  line-height: 1.4;
+}
+
+/* === 微信订阅按钮 === */
+.sub-btn {
+  margin-top: 4rpx;
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  color: #ffffff;
+  border-radius: 999rpx;
+  padding: 20rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  box-shadow: 0 4rpx 14rpx rgba(72, 126, 217, 0.25);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.sub-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(72, 126, 217, 0.18);
+}
+
+.sub-btn-icon {
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+/* === 设备告警规则卡 === */
+.rules-card {
+  padding: 20rpx 0 16rpx;
+}
+
+.rules-card .card-title {
+  padding: 0 24rpx 14rpx;
+  margin-bottom: 0;
+  border-bottom: 1rpx solid #f0f2f7;
+}
+
+/* === 规则分组 === */
+.rule-group {
+  padding: 0 24rpx;
+  margin-top: 16rpx;
+}
+
+.rule-group:first-of-type {
+  margin-top: 14rpx;
+}
+
+.rule-group-head {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 8rpx 0 12rpx;
+  font-size: 24rpx;
+}
+
+.rule-group-icon {
+  font-size: 22rpx;
+  line-height: 1;
+}
+
+.rule-group-name {
+  flex: 1;
+  color: #1f2533;
+  font-weight: 600;
+  font-size: 26rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rule-group-count {
+  font-size: 22rpx;
+  color: #8a93a6;
+  background: #f4f7fb;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
+}
+
+/* === 规则行（设备卡） === */
+.rule-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 18rpx 16rpx;
+  background: #fafbfd;
+  border: 1rpx solid #f0f2f7;
+  border-radius: 12rpx;
+  margin-bottom: 10rpx;
+  transition: background 0.1s ease, transform 0.1s ease;
+}
+
+.rule-row:active {
+  background: #f0f4f9;
+  transform: scale(0.99);
+}
+
+.rule-row-last {
+  margin-bottom: 0;
+}
+
+.rule-row-icon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 10rpx;
+  background: #eef3fb;
+  color: #487ed9;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.rule-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.rule-row-name {
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #1f2533;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rule-row-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+  font-size: 22rpx;
+  color: #8a93a6;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.rule-row-tag {
+  color: #487ed9;
+  font-weight: 500;
+}
+
+.rule-row-sep {
+  color: #c0c5d2;
+  font-weight: 300;
+}
+
+.rule-row-protocol {
+  color: #5a6b85;
+}
+
+.rule-row-pid {
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  color: #7c8595;
+}
+
+.rule-row-arrow {
+  font-size: 36rpx;
+  color: #c0c5d2;
+  font-weight: 300;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* === Empty === */
+.empty {
+  text-align: center;
+  padding: 60rpx 0 30rpx;
+  color: #8a93a6;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  opacity: 0.5;
+  margin-bottom: 14rpx;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #3a4256;
+  margin-bottom: 6rpx;
+}
+
+.empty-hint {
+  font-size: 22rpx;
+  color: #8a93a6;
+}
+
+/* === Footer === */
+.footer {
+  text-align: center;
+  padding: 30rpx 0 12rpx;
+  color: #c0c5d2;
+  font-size: 20rpx;
+  letter-spacing: 1rpx;
 }

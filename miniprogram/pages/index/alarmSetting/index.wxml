@@ -3,22 +3,138 @@
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
 
-<view class="container">
-  <view class="tels card">
-    <van-cell-group title="告警联系方式,推荐绑定LADS公众号,避免短信被拦截" bindtap="modifyTell" data-item="{{[tels,mails]}}">
-     <!--  <my-input label="告警手机:" value="{{tels}}" bind:submit="modifyTell" data-key="tel" type="textarea"></my-input>
-      <my-input label="告警邮箱:" value="{{mails}}" bind:submit="modifyTell" data-key="mail" type="textarea"></my-input> -->
-      <van-cell  title="告警手机:" value="{{tels}}"></van-cell>
-      <van-cell  title="告警邮箱:" value="{{mails}}"></van-cell>
-    </van-cell-group>
-    <van-button size="small" round type="info" bindtap="subMessage" block>微信订阅告警</van-button>
-  </view>
-  <view class="devslist">
-    <view wx:for="{{devs}}" wx:key="_id" wx:if="item.mountDevs.length > 0" style="margin-bottom:12px">
-      <van-cell icon="cluster" title="{{item.name}}" class="bg-dark-cell"></van-cell>
-      <van-cell wx:for="{{item.mountDevs}}" wx:key="index" wx:for-item="item2" title="{{item2.mountDev}}"
-        label="{{item2.Type}}" value="{{item2.protocol}}" center is-link
-        url="{{'/pages/index/alarmSetting/alarmSetting?protocol='+item2.protocol}}"></van-cell>
+<view class="page">
+
+  <!-- === Hero === -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-info">
+        <text class="hero-eyebrow">告警设置</text>
+        <text class="hero-title">通知方式 + 设备规则</text>
+        <view class="hero-meta">
+          <text class="hero-meta-icon">🔔</text>
+          <text>配置告警通知与设备阈值</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 概览 KPI -->
+    <view class="kpi-row">
+      <view class="kpi">
+        <view class="kpi-num is-online">{{telList.length}}</view>
+        <view class="kpi-label">告警手机</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num">{{mailList.length}}</view>
+        <view class="kpi-label">告警邮箱</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num is-alarm">{{ruleGroups.length}}</view>
+        <view class="kpi-label">可配设备</view>
+      </view>
     </view>
   </view>
+
+  <!-- === 联系方式卡 === -->
+  <view class="card contact-card">
+    <view class="card-title">告警通知方式</view>
+
+    <!-- 告警手机行 -->
+    <view class="contact-row">
+      <view class="contact-icon contact-icon-tel">📱</view>
+      <view class="contact-main">
+        <text class="contact-label">告警手机</text>
+        <view wx:if="{{telList.length > 0}}" class="contact-chips">
+          <text wx:for="{{telList}}" wx:key="value" wx:for-item="item" class="contact-chip">
+            {{item.masked}}
+          </text>
+        </view>
+        <text wx:else class="contact-empty">未配置 · 告警时无法短信通知</text>
+      </view>
+      <view class="contact-edit-btn" bindtap="onEditTelTap">
+        <text class="contact-edit-text">编辑</text>
+      </view>
+    </view>
+
+    <!-- 分隔线 -->
+    <view class="contact-divider"></view>
+
+    <!-- 告警邮箱行 -->
+    <view class="contact-row">
+      <view class="contact-icon contact-icon-mail">✉</view>
+      <view class="contact-main">
+        <text class="contact-label">告警邮箱</text>
+        <view wx:if="{{mailList.length > 0}}" class="contact-chips">
+          <text wx:for="{{mailList}}" wx:key="value" wx:for-item="item" class="contact-chip">
+            {{item.masked}}
+          </text>
+        </view>
+        <text wx:else class="contact-empty">未配置 · 告警时无法邮件通知</text>
+      </view>
+      <view class="contact-edit-btn" bindtap="onEditMailTap">
+        <text class="contact-edit-text">编辑</text>
+      </view>
+    </view>
+
+    <!-- 微信订阅 -->
+    <view class="contact-tip">
+      <text class="contact-tip-icon">💡</text>
+      <view class="contact-tip-text">
+        <text class="contact-tip-title">推荐同时开启微信订阅告警</text>
+        <text class="contact-tip-sub">避免短信被运营商拦截 / 邮件进垃圾箱</text>
+      </view>
+    </view>
+
+    <view class="sub-btn" bindtap="onSubMessageTap">
+      <text class="sub-btn-icon">📨</text>
+      <text class="sub-btn-text">微信订阅告警</text>
+    </view>
+  </view>
+
+  <!-- === 设备告警规则卡 === -->
+  <view class="card rules-card">
+    <view class="card-title">设备告警规则</view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{!hasRules}}" class="empty">
+      <view class="empty-icon">📊</view>
+      <view class="empty-text">暂无可配置告警规则的设备</view>
+      <view class="empty-hint">先在「管理 DTU」中绑定设备并添加挂载</view>
+    </view>
+
+    <!-- 按 DTU 分组 -->
+    <block wx:for="{{ruleGroups}}" wx:for-item="group" wx:key="DevMac">
+      <view class="rule-group">
+        <view class="rule-group-head">
+          <view class="rule-group-icon">📡</view>
+          <text class="rule-group-name">{{group.dtuName}}</text>
+          <text class="rule-group-count">{{group.items.length}} 台</text>
+        </view>
+        <view
+          wx:for="{{group.items}}"
+          wx:for-item="item"
+          wx:key="pid"
+          class="rule-row {{index === group.items.length - 1 ? 'rule-row-last' : ''}}"
+          data-item="{{item}}"
+          bindtap="onRuleItemTap"
+        >
+          <view class="rule-row-icon">📟</view>
+          <view class="rule-row-main">
+            <text class="rule-row-name">{{item.mountDev}}</text>
+            <view class="rule-row-meta">
+              <text class="rule-row-tag">{{item.Type}}</text>
+              <text class="rule-row-sep">·</text>
+              <text class="rule-row-protocol">{{item.protocol}}</text>
+              <text class="rule-row-sep">·</text>
+              <text class="rule-row-pid">PID {{item.pid}}</text>
+            </view>
+          </view>
+          <text class="rule-row-arrow">›</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="footer">告警规则修改后立即生效</view>
+
 </view>

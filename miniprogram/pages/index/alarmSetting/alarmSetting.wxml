@@ -1,40 +1,153 @@
 <!--miniprogram/pages/index/alarmSetting/alarmSetting.wxml-->
-
-<view class="container">
-  <view>
-    <van-tabs type="card" bind:click="tabclick" animated sticky active="{{active}}">
-      <van-tab class="tab" title="显示参数">
-        <van-checkbox-group value="{{showTag}}" bind:change="ShowTagonChange">
-          <van-cell-group title="显示参数(只显示选中的值)">
-            <van-cell wx:for="{{ syssetup.ShowTag }}" wx:key="index" title="{{ item }}" value-class="value-class"
-              clickable data-index="{{ index }}" bind:click="ShowTagtoggle">
-              <van-checkbox class="checkboxes-{{ index }}" name="{{ item }}" />
-            </van-cell>
-          </van-cell-group>
-        </van-checkbox-group>
-      </van-tab>
-      <van-tab class="tab" title="参数限值">
-        <view>
-          <van-cell-group title="参数限值(点击参数修改)">
-            <van-cell is-link wx:for="{{Threshold}}" wx:key="index" icon="{{item.icon}}" title="{{item.name}}"
-              value="{{item.min}}-{{item.max}}" data-item="{{item}}" data-index="{{index}}" bindtap="ThresholdClick">
-            </van-cell>
-          </van-cell-group>
-          <van-button type="primary" block round bindtap="addThreshold">添加新限值</van-button>
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
+<view class="page">
+  <!-- 顶部 Hero -->
+  <view class="hero">
+    <view class="hero-bg"></view>
+    <view class="hero-content">
+      <view class="hero-title">协议告警配置</view>
+      <view class="hero-subtitle">{{protocol || '加载中…'}}</view>
+      <view class="hero-stats">
+        <view class="stat">
+          <text class="stat-num">{{stats.showCount}}</text>
+          <text class="stat-label">显示</text>
         </view>
-      </van-tab>
-      <van-tab class="tab" title="参数状态">
-        <van-cell-group title="参数状态(值为非选中状态则告警)">
-          <van-cell wx:for="{{alarmStat}}" wx:key="name" title="{{item.name}}">
-            <van-checkbox-group class="van-checkbox-group" value="{{ item.alarmStat }}" bind:change="AlarmStatonChange"
-              data-item="{{item}}">
-              <van-checkbox wx:for="{{item.parse}}" wx:for-item="item2" wx:key="index" name="{{item2.key}}">
-                {{item2.text}}
-              </van-checkbox>
-            </van-checkbox-group>
-          </van-cell>
-        </van-cell-group>
-      </van-tab>
-    </van-tabs>
+        <view class="stat">
+          <text class="stat-num">{{stats.thresholdCount}}</text>
+          <text class="stat-label">限值</text>
+        </view>
+        <view class="stat">
+          <text class="stat-num {{allAlarmEmpty ? 'is-alarm' : ''}}">{{stats.alarmCount}}<text wx:if="{{stats.alarmTotal > 0}}" class="stat-num-sub">/{{stats.alarmTotal}}</text></text>
+          <text class="stat-label">告警</text>
+        </view>
+        <view class="stat">
+          <text class="stat-num {{dirty ? 'is-dirty' : ''}}">{{dirty ? '●' : '·'}}</text>
+          <text class="stat-label">{{dirty ? '未保存' : '已保存'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Tab 切换 -->
+  <view class="tabs-wrap">
+    <view class="tabs">
+      <view wx:for="{{tabs}}" wx:key="key"
+        class="tab {{active === item.key ? 'is-active' : ''}}"
+        data-key="{{item.key}}" bindtap="onTabClick">
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content">
+    <!-- Tab 0: 显示参数 -->
+    <view class="tab-panel" wx:if="{{active === 'show'}}">
+      <view class="section-head">
+        <text class="section-title">显示参数</text>
+        <text class="section-meta">已选 {{showTag.length}} · 模板 {{showItems.length}}</text>
+      </view>
+      <view class="param-card">
+        <view class="param-row" wx:for="{{showItems}}" wx:key="name"
+          data-name="{{item.name}}" bindtap="onShowTagToggle">
+          <view class="param-row-left">
+            <text class="param-name">{{item.name}}</text>
+          </view>
+          <view class="param-row-right">
+            <view class="toggle {{item.checked ? 'is-on' : ''}}">
+              <view class="toggle-thumb"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Tab 1: 参数限值 -->
+    <view class="tab-panel" wx:if="{{active === 'threshold'}}">
+      <view class="section-head">
+        <text class="section-title">参数限值</text>
+        <text class="section-meta">{{Threshold.length}} 项</text>
+      </view>
+      <view class="threshold-hint">
+        <view class="threshold-hint-icon">💡</view>
+        <view class="threshold-hint-body">
+          <view class="threshold-hint-title">数值在 [min, max] 区间内 = 正常</view>
+          <view class="threshold-hint-sub">超出范围（小于 min 或大于 max）将触发告警</view>
+        </view>
+      </view>
+      <view class="param-card">
+        <view class="threshold-row" wx:for="{{Threshold}}" wx:key="name" data-item="{{item}}" data-index="{{index}}" bindtap="onThresholdClick">
+          <view class="threshold-head">
+            <view class="threshold-name">{{item.name}}</view>
+            <view class="threshold-range">
+              <text class="threshold-min">{{item.min}}</text>
+              <text class="threshold-sep">~</text>
+              <text class="threshold-max">{{item.max}}</text>
+              <text class="threshold-unit" wx:if="{{item.unit}}"> {{item.unit}}</text>
+            </view>
+          </view>
+          <view class="threshold-bar">
+            <view class="threshold-bar-track">
+              <view class="threshold-bar-fill" style="left: 10%; right: 10%;"></view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="add-btn" bindtap="addThreshold">
+        <text class="add-icon">+</text>
+        <text class="add-text">添加新限值</text>
+      </view>
+    </view>
+
+    <!-- Tab 2: 参数状态 -->
+    <view class="tab-panel" wx:if="{{active === 'alarm'}}">
+      <view class="section-head">
+        <text class="section-title">参数状态告警</text>
+        <text class="section-meta">已配置 {{stats.alarmCount}} · 模板 {{stats.alarmTotal}}</text>
+      </view>
+      <view class="alarm-hint">
+        <view class="alarm-hint-icon">💡</view>
+        <view class="alarm-hint-body">
+          <view class="alarm-hint-title">点击 pill = 把该状态加入「正常」集合</view>
+          <view class="alarm-hint-sub">未选中的状态将触发告警，与通常的"勾选=启用"相反</view>
+          <view class="alarm-hint-legend">
+            <text class="alarm-hint-dot alarm-hint-dot-ok"></text>
+            <text class="alarm-hint-legend-text">绿色=正常（已选）</text>
+            <text class="alarm-hint-dot alarm-hint-dot-alert"></text>
+            <text class="alarm-hint-legend-text">红色=告警（未选）</text>
+          </view>
+        </view>
+      </view>
+      <!-- 空选信息 banner（空数组是合法状态，仅做提示不阻止保存） -->
+      <view wx:if="{{allAlarmEmpty}}" class="alarm-empty-banner">
+        <view class="alarm-empty-banner-icon">ℹ</view>
+        <view class="alarm-empty-banner-body">
+          <view class="alarm-empty-banner-title">所有参数都未选「正常」状态</view>
+          <view class="alarm-empty-banner-sub">空数组是合法状态（默认/全部取消都 = []），提交后保持空。如需配置告警，请给每个参数点几个绿色 pill。</view>
+        </view>
+      </view>
+      <view class="param-card">
+        <view class="alarm-row {{item.hasSelected ? '' : 'is-all-unselected'}}" wx:for="{{alarmItems}}" wx:key="name">
+          <view class="alarm-name">
+            <text>{{item.name}}</text>
+            <text wx:if="{{!item.hasSelected}}" class="alarm-name-warn">未选</text>
+          </view>
+          <view class="alarm-pills">
+            <view wx:for="{{item.options}}" wx:for-item="opt" wx:key="key"
+              class="alarm-pill {{opt.checked ? 'is-on' : ''}}"
+              data-item-name="{{item.name}}" data-opt-key="{{opt.key}}" bindtap="onAlarmPillTap">
+              <text>{{opt.text}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部 sticky 保存条 -->
+  <view wx:if="{{dirty}}" class="save-bar" bindtap="onSave">
+    <view class="save-bar-text">已修改未保存</view>
+    <view class="save-bar-btn">保存</view>
   </view>
 </view>

@@ -2,112 +2,76 @@ import api from "../../../../utils/api"
 
 // miniprogram/pages/index/alarmSetting/addThreshold/addThreshold.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
     name: '',
-    cache: new Map(),
+    cache: new Map<string, any>(),
     unit: '',
     min: 0,
-    max: 0,
-    icon: 'star',
+    max: 100,
     columns: [] as string[],
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: async function (options:any) {
-    console.log(options);
-    const protocol = options.protocol!
+  onLoad: async function (options: any) {
+    const protocol = options.protocol
     const setup = await api.getAlarmProtocol(protocol)
-    const showSet = new Set(setup.data.ShowTag)
-    api.getProtocol(protocol).then(({ data }) => {
-      const setups = data.instruct
-        .map(el => el.formResize.filter(el2 => !el2.isState))
-        .reduce((pre, cur) => [...pre, ...cur])
-      const cache = new Map(setups.map(el => [el.name, el]))
-      const keysSet = new Set((<string>options.keys).split(","))
-      this.setData({
-        columns: Array.from(cache.keys()).filter(el => showSet.has(el) && !keysSet.has(el)),
-        cache
-      })
-    })
-  },
-  minonChange(event: vantEvent) {
-    const max = this.data.max
-    const min = event.detail as number
+    const showSet = new Set(setup.data.ShowTag || [])
+    const Protocols = await api.getProtocol(protocol)
+    const setups = (Protocols.data.instruct || [])
+      .map((el: any) => el.formResize.filter((el2: any) => !el2.isState))
+      .reduce((pre: any, cur: any) => [...pre, ...cur], [])
+    const cache = new Map<string, any>(setups.map((el: any) => [el.name, el]))
+    const keysSet = new Set(((options.keys as string) || '').split(',').filter(Boolean))
     this.setData({
-      min,
-      max: min >= max ? Number(min) + 1 : max
+      columns: Array.from(cache.keys()).filter((el: any) => showSet.has(el) && !keysSet.has(el)) as any,
+      cache,
     })
   },
-  maxonChange(event: vantEvent) {
-    this.setData({
-      max: event.detail
-    })
-  },
-  onChange(event: vantEvent) {
-    const name = event.detail.value
+
+  // 选择参数
+  onPick(e: vantEvent) {
+    const name = e.currentTarget.dataset.name as string
     this.setData({
       name,
-      unit: this.data.cache.get(name)?.unit || ''
+      unit: this.data.cache.get(name)?.unit || '',
     })
   },
-  submit() {
+
+  // min/max stepper
+  onMinMinus() {
+    const next = Number((this.data.min - 1).toFixed(4))
+    this.setData({ min: next < 0 ? 0 : next, max: next >= this.data.max ? next + 1 : this.data.max })
+  },
+  onMinPlus() {
+    const next = Number((this.data.min + 1).toFixed(4))
+    this.setData({ min: next, max: next >= this.data.max ? next + 1 : this.data.max })
+  },
+  onMaxMinus() {
+    const next = Number((this.data.max - 1).toFixed(4))
+    this.setData({ max: next < this.data.min ? this.data.min : next })
+  },
+  onMaxPlus() {
+    const next = Number((this.data.max + 1).toFixed(4))
+    this.setData({ max: next })
+  },
+
+  // 提交
+  onSubmit() {
+    if (!this.data.name) {
+      wx.showToast({ title: '请先选择参数', icon: 'none' })
+      return
+    }
+    if (this.data.max <= this.data.min) {
+      wx.showToast({ title: '最大值需大于最小值', icon: 'none' })
+      return
+    }
     const events = this.getOpenerEventChannel()
-    events.emit("addThreshold", this.data)
+    events.emit('addThreshold', {
+      name: this.data.name,
+      min: this.data.min,
+      max: this.data.max,
+      unit: this.data.unit,
+      icon: 'star',
+    })
     wx.navigateBack()
   },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  }
 })
