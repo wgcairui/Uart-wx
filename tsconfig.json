@@ -23,20 +23,21 @@
     "pretty": true,
     "strictPropertyInitialization": true,
     "lib": ["ES2020", "DOM"],
-    "typeRoots": [],
+    "typeRoots": [".", "node_modules", "typings"],
     "skipDefaultLibCheck": true,
     "types": [
       "miniprogram-api-typings",
-      "./typings",
       "types-uart"
     ],
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
-      "@vant/weapp/*": ["path/to/node_modules/@vant/weapp/dist/*"]
+      "@vant/weapp/*": ["./path/to/node_modules/@vant/weapp/dist/*"]
     }
   },
   "include": [
-    "miniprogram/**/*.ts"
+    "miniprogram/**/*.ts",
+    "typings/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"
