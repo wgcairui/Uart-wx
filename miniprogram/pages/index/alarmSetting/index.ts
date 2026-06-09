@@ -1,160 +1,155 @@
+// miniprogram/pages/index/alarmSetting/index.ts
+
 import api from "../../../utils/api"
+import { ObjectToStrquery } from "../../../utils/util"
 
-// miniprogram/pages/index/alarmSetting/index.js
+interface ContactItem {
+  value: string
+  masked: string  // 138****1234 这种脱敏形式
+}
+
+interface MountRuleItem {
+  DevMac: string
+  dtuName: string
+  pid: number
+  mountDev: string
+  Type: string
+  protocol: string
+}
+
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-    devs: [] as Uart.Terminal[],
-    tels: '',
-    mails: ''
+    // 联系方式
+    telList: [] as ContactItem[],
+    mailList: [] as ContactItem[],
+    // 设备告警规则入口（按 DTU 分组）
+    ruleGroups: [] as { dtuName: string; DevMac: string; items: MountRuleItem[] }[],
+    // 派生：是否有任何告警规则可配置
+    hasRules: false,
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function () {
-    this.sortDevslist()
-    this.getuserTels()
+  onLoad() {
+    this.fetchContacts()
+    this.fetchRules()
   },
 
-  sortDevslist() {
-    api.BindDev().then(el => {
-      if (el.code) {
-        this.setData({
-          devs: el.data.UTs as any
-        })
-      }
-    })
-  },
-  async getuserTels() {
-    const el = await api.getUserAlarmSetup()
-    this.setData({
-      tels: el.data.tels.join('\n'),
-      mails: el.data.mails.join('\n')
-    })
-  },
-  // 修改用户联系方式
-  modifyTell(event: vantEvent<string[]>) {
-    const [tel, mail] = event.currentTarget.dataset.item
-    //const a = this.pushuserTels//(tel, mail)
-    wx.navigateTo({
-      url: "/pages/index/alarmSetting/modifyTel/modifyTel",//+ObjectToStrquery({tel,mail}),
-      events:{
-        modifyOk:({ tel, mail }: { tel: string[], mail: string[] })=> {
-          this.pushuserTels(tel, mail)
-        }
-      },
-      success(res) {
-        res.eventChannel.emit('alarm', { tel: tel.split("\n"), mail: mail.split("\n") })
-      }
-    })
-
-    /* const { detail, currentTarget: { dataset } } = event
-    const value = Array.from(new Set((detail.value as string).replace(/(\,|\，)/g, '\n').split('\n').filter(el => el)))
-    const key = dataset.key as string
-    console.log(value);
-    switch (key) {
-      case 'tel':
-        {
-          const ok = value.every(el => RgexpTel(el))
-          if (value.length > 3) {
-            wx.showModal({
-              title: "错误",
-              content: "最多只能保存3个号码！！"
-            })
-            return
-          }
-          if (ok) {
-            this.pushuserTels(value, null)
-          } else {
-            wx.showModal({
-              title: '格式错误',
-              content: '手机号码格式不正确'
-            })
-          }
-        }
-        break
-      case "mail":
-        {
-          const ok = value.every(el => RgexpMail(el))
-          if (ok) {
-            this.pushuserTels(null, value)
-          } else {
-            wx.showModal({
-              title: '格式错误',
-              content: '邮箱格式不正确'
-            })
-          }
-        }
-        break
-    } */
-  },
-  // 提交修改联系方式
-  pushuserTels(tels: string[], mails: string[]) {
-    this.setData({
-      tels: tels.join('\n'),
-      mails: mails.join('\n')
-    })
-    wx.startPullDownRefresh()
+  onShow() {
+    // 从 modifyTel 返回时刷新联系方式
+    this.fetchContacts()
   },
 
-  /**
-   * 订阅下次告警
-   */
-  async subMessage() {
-    const url = encodeURIComponent('http://mp.weixin.qq.com/s?__biz=MjM5MjA1MTgxOQ==&mid=304819939&idx=1&sn=d0bcd922033075afa2b5219fc95ebb1e&chksm=3173a9e7060420f1a98d0040d964a2f82af25289a731d1400c5224ca9bb3d225d737700700a8#rd')
-    wx.navigateTo({ url: '/pages/index/web/web?url=' + url })
-  },
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
   onPullDownRefresh: async function () {
-    await this.getuserTels()
+    await Promise.all([this.fetchContacts(), this.fetchRules()])
     wx.stopPullDownRefresh()
   },
 
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
+  /* === 联系方式 === */
+  async fetchContacts() {
+    const { code, data, message } = await api.getUserAlarmSetup()
+    if (code !== 200) {
+      wx.showToast({ title: message || '加载联系方式失败', icon: 'none' })
+      return
+    }
+    const tels = (data?.tels || []) as string[]
+    const mails = (data?.mails || []) as string[]
+    this.setData({
+      telList: tels.map((t) => ({ value: t, masked: maskTel(t) })),
+      mailList: mails.map((m) => ({ value: m, masked: maskMail(m) })),
+    })
+  },
 
+  onEditTelTap() {
+    this.openModifyTel()
+  },
+
+  onEditMailTap() {
+    this.openModifyTel()
   },
 
   /**
-   * 用户点击右上角分享
+   * 跳 modifyTel：带 tel/mail 当前值过去
    */
-  onShareAppMessage: function () {
+  openModifyTel() {
+    wx.navigateTo({
+      url: '/pages/index/alarmSetting/modifyTel/modifyTel',
+      events: {
+        modifyOk: ({ tel, mail }: { tel: string[]; mail: string[] }) => {
+          this.setData({
+            telList: (tel || []).map((t) => ({ value: t, masked: maskTel(t) })),
+            mailList: (mail || []).map((m) => ({ value: m, masked: maskMail(m) })),
+          })
+        },
+      },
+      success: (res) => {
+        res.eventChannel.emit('alarm', {
+          tel: this.data.telList.map((t) => t.value),
+          mail: this.data.mailList.map((m) => m.value),
+        })
+      },
+    })
+  },
 
-  }
+  /* === 设备告警规则 === */
+  async fetchRules() {
+    const { code, data, message } = await api.BindDev()
+    if (code !== 200) {
+      wx.showToast({ title: message || '加载设备失败', icon: 'none' })
+      return
+    }
+    const uts = (data?.UTs || []) as unknown as Uart.Terminal[]
+    // 按 DTU 分组：每个有 mountDevs 的 DTU 一个组
+    const groups = uts
+      .filter((dtu) => (dtu.mountDevs || []).length > 0)
+      .map((dtu) => ({
+        dtuName: dtu.name || dtu.DevMac,
+        DevMac: dtu.DevMac,
+        items: (dtu.mountDevs || []).map((m: any) => ({
+          DevMac: dtu.DevMac,
+          dtuName: dtu.name || dtu.DevMac,
+          pid: m.pid,
+          mountDev: m.mountDev,
+          Type: m.Type,
+          protocol: m.protocol,
+        })),
+      }))
+
+    this.setData({ ruleGroups: groups, hasRules: groups.length > 0 })
+  },
+
+  onRuleItemTap(e: WechatMiniprogram.TouchEvent) {
+    const item = (e.currentTarget.dataset as any).item as MountRuleItem
+    wx.navigateTo({
+      url: '/pages/index/alarmSetting/alarmSetting' + ObjectToStrquery({
+        protocol: item.protocol,
+        mountDev: item.mountDev,
+        pid: String(item.pid),
+        DevMac: item.DevMac,
+        Type: item.Type,
+      }),
+    })
+  },
+
+  /* === 微信订阅告警 === */
+  onSubMessageTap() {
+    const url = encodeURIComponent('http://mp.weixin.qq.com/s?__biz=MjM5MjA1MTgxOQ==&mid=304819939&idx=1&sn=d0bcd922033075afa2b5219fc95ebb1e&chksm=3173a9e7060420f1a98d0040d964a2f82af25289a731d1400c5224ca9bb3d225d737700700a8#rd')
+    wx.navigateTo({ url: '/pages/index/web/web?url=' + url })
+  },
 })
+
+/**
+ * 手机号脱敏：13800001234 → 138****1234
+ */
+function maskTel(tel: string): string {
+  if (!tel || tel.length < 7) return tel
+  return tel.slice(0, 3) + '****' + tel.slice(-4)
+}
+
+/**
+ * 邮箱脱敏：a@b.com → a***@b.com（保留首字符 + 域名）
+ */
+function maskMail(mail: string): string {
+  if (!mail || !mail.includes('@')) return mail
+  const [user, domain] = mail.split('@')
+  if (user.length <= 1) return mail
+  return user[0] + '***@' + domain
+}

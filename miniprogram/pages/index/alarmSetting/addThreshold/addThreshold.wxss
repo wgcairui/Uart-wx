@@ -1,1 +1,192 @@
 /* miniprogram/pages/index/alarmSetting/addThreshold/addThreshold.wxss */
+page { background: #f4f7fb; }
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+  background: linear-gradient(to bottom, #487ed9 0%, #e9f3fb 280rpx, #f4f7fb 100%);
+}
+
+.hero {
+  position: relative;
+  padding: 48rpx 32rpx 40rpx;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  z-index: 0;
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 8rpx;
+}
+
+.hero-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 1rpx;
+}
+
+.content { margin: 16rpx 24rpx 0; }
+
+.section {
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 20rpx rgba(40, 60, 110, 0.08);
+  overflow: hidden;
+  margin-bottom: 20rpx;
+  padding-bottom: 16rpx;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 24rpx 28rpx 12rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a2438;
+}
+
+.section-unit {
+  font-size: 22rpx;
+  color: #8a93a6;
+}
+
+/* 参数网格选择 */
+.picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  padding: 0 24rpx 16rpx;
+}
+
+.picker-cell {
+  padding: 14rpx 22rpx;
+  font-size: 26rpx;
+  color: #2d3850;
+  background: #f4f7fb;
+  border-radius: 12rpx;
+  line-height: 1.2;
+  border: 2rpx solid transparent;
+}
+
+.picker-cell.is-active {
+  background: rgba(72, 126, 217, 0.12);
+  color: #487ed9;
+  border-color: #487ed9;
+  font-weight: 500;
+}
+
+.empty {
+  padding: 32rpx 24rpx;
+  text-align: center;
+  color: #8a93a6;
+  font-size: 26rpx;
+}
+
+/* 限值 stepper */
+.param-card {
+  margin: 0 24rpx;
+  background: #fafbfd;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.param-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx 32rpx;
+}
+
+.param-row-label {
+  font-size: 30rpx;
+  color: #1a2438;
+  font-weight: 500;
+}
+
+.param-divider {
+  height: 1rpx;
+  background: #f0f2f7;
+  margin: 0 32rpx;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  background: #f4f7fb;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.stepper-btn {
+  width: 72rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: 300;
+  color: #487ed9;
+}
+
+.stepper-btn:active {
+  background: #e6e8ed;
+}
+
+.stepper-num {
+  min-width: 120rpx;
+  text-align: center;
+  font-size: 32rpx;
+  color: #1a2438;
+  font-weight: 500;
+  font-family: -apple-system, "DIN Alternate", "Helvetica Neue", sans-serif;
+}
+
+/* 保存条 */
+.save-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #ffffff;
+  box-shadow: 0 -2rpx 16rpx rgba(0, 0, 0, 0.08);
+  padding: 20rpx 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+}
+
+.save-bar-btn {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 500;
+  padding: 22rpx 80rpx;
+  border-radius: 999rpx;
+  box-shadow: 0 4rpx 12rpx rgba(72, 126, 217, 0.3);
+}
+
+.save-bar-btn.is-disabled {
+  background: #c8d0e0;
+  box-shadow: none;
+  color: #ffffff;
+  opacity: 0.7;
+}
+
+.save-bar-btn:active {
+  transform: scale(0.98);
+}

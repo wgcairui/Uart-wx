@@ -1,93 +1,51 @@
 // miniprogram/pages/index/alarmSetting/threshold/threshold.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
     name: '',
     min: 0,
     max: 0,
+    unit: '',
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-    wx.setNavigationBarTitle({ title: '参数限值' + options.name })
+  onLoad(options: any) {
+    wx.setNavigationBarTitle({ title: '参数限值 - ' + options.name })
     this.setData({
       name: options.name,
-      min: Number(options.min),
-      max: Number(options.max)
+      min: Number(options.min) || 0,
+      max: Number(options.max) || 0,
+      unit: options.unit || '',
     })
   },
 
-  minonChange(event: vantEvent) {
-    const max = this.data.max
-    const min = event.detail as number
-    this.setData({
-      min,
-      max: min >= max ? Number(min) + 1 : max
-    })
+  onMinMinus() {
+    const next = Number((this.data.min - 1).toFixed(4))
+    this.setData({ min: next < 0 ? 0 : next, max: next >= this.data.max ? next + 1 : this.data.max })
   },
-  maxonChange(event: vantEvent) {
-    this.setData({
-      max: event.detail
-    })
+  onMinPlus() {
+    const next = Number((this.data.min + 1).toFixed(4))
+    this.setData({ min: next, max: next >= this.data.max ? next + 1 : this.data.max })
+  },
+  onMaxMinus() {
+    const next = Number((this.data.max - 1).toFixed(4))
+    this.setData({ max: next < this.data.min ? this.data.min : next })
+  },
+  onMaxPlus() {
+    const next = Number((this.data.max + 1).toFixed(4))
+    this.setData({ max: next })
   },
 
-  submit() {
+  onSubmit() {
+    if (this.data.max <= this.data.min) {
+      wx.showToast({ title: '最大值需大于最小值', icon: 'none' })
+      return
+    }
     const events = this.getOpenerEventChannel()
-    events.emit("modifyThreshold", this.data)
+    events.emit('modifyThreshold', {
+      name: this.data.name,
+      min: this.data.min,
+      max: this.data.max,
+      unit: this.data.unit,
+    })
     wx.navigateBack()
   },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-
-  }
 })

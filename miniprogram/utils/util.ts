@@ -23,19 +23,52 @@ export const RgexpMail = (mail: string) => {
 }
 
 /**
- * 转换Date标准时间为易读的24小时时间
- * @param time 
- * @returns like 2021/3/6 09:18:33
+ * 转换Date标准时间为易读的24小时时间（中国用户友好）
+ * @param time
+ * @returns like 2026-05-28 12:30:45
  */
 export const parseTime = (time?: string | number | Date) => {
-  if (time) {
-    const date = new Date(time)
-    const h = date.getHours()
-    const m = date.getMinutes()
-    const s = date.getSeconds()
-    return `${date.toLocaleDateString()} ${h}:${m}:${s}`
-  }
-  else return ''
+  if (!time) return ''
+  const date = new Date(time)
+  if (isNaN(date.getTime())) return ''
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  const y = date.getFullYear()
+  const mo = pad(date.getMonth() + 1)
+  const d = pad(date.getDate())
+  const h = pad(date.getHours())
+  const mi = pad(date.getMinutes())
+  const s = pad(date.getSeconds())
+  return `${y}-${mo}-${d} ${h}:${mi}:${s}`
+}
+
+/**
+ * 相对时间（中国用户友好）
+ * @param time
+ * @returns like "刚刚" / "5 分钟前" / "3 小时前" / "昨天 12:30" / "2026-05-26 14:20"
+ */
+export const parseTimeRelative = (time?: string | number | Date): string => {
+  if (!time) return ''
+  const date = new Date(time)
+  if (isNaN(date.getTime())) return ''
+  const now = Date.now()
+  const diffSec = Math.floor((now - date.getTime()) / 1000)
+  if (diffSec < 60) return '刚刚'
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} 分钟前`
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} 小时前`
+
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  const today = new Date()
+  const isYesterday = date.getFullYear() === today.getFullYear()
+    && date.getMonth() === today.getMonth()
+    && date.getDate() === today.getDate() - 1
+  const h = pad(date.getHours())
+  const mi = pad(date.getMinutes())
+  if (isYesterday) return `昨天 ${h}:${mi}`
+
+  const y = date.getFullYear()
+  const mo = pad(date.getMonth() + 1)
+  const d = pad(date.getDate())
+  return `${y}-${mo}-${d} ${h}:${mi}`
 }
 
 /**

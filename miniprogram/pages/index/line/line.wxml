@@ -1,13 +1,76 @@
 <!--miniprogram/pages/index/line/line.wxml-->
-<view class="container" style="ma">
-  <!-- <view>
-    <van-cell title="选择日期" value="{{datatime}}" bind:click="showCalendar"></van-cell>
-    <van-calendar title="选择查询日期" show="{{dateShow}}" min-date="{{minDate}}" max-date="{{maxDate}}" bind:close="onClose"
-      default-date="{{datatime}}" bind:confirm="onConfirm">
-    </van-calendar>
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
+<view class="container">
+  <!-- 顶部状态卡 -->
+  <view class="header">
+    <view class="header-row">
+      <view class="title">{{name}}</view>
+      <view class="stat" wx:if="{{latest}}">
+        <text class="stat-value">{{latest.value}}</text>
+        <text class="stat-unit" wx:if="{{unit}}">{{unit}}</text>
+      </view>
+    </view>
+    <view class="header-meta">
+      <text class="meta-time">{{timeText}}</text>
+      <text class="meta-count">
+        {{rows.length}}{{total > rows.length ? '/' + total : ''}} 条
+      </text>
+    </view>
   </view>
-  <view class="line-content">
-    <my-line class="w-100 h-100" wx:if="{{!dateShow}}" opt="{{option}}" id="myechart" canvasId="myechartline" />
-  </view> -->
-  <web-view src="{{webSrc}}" bindload="load" binderror="error"></web-view>
+
+  <!-- 时间范围选择 -->
+  <view class="range-bar">
+    <view class="range-tabs">
+      <view wx:for="{{rangeOptions}}" wx:key="value"
+        class="range-tab {{item.value === rangeType ? 'is-active' : ''}}"
+        data-value="{{item.value}}" bindtap="onRangeChange">{{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 数据列表 -->
+  <view class="data-list-wrap">
+    <view class="list-head">
+      <text class="col-time">时间</text>
+      <text class="col-value">值</text>
+      <text class="col-rel">相对</text>
+      <text class="col-action"></text>
+    </view>
+    <scroll-view scroll-y class="data-scroll" enhanced show-scrollbar="{{false}}"
+      bindscrolltolower="onScrollToLower">
+      <view wx:if="{{loading}}" class="state-line">
+        <view class="loading-spinner"></view>
+        <text>加载中...</text>
+      </view>
+      <view wx:elif="{{error}}" class="state-line" bindtap="onRetry">
+        <text class="state-error">加载失败，点击重试</text>
+      </view>
+      <view wx:elif="{{empty}}" class="state-line">
+        <text>该时段暂无数据</text>
+      </view>
+      <view wx:else>
+        <view wx:for="{{rows}}" wx:key="time"
+          class="row {{item.isLatest ? 'is-latest' : ''}}">
+          <view class="row-time">
+            <text wx:if="{{item.isLatest}}" class="latest-tag">最新</text>
+            <text class="col-time-text">{{item.timeText}}</text>
+          </view>
+          <view class="col-value">
+            <text class="value-num">{{item.value}}</text>
+            <text class="value-unit" wx:if="{{unit}}"> {{unit}}</text>
+          </view>
+          <text class="col-rel">{{item.rel}}</text>
+          <view class="col-action">
+            <view class="copy-btn" data-value="{{item.value}}{{unit ? ' ' + unit : ''}}" bindtap="onCopy">
+              <text class="copy-icon">⧉</text>
+            </view>
+          </view>
+        </view>
+        <view wx:if="{{isLoadingMore}}" class="load-more">加载中...</view>
+        <view wx:elif="{{hasNext}}" class="load-more">上滑加载更多</view>
+        <view wx:else class="load-end">- 已展示全部 {{rows.length}}/{{total}} 条 -</view>
+      </view>
+    </scroll-view>
+  </view>
 </view>

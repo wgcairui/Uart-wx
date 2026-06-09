@@ -1,30 +1,120 @@
 <!--miniprogram/pages/index/bindDev/bindDev.wxml-->
-<view class="container">
-  <view>
-    <van-cell-group>
-      <van-field model:value="{{mac}}" required clearable label="MAC卡号" icon="scan" placeholder="输入或扫描百事服卡或透传网关的编号" bind:click-icon="scanMac" />
-    </van-cell-group>
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
 
-  </view>
-  <view class="center">
-    <van-button round type="info" bind:click="scanRequst" disabled="{{!mac}}">查询设备</van-button>
-  </view>
+<view class="page">
 
-  <view class="info card" wx:if="{{terminal.name}}">
-    <van-cell-group>
-      <van-cell title="IMEI" value="{{terminal.DevMac}}" />
-      <van-cell title="DTU名称" value="{{terminal.name}}" />
-      <van-cell title="" value="{{terminal.mountNode}}" />
-    </van-cell-group>
-    <van-button type="primary" bindtap="bindDev" round block>绑定DTU</van-button>
-  </view>
-
-  <view>
-    <text class="remark">*绑定的透传网关或百事服卡必须处于联网状态才能被查询到</text>
-    <text class="remark">*百事服卡号在卡的背面,以285***开头,不是ups上的编号</text>
-    <view style="padding: 16px;">
-      <image src="https://www.ladishb.com/upload/1_6_2022_1641435659239.jpg" />
+  <!-- === Hero === -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-info">
+        <text class="hero-eyebrow">添加 DTU</text>
+        <text class="hero-title">绑定透传设备 / 百事服卡</text>
+        <view class="hero-meta">
+          <text class="hero-meta-icon">🔍</text>
+          <text>通过扫描或输入 MAC 码绑定新设备</text>
+        </view>
+      </view>
+      <view class="hero-icon-btn" bindtap="onScanTap">
+        <text class="hero-icon-btn-text">📷</text>
+      </view>
     </view>
-    <text class="remark">*透传网关卡号在设备的背面,以MAC:***</text>
   </view>
+
+  <!-- === 输入卡 === -->
+  <view class="card input-card">
+    <view class="card-title">设备 MAC</view>
+    <view class="input-row">
+      <input
+        class="input-field"
+        type="text"
+        value="{{mac}}"
+        placeholder="输入或扫描 MAC 码"
+        placeholder-class="input-placeholder"
+        bindinput="onMacInput"
+        confirm-type="search"
+        bindconfirm="onSearchTap"
+      />
+      <view class="input-scan-btn" bindtap="onScanTap">
+        <text class="input-scan-icon">📷</text>
+      </view>
+    </view>
+    <view
+      class="search-btn {{mac ? '' : 'is-disabled'}}"
+      bindtap="onSearchTap"
+    >
+      <text wx:if="{{searching}}" class="search-btn-spinner">⏳</text>
+      <text wx:else class="search-btn-icon">🔍</text>
+      <text class="search-btn-text">{{searching ? '查询中...' : '查询设备'}}</text>
+    </view>
+  </view>
+
+  <!-- === DTU 信息卡（查询成功才显示） === -->
+  <view wx:if="{{terminal}}" class="card info-card">
+    <view class="info-card-head">
+      <view class="info-status">
+        <view class="info-status-dot"></view>
+        <text class="info-status-text">已找到设备</text>
+      </view>
+    </view>
+
+    <view class="info-row">
+      <text class="info-label">MAC</text>
+      <text class="info-value info-mac">{{terminal.DevMac}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">名称</text>
+      <text class="info-value">{{terminal.name || '—'}}</text>
+    </view>
+    <view wx:if="{{terminal.mountNode}}" class="info-row">
+      <text class="info-label">安装节点</text>
+      <text class="info-value">{{terminal.mountNode}}</text>
+    </view>
+    <view class="info-row info-row-last">
+      <text class="info-label">已挂设备</text>
+      <text class="info-value">
+        <text class="info-pill">{{terminal.mountDevs.length || 0}} 台</text>
+      </text>
+    </view>
+
+    <view
+      class="bind-btn {{binding ? 'is-loading' : ''}}"
+      bindtap="onBindTap"
+    >
+      <text class="bind-btn-icon">{{binding ? '⏳' : '＋'}}</text>
+      <text class="bind-btn-text">{{binding ? '绑定中...' : '绑定此设备'}}</text>
+    </view>
+  </view>
+
+  <!-- === 底部说明卡 === -->
+  <view class="card tip-card">
+    <view class="tip-head">
+      <text class="tip-icon">ℹ</text>
+      <text class="tip-title">使用提示</text>
+    </view>
+    <view class="tip-list">
+      <view class="tip-item">
+        <text class="tip-bullet">·</text>
+        <text class="tip-text">透传设备 / 百事服卡必须处于联网状态才能被查询到</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-bullet">·</text>
+        <text class="tip-text">百事服卡号在卡的背面，以 285*** 开头</text>
+      </view>
+      <view class="tip-item">
+        <text class="tip-bullet">·</text>
+        <text class="tip-text">透传网关卡号在设备的背面，以 MAC:*** 开头</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="example-image-wrap">
+    <image
+      class="example-image"
+      src="https://www.ladishb.com/upload/1_6_2022_1641435659239.jpg"
+      mode="widthFix"
+    />
+  </view>
+
 </view>

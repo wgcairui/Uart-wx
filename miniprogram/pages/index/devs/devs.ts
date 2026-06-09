@@ -1,5 +1,5 @@
 // miniprogram/pages/index/devs/devs.js
-import { ObjectToStrquery, parseTime } from "../../../utils/util"
+import { ObjectToStrquery, parseTimeRelative } from "../../../utils/util"
 import api from "../../../utils/api"
 Page({
 
@@ -22,11 +22,21 @@ Page({
       show: Set<string>
     },
     upsPic: 'http://www.ladishb.com/upload/342021__ups.gif',
+    showAcPic: true,
+    showUpsPic: true,
     th: {
       temperature: '0',
       humidity: '0',
     },
     _oprateStat: false
+  },
+
+  // 设备图加载失败时整块隐藏
+  onAcImageError() {
+    this.setData({ showAcPic: false })
+  },
+  onUpsImageError() {
+    this.setData({ showUpsPic: false })
   },
 
   /**
@@ -117,9 +127,31 @@ Page({
     const { mac, pid, filter } = this.data
     const { code, data, msg } = await api.getTerminalData(mac, pid)
     if (code && data.result) {
+      // 预处理：枚举型数据 (issimulate=true 且 unit 是 {k:v,k:v} 形式) → 解析成 options
+      // 注意：服务端给的 unit 形如 {0:停止,1:运行} 是非标 JSON（key 无引号），JSON.parse 会失败
+      // 用正则自己解析
+      data.result.forEach((el: any) => {
+        if (el.issimulate && typeof el.unit === 'string') {
+          const m = el.unit.match(/^\s*\{(.+)\}\s*$/)
+          if (m) {
+            const pairs: { key: string, value: string }[] = []
+            // 按逗号拆，再按冒号拆 key/value
+            m[1].split(',').forEach((seg: string) => {
+              const kv = seg.split(':')
+              if (kv.length >= 2) {
+                pairs.push({ key: kv[0].trim(), value: kv.slice(1).join(':').trim() })
+              }
+            })
+            if (pairs.length > 0) {
+              el.options = pairs
+              el.unit = null
+            }
+          }
+        }
+      })
       const regStr = new RegExp(filter)
       data.result = data.result.filter(el =>(this.data.Constant.show.size === 0 || this.data.Constant.show.has(el.name)) && (!filter || regStr.test(el.name)))
-      data.time = parseTime(data.time)
+      data.time = parseTimeRelative(data.time)
       this.setData({
         result: data,
       }) 
@@ -187,12 +219,24 @@ Page({
   },
   // 导航到图表
   toline(e: vantEvent) {
-    const url = '/pages/index/line/line' + ObjectToStrquery({ name: e.detail.name, mac: this.data.mac, pid: this.data.pid, protocol: this.data.protocol })
+    const name = e.currentTarget.dataset.name as string
+    // 从当前数据里找出对应行的 unit
+    const item = (this.data.result.result || []).find(el => el.name === name) as any
+    const unit = item?.unit || ''
+    const url = '/pages/index/line/line' + ObjectToStrquery({ name, mac: this.data.mac, pid: this.data.pid, unit })
     console.log(url);
 
     wx.navigateTo({
       url
     })
+  },
+
+  // 枚举项 pill 点击：直接发送指令
+  onEnumTap(e: vantEvent) {
+    const { item, opt } = e.currentTarget.dataset as any
+    if (opt.value === item.parseValue) return // 已是当前值
+    console.log('[enum] 切换', item.name, '→', opt.value, '(', opt.key, ')')
+    this.oprate({ detail: { name: item.name, value: opt.key, val: Number(opt.key) } as any })
   },
 
   // 发送操作指令
@@ -246,11 +290,10 @@ Page({
     })
 
   },
-  // 跳转告警设置
-  alarm(e: vantEvent) {
-    const type = e.detail.type as string
+  // 跳转告警设置（直接进主页，不弹菜单）
+  alarm(_e: vantEvent) {
     wx.navigateTo({
-      url: '/pages/index/alarmSetting/alarmSetting' + ObjectToStrquery({ type, protocol: this.data.protocol })
+      url: '/pages/index/alarmSetting/alarmSetting' + ObjectToStrquery({ protocol: this.data.protocol })
     })
   }
 })

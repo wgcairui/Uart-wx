@@ -36,12 +36,13 @@
     "enablePullDownRefresh": true
   },
   "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
   "usingComponents": {
     "van-cell": "@vant/weapp/cell/index",
     "van-cell-group": "@vant/weapp/cell-group/index",
     "van-hr": "@vant/weapp/divider/index",
     "van-button": "@vant/weapp/button/index",
-    "my-input": "../component/myInput/myInput",
+    "my-input": "component/myInput/myInput",
     "van-icon": "@vant/weapp/icon/index"
   },
   "permission": {

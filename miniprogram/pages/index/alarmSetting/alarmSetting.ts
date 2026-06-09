@@ -4,38 +4,52 @@ import { ObjectToStrquery } from "../../../utils/util"
 
 Page({
   data: {
-    active: 0,
+    active: 'show' as 'show' | 'threshold' | 'alarm',
     protocol: '',
     usersetup: {} as Uart.ProtocolConstantThreshold,
     syssetup: {} as Uart.ProtocolConstantThreshold,
     Protocols: {} as Uart.protocol,
     showTag: [] as string[],
+    showItems: [] as { name: string, checked: boolean }[],  // 显示参数 tab 用的派生数据
     alarmStat: [] as Uart.ConstantAlarmStat[],
-    Threshold: [] as Uart.Threshold[]
+    alarmItems: [] as { name: string, options: { key: string, text: string, checked: boolean }[] }[],  // 参数状态 tab 派生
+    Threshold: [] as Uart.Threshold[],
+    // 改前快照
+    snapshot: {
+      showTag: [] as string[],
+      Threshold: [] as Uart.Threshold[],
+      alarmStat: [] as Uart.ConstantAlarmStat[],
+    },
+    // 顶部统计
+    stats: { showCount: 0, thresholdCount: 0, alarmCount: 0, alarmTotal: 0 },
+    // 派生：参数状态 tab 的空选状态（用于顶部红条提示）
+    emptyAlarmRows: 0,
+    allAlarmEmpty: false,
+    // dirty 标记
+    dirty: false,
+    tabs: [
+      { key: 'show', label: '显示参数' },
+      { key: 'threshold', label: '参数限值' },
+      { key: 'alarm', label: '参数状态' },
+    ] as { key: string, label: string }[],
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad: async function (options: any) {
     const protocol = options.protocol
     if (!protocol) {
-      wx.navigateTo({
-        url: '/pages/index/alarmSetting/index'
-      })
+      wx.navigateTo({ url: '/pages/index/alarmSetting/index' })
       return
     }
-    const active = Number(options.type) || 0
-    this.setData({
-      active: active,
-      protocol
-    })
+    const tabKey = (options.type === '1' ? 'threshold' : options.type === '2' ? 'alarm' : 'show') as any
+    this.setData({ protocol, active: tabKey })
     await this.getUserProtocolSetup()
-    if (active === 1) this.updateThre()
-    if (active === 2) this.updateAlarm()
   },
 
-  // 获取用户协议配置
+  onShow() {
+    this.refreshStats()
+  },
+
+  // 拉协议配置
   async getUserProtocolSetup() {
     wx.showLoading({ title: '获取协议配置' })
     const userSetup = await api.getUserAlarmProtocol(this.data.protocol)
@@ -43,215 +57,278 @@ Page({
     const Protocols = await api.getProtocol(this.data.protocol)
     wx.hideLoading()
     if (userSetup && sysSetup) {
+      const showTag = userSetup.data.ShowTag || []
       this.setData({
         usersetup: userSetup.data,
         syssetup: sysSetup.data,
         Protocols: Protocols.data,
-        showTag: userSetup.data.ShowTag
+        showTag,
+        Threshold: sysSetup.data.Threshold || [],
+        alarmStat: sysSetup.data.AlarmStat || [],
+        snapshot: {
+          showTag: [...showTag],
+          Threshold: JSON.parse(JSON.stringify(sysSetup.data.Threshold || [])),
+          alarmStat: JSON.parse(JSON.stringify(sysSetup.data.AlarmStat || [])),
+        },
       })
-
+      // 总是全量拉一次，保证 stats / showItems / alarmItems 都到位
+      this.updateThre()
+      this.updateAlarm()
+      this.rebuildShowItems()
+      this.rebuildAlarmItems()
+      this.refreshStats()
     } else {
-      wx.showModal({
-        title: "Error",
-        content: '设备协议b不支持配置'
-      })
+      wx.showModal({ title: "Error", content: '设备协议不支持配置' })
     }
   },
 
-  // 返回协议参数对象解析
-  parseProtocol() {
-    const protocolArray = this.data.Protocols.instruct.map(instruct => {
-      return instruct.formResize.map(el => ({ [el.name]: el.isState ? unitCache.getunitObject(1, el.unit as string) : {} }))
-    }).reduce((pre, cur) => {
-      return [...pre, ...cur]
+  onPullDownRefresh() {
+    this.getUserProtocolSetup().then(() => wx.stopPullDownRefresh())
+  },
+
+  // === Tab 切换 ===
+  onTabClick(e: vantEvent) {
+    const k = e.currentTarget.dataset.key
+    this.setData({ active: k })
+    wx.setNavigationBarTitle({ title: '协议配置-' + (this.data.tabs.find(t => t.key === k) as any)?.label })
+    if (k === 'threshold') this.updateThre()
+    if (k === 'alarm') this.updateAlarm()
+  },
+
+  // === 显示参数 toggle ===
+  onShowTagToggle(e: vantEvent) {
+    const name = e.currentTarget.dataset.name as string
+    const cur = this.data.showTag
+    const next = cur.includes(name) ? cur.filter(x => x !== name) : [...cur, name]
+    this.setData({ showTag: next, dirty: true }, () => {
+      this.rebuildShowItems()
+      this.refreshStats()
     })
-    return Object.assign({}, ...protocolArray) as { [x: string]: { [x: string]: string }[] }
   },
-  // 修改标题
-  tabclick(event: vantEvent) {
-    wx.setNavigationBarTitle({ title: '协议配置-' + event.detail.title })
-    switch (event.detail.title) {
-      case "参数限值":
-        this.updateThre()
-        break
-      case "参数状态":
-        this.updateAlarm()
-        break
-    }
+
+  // 从 showTag 派生 showItems（含 checked 字段，给 wxml 用）
+  rebuildShowItems() {
+    const showTag = this.data.showTag
+    const sysTags = this.data.syssetup.ShowTag || []
+    const items = sysTags.map(name => ({ name, checked: showTag.includes(name) }))
+    this.setData({ showItems: items })
   },
-  // 更新thre列表
+
+  // 从 alarmStat 派生 alarmItems（含 options[].checked，给 wxml 用）
+  // 同时给每行加 hasSelected（用户是否至少选了一项）让 UI 提示空选状态
+  rebuildAlarmItems() {
+    const items = this.data.alarmStat.map((row: any) => {
+      const alarmStat = row.alarmStat || []
+      // 兼容：updateAlarm 注入的是 row.options，但保留 row.parse 兜底
+      const opts: any[] = row.options || row.parse || []
+      const options = opts.map((opt: any) => ({
+        ...opt,
+        checked: alarmStat.includes(opt.key),
+      }))
+      return {
+        name: row.name,
+        options,
+        hasSelected: alarmStat.length > 0,
+      }
+    })
+    // 派生：是否有任何 row 有配置 / 全部 row 都是空
+    const totalRows = items.length
+    const emptyRows = items.filter((i) => !i.hasSelected).length
+    const allEmpty = totalRows > 0 && emptyRows === totalRows
+
+    // 空数组是后端合法状态（默认/全部取消都 = []），但仍是"无配置"提示
+    // 首次进入未操作时（dirty=false）不显示 banner（避免新用户一脸懵）
+    // 用户点过 pill 后（dirty=true）才显示，作为信息性提示
+    const showEmptyHint = allEmpty && this.data.dirty
+
+    this.setData({ alarmItems: items, emptyAlarmRows: emptyRows, allAlarmEmpty: showEmptyHint })
+  },
+
+  // === 限值 ===
   updateThre() {
     const { usersetup, syssetup } = this.data
-    const sys_ThresholdMap = new Map(syssetup.Threshold.map(el => [el.name, el]))
+    const sysMap = new Map(syssetup.Threshold?.map((el: any) => [el.name, el]) || [])
     if (usersetup?.Threshold) {
-      // 迭代用户配置，覆盖系统配置
-      [...this.data.Threshold, ...usersetup.Threshold].forEach((val) => {
-        sys_ThresholdMap.set(val.name, val)
+      ;[...this.data.Threshold, ...usersetup.Threshold].forEach((val: any) => {
+        sysMap.set(val.name, val)
       })
     }
-    this.setData({
-      Threshold: Array.from(sys_ThresholdMap.values())
-    })
+    this.setData({ Threshold: Array.from(sysMap.values()) as any })
   },
-  // 更新alarm列表
-  updateAlarm() {
-    const { usersetup, syssetup } = this.data
-    const sys_alarmStatMap = new Map(syssetup.AlarmStat.map(el => [el.name, el]))
-    if (usersetup?.AlarmStat) {
-      [...usersetup.AlarmStat, ...this.data.alarmStat].forEach(val => {
-        sys_alarmStatMap.set(val.name, val)
-      })
-    }
-    const parse = this.parseProtocol()
-    sys_alarmStatMap.forEach((el:any, key) => {
-      el.parse = parse[key]
-    })
-    this.setData({
-      alarmStat: Array.from(sys_alarmStatMap.values())
-    })
-  },
-  //  监听显示参数变化
-  async ShowTagonChange(event: vantEvent) {
-    console.log({ event });
 
-    const tags = event.detail as string[]
-    this.setData({
-      showTag: tags
-    })
-    await api.setUserSetupProtocol(this.data.protocol, 'ShowTag', tags || [])
-      .then(res => {
-        wx.showToast({
-          title: res.code === 200 ? '显示参数修改成功' : '修改失败',
-          icon:res.code === 200 ? 'success' : 'error',
-        })
-      })
-  },
-  // 修改显示参数变化值
-  ShowTagtoggle(_event: vantEvent) {
-    //console.log(event);
-
-    /* const { index } = event.currentTarget.dataset;
-    const checkbox = this.selectComponent(`.checkboxes-${index}`);
-    checkb.toggle(); */
-  },
-  // 监听参数状态变化
-  async AlarmStatonChange(event: vantEvent<Uart.ConstantAlarmStat>) {
-    const item = event.currentTarget.dataset.item
-    const value = event.detail as string[]
-    const index = this.data.alarmStat.findIndex(el => el.name === item.name)
-    this.setData({
-      ["alarmStat[" + index + "].alarmStat"]: value
-    })
-    const data = this.data.alarmStat[index]
-    await api.setUserSetupProtocol(this.data.protocol, 'AlarmStat', data)
-    .then(res => {
-      wx.showToast({
-        title: res.code === 200 ? '状态参数修改成功' : '修改失败',
-        icon:res.code === 200 ? 'success' : 'error',
-      })
-    })
-
-  },
-  // 跳转到参数限值修改页面
-  ThresholdClick(event: vantEvent<Uart.Threshold>) {
-    const item = event.currentTarget.dataset.item
-    const index = event.currentTarget.dataset.index
+  onThresholdClick(e: vantEvent<Uart.Threshold>) {
+    const item = e.currentTarget.dataset.item
+    const index = e.currentTarget.dataset.index
     wx.navigateTo({
       url: '/pages/index/alarmSetting/threshold/threshold' + ObjectToStrquery({ ...item }),
       events: {
-        modifyThreshold: async (data: Uart.Threshold) => {
-          await api.setUserSetupProtocol(this.data.protocol, "Threshold", { type: 'add', data })
-          .then(res => {
-            wx.showToast({
-              title: res.code === 200 ? '约束参数修改成功' : '修改失败',
-              icon:res.code === 200 ? 'success' : 'error',
-            })
-          })
-          this.setData({
-            [`Threshold[${index}]`]: { ...data, icon: "star" }
-          })
+        modifyThreshold: (data: Uart.Threshold) => {
+          const next = [...this.data.Threshold]
+          next[index] = { ...(data as any), icon: 'star' } as any
+          this.setData({ Threshold: next, dirty: true })
         }
       }
     })
   },
-  // 跳转到新增参数限值页面
+
   addThreshold() {
-    // 获取现有的thre名称
     const ua = this.data.usersetup?.AlarmStat || []
-    const keys = new Set([...this.data.alarmStat.map(el => el.name), ...ua.map(el => el.name)])
+    const keys = new Set([...this.data.alarmStat.map((el: any) => el.name), ...ua.map((el: any) => el.name)])
     wx.navigateTo({
-      url: '/pages/index/alarmSetting/addThreshold/addThreshold' + ObjectToStrquery({ protocol: this.data.protocol, keys: Array.from(keys) }),
+      url: '/pages/index/alarmSetting/addThreshold/addThreshold' + ObjectToStrquery({ protocol: this.data.protocol, keys: Array.from(keys).join(',') }),
       events: {
-        addThreshold: async (data: Uart.Threshold) => {
-          await api.setUserSetupProtocol(this.data.protocol, "Threshold", { type: 'add', data })
-          const newThre = this.data.Threshold.concat(data)
-          this.setData({
-            Threshold: newThre
-          })
+        addThreshold: (data: Uart.Threshold) => {
+          const newThre = this.data.Threshold.concat(data as any)
+          this.setData({ Threshold: newThre, dirty: true })
         }
       }
     })
   },
-  // 保存配置
-  async saveSetup() {
-    const { usersetup, alarmStat, Threshold, protocol } = this.data
-    // 更新用户showTags配置
-    {
-      const userShowtags = usersetup.ShowTag || []
-      const showtag = this.data.showTag || []
-      if (userShowtags.sort().join("") !== showtag.sort().join('')) {
-        await api.setUserSetupProtocol(protocol, 'ShowTag', showtag || [])
-      }
+
+  // === 状态告警 ===
+  updateAlarm() {
+    const { usersetup, syssetup, Protocols } = this.data
+    const sysMap = new Map(syssetup.AlarmStat?.map((el: any) => [el.name, el]) || [])
+    if (usersetup?.AlarmStat) {
+      ;[...usersetup.AlarmStat, ...this.data.alarmStat].forEach((val: any) => {
+        sysMap.set(val.name, val)
+      })
     }
-    // 更新用户alarmStat配置
-    {
-      // 比较名称join是否一致，一致的话检查键是否一致，不一致直接更新，键一致则比较值，值不一致也更新
-      const userAlarm = usersetup.AlarmStat || []
-      const alarm = alarmStat || []
-      const b1 = userAlarm.map(el => el.name).sort().join('') !== alarm.map(el => el.name).sort().join('')
-      if (b1) {
-        await api.setUserSetupProtocol(protocol, 'AlarmStat', alarmStat)
-      } else if (alarm.length !== 0) {
-        const ua = userAlarm.sort()
-        const ka = alarm.sort()
-        const compare = ua.every((el, index) => el.alarmStat.sort().join('') !== ka[index].alarmStat.sort().join(''))
-        if (compare) {
-          await api.setUserSetupProtocol(protocol, 'AlarmStat', alarmStat)
-        }
-      }
-    }
-    // 更新用户thread配置
-    {
-      // 比较名称join是否一致，一致的话检查键是否一致，不一致直接更新，键一致则比较值，值不一致也更新
-      const userThre = usersetup.Threshold || []
-      const thre = Threshold || []
-      const b1 = userThre.map(el => el.name).sort().join('') !== thre.map(el => el.name).sort().join('')
-      const data = thre.map(el => ({ name: el.name, min: el.min, max: el.max }))
-      if (b1) {
-        await api.setUserSetupProtocol(protocol, "Threshold", data)
-      } else if (thre.length !== 0) {
-        const ua = userThre.sort()
-        const ka = thre.sort()
-        const compare = ua.every((el, index) => el.min !== ka[index].min || el.max !== ka[index].max)
-        if (compare) {
-          await api.setUserSetupProtocol(protocol, "Threshold", data)
-        }
-      }
-    }
+    // 给每个 row 注入 options 数组（用 unitCache.getunitObject 直接拿数组）
+    const parseMap = this.parseProtocol(Protocols)
+    // 记录未被 protocols 覆盖的 alarmStat name（命名不匹配排查用）
+    const matchedNames: string[] = []
+    const unmatchedNames: string[] = []
+    sysMap.forEach((el: any, key: string) => {
+      el.options = parseMap[key] || []
+      if (parseMap[key]) matchedNames.push(key)
+      else unmatchedNames.push(key)
+    })
+    console.log('[updateAlarm] alarmStat total:', sysMap.size, 'matched:', matchedNames.length, 'unmatched:', unmatchedNames)
+    if (unmatchedNames.length) console.log('[updateAlarm] unmatched names (前 5):', unmatchedNames.slice(0, 5))
+    this.setData({ alarmStat: Array.from(sysMap.values()) as any }, () => {
+      this.rebuildAlarmItems()
+    })
   },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-    //this.saveSetup()
+  parseProtocol(Protocols: Uart.protocol) {
+    // 返回 { 参数名: options数组 }，options 来自 unitCache 解析的 {k:v} 字符串
+    if (!Protocols?.instruct) return {} as { [x: string]: { key: string, text: string }[] }
+    const arr: { [x: string]: { key: string, text: string }[] } = {}
+    let parsed = 0
+    let skipped = 0
+    const skipReasons = { noIsState: 0, noUnit: 0, unitFormat: 0 }
+    const sampleSkips: any[] = []
+    Protocols.instruct.forEach((instruct: any) => {
+      instruct.formResize.forEach((el: any) => {
+        const isStateBool = el.isState === true || el.isState === 1 || el.isState === '1' || el.isState === 'true'
+        const hasUnit = el.unit && /^\{.*\}$/.test(el.unit)
+        if (isStateBool && hasUnit) {
+          arr[el.name] = unitCache.getunitObject(1, el.unit) as any
+          parsed++
+        } else {
+          skipped++
+          if (!isStateBool) skipReasons.noIsState++
+          else if (!el.unit) skipReasons.noUnit++
+          else if (!/^\{.*\}$/.test(el.unit)) skipReasons.unitFormat++
+          if (sampleSkips.length < 3) sampleSkips.push({ name: el.name, isState: el.isState, unit: el.unit })
+        }
+      })
+    })
+    console.log('[parseProtocol] instruct count:', Protocols.instruct.length, 'parsed:', parsed, 'skipped:', skipped, 'skip reasons:', skipReasons, 'sample arr keys:', Object.keys(arr).slice(0, 5))
+    if (sampleSkips.length) console.log('[parseProtocol] sample skipped:', sampleSkips)
+    return arr
   },
 
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: async function () {
-    await this.getUserProtocolSetup()
-    wx.stopPullDownRefresh()
-  }
+  isAlarmPillChecked(_item: Uart.ConstantAlarmStat, _key: string): boolean {
+    // 改用 alarmItems.options[].checked
+    return false
+  },
+
+  onAlarmPillTap(e: vantEvent) {
+    const name = e.currentTarget.dataset.itemName as string
+    const optKey = e.currentTarget.dataset.optKey as string
+    const cur = (this.data.alarmStat.find((r: any) => r.name === name) as any)?.alarmStat || []
+    const next = cur.includes(optKey)
+      ? cur.filter((x: string) => x !== optKey)
+      : [...cur, optKey]
+    // 更新 alarmStat
+    const newAlarmStat = this.data.alarmStat.map((row: any) => {
+      if (row.name !== name) return row
+      return { ...row, alarmStat: next }
+    })
+    this.setData({ alarmStat: newAlarmStat as any, dirty: true }, () => {
+      this.rebuildAlarmItems()
+    })
+  },
+
+  // === 保存 ===
+  async onSave() {
+    const { protocol, showTag, alarmStat, Threshold } = this.data
+    const { snapshot } = this.data
+    const tasks: Promise<any>[] = []
+
+    // 注：空 alarmStat[] 是后端合法状态（默认 / 全部取消都合法），不在前端阻止保存
+    // 行为契约：dirty 门控的 banner 仅做信息提示，不拦截 submit
+
+    // 1. ShowTag（diff 判定）
+    const oldShowtags = (snapshot.showTag || []).slice().sort()
+    const newShowtags = (showTag || []).slice().sort()
+    if (oldShowtags.join(',') !== newShowtags.join(',')) {
+      tasks.push(api.setUserSetupProtocol(protocol, 'ShowTag', showTag || []))
+    }
+
+    // 2. AlarmStat（diff 判定）
+    const oldAlarm = JSON.stringify(snapshot.alarmStat || [])
+    const newAlarm = JSON.stringify(alarmStat || [])
+    if (oldAlarm !== newAlarm) {
+      tasks.push(api.setUserSetupProtocol(protocol, 'AlarmStat', alarmStat))
+    }
+
+    // 3. Threshold（diff 判定）
+    const oldThre = JSON.stringify(snapshot.Threshold || [])
+    const newThre = JSON.stringify(Threshold || [])
+    if (oldThre !== newThre) {
+      const data = (Threshold as any).map((el: any) => ({ name: el.name, min: el.min, max: el.max }))
+      tasks.push(api.setUserSetupProtocol(protocol, 'Threshold', data))
+    }
+
+    if (tasks.length === 0) {
+      wx.hideLoading()
+      wx.showToast({ title: '没有修改', icon: 'none' })
+      return
+    }
+
+    wx.showLoading({ title: '保存中...' })
+
+    const results = await Promise.allSettled(tasks)
+    wx.hideLoading()
+    const failures = results.filter(r => r.status === 'rejected' || (r.status === 'fulfilled' && (r.value as any)?.code !== 200))
+    if (failures.length === 0) {
+      wx.showToast({ title: '已保存', icon: 'success' })
+    } else {
+      wx.showToast({ title: `${failures.length} 项保存失败`, icon: 'error' })
+    }
+    this.setData({
+      dirty: false,
+      snapshot: {
+        showTag: [...(showTag || [])],
+        Threshold: JSON.parse(JSON.stringify(Threshold || [])),
+        alarmStat: JSON.parse(JSON.stringify(alarmStat || [])),
+      },
+    })
+  },
+
+  refreshStats() {
+    // alarmCount 改为 "已配置 X / 总 Y" 格式，避免分子 > 分母的反直觉（AGENTS.md「N/M 计数反直觉」约定）
+    const configuredAlarms = (this.data.alarmStat as any[]).filter((r) => (r.alarmStat || []).length > 0).length
+    this.setData({
+      stats: {
+        showCount: this.data.showTag.length,
+        thresholdCount: this.data.Threshold.length,
+        alarmCount: configuredAlarms,
+        alarmTotal: this.data.alarmStat.length,
+      }
+    })
+  },
 })

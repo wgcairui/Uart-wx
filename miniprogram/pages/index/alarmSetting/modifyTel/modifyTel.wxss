@@ -1,5 +1,337 @@
-/* pages/index/alarmSetting/modifyTel/modifyTel.wxss */
+/* miniprogram/pages/index/alarmSetting/modifyTel/modifyTel.wxss */
+page {
+  background: #f4f7fb;
+}
 
-.set-alarm{
-  padding: 12px;
+.page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding-bottom: 180rpx;
+}
+
+/* === Hero === */
+.hero {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  padding: 36rpx 28rpx 32rpx;
+  color: #ffffff;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  font-size: 20rpx;
+  letter-spacing: 2rpx;
+  opacity: 0.7;
+  margin-bottom: 4rpx;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  margin-bottom: 6rpx;
+}
+
+.hero-meta {
+  font-size: 22rpx;
+  opacity: 0.85;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.hero-meta-icon {
+  font-size: 22rpx;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+/* === Tabs === */
+.tabs {
+  display: flex;
+  gap: 12rpx;
+  margin: 20rpx 20rpx 0;
+  background: #ffffff;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 16rpx;
+  padding: 8rpx;
+  box-shadow: 0 2rpx 10rpx rgba(40, 60, 110, 0.05);
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 16rpx 0;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  color: #5a6b85;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab.is-active {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  color: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(72, 126, 217, 0.25);
+}
+
+.tab:active:not(.is-active) {
+  background: #f4f7fb;
+}
+
+.tab-icon {
+  font-size: 26rpx;
+  line-height: 1;
+}
+
+.tab-count {
+  font-size: 22rpx;
+  padding: 2rpx 10rpx;
+  border-radius: 999rpx;
+  background: rgba(0, 0, 0, 0.06);
+  font-family: -apple-system, "DIN Alternate", "Helvetica Neue", sans-serif;
+}
+
+.tab.is-active .tab-count {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* === Card === */
+.card {
+  background: #ffffff;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 16rpx;
+  margin: 20rpx 20rpx 0;
+  box-shadow: 0 2rpx 10rpx rgba(40, 60, 110, 0.05);
+}
+
+.form-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 24rpx;
+  border-bottom: 1rpx solid #f0f2f7;
+}
+
+.form-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f2533;
+}
+
+.form-limit {
+  font-size: 22rpx;
+  color: #8a93a6;
+  background: #f4f7fb;
+  padding: 3rpx 12rpx;
+  border-radius: 999rpx;
+}
+
+/* === Empty hint === */
+.empty-hint-row {
+  padding: 30rpx 24rpx;
+  text-align: center;
+}
+
+.empty-hint-text {
+  font-size: 24rpx;
+  color: #c0c5d2;
+}
+
+/* === Form row wrap (含 error) === */
+.form-row-wrap {
+  padding: 12rpx 24rpx 0;
+  border-bottom: 1rpx solid #f0f2f7;
+}
+
+.form-row-wrap.is-error .form-row {
+  /* 错误态：input 边框 + ✕ 按钮变红 */
+}
+
+.form-row-wrap.is-error .form-input-wrap,
+.form-row-wrap.is-error .form-input {
+  border-color: #e54545;
+  background: #fff5f5;
+}
+
+.form-row-wrap.is-error .form-row-del {
+  background: #fafbfd;
+  border-color: rgba(229, 69, 69, 0.25);
+}
+
+.form-row-wrap.is-error .form-row-del-icon {
+  color: #e54545;
+}
+
+/* === Form row === */
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.form-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 28rpx;
+  color: #1f2533;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  letter-spacing: 0.5rpx;
+  padding: 18rpx 20rpx;
+  background: #fafbfd;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 12rpx;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.form-input:focus {
+  border-color: #487ed9;
+  background: #ffffff;
+}
+
+.form-placeholder {
+  color: #c0c5d2;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+  letter-spacing: 0;
+}
+
+.form-row-del {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #fafbfd;
+  border: 1rpx solid #e9ecf3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.1s ease, transform 0.1s ease;
+}
+
+.form-row-del:active {
+  background: #ffe7e7;
+  transform: scale(0.95);
+}
+
+.form-row-del-icon {
+  font-size: 30rpx;
+  color: #c0c5d2;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* === Form error === */
+.form-error {
+  padding: 8rpx 0 12rpx;
+}
+
+.form-error-text {
+  font-size: 22rpx;
+  color: #e54545;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+}
+
+/* === Form add (dashed) === */
+.form-add {
+  margin: 16rpx 24rpx;
+  padding: 20rpx 0;
+  border: 1rpx dashed #c0c5d2;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  color: #5a6b85;
+  font-size: 26rpx;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.form-add:active {
+  background: #f4f7fb;
+  border-color: #487ed9;
+  color: #487ed9;
+}
+
+.form-add-icon {
+  font-size: 32rpx;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* === Form tip === */
+.form-tip {
+  margin: 0 24rpx 18rpx;
+  padding: 12rpx 16rpx;
+  background: #fff8e1;
+  border-left: 6rpx solid #f0a020;
+  border-radius: 10rpx;
+  display: flex;
+  align-items: flex-start;
+  gap: 8rpx;
+  box-shadow: 0 2rpx 6rpx rgba(240, 160, 32, 0.08);
+}
+
+.form-tip-icon {
+  font-size: 22rpx;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.form-tip-text {
+  flex: 1;
+  font-size: 22rpx;
+  color: #8a5a0e;
+  line-height: 1.4;
+}
+
+/* === 底部固定保存按钮 === */
+.footer-save {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20rpx 28rpx 32rpx;
+  background: linear-gradient(180deg, rgba(244, 247, 251, 0) 0%, #f4f7fb 60%);
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  color: #ffffff;
+  border-radius: 999rpx;
+  padding: 22rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  box-shadow: 0 6rpx 20rpx rgba(72, 126, 217, 0.32);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
+}
+
+.save-btn:active:not(.is-loading) {
+  transform: scale(0.98);
+  box-shadow: 0 3rpx 10rpx rgba(72, 126, 217, 0.22);
+}
+
+.save-btn.is-loading {
+  opacity: 0.8;
+}
+
+.save-btn-icon {
+  font-size: 30rpx;
+  line-height: 1;
 }

@@ -167,7 +167,7 @@ class api {
    * @param data 
    */
   async login(data: { js_code: string, scene?: string }) {
-    const el = await this.fetch<{ token: string }>("auth/code2Session", data, "GET")
+    const el = await this.fetch<{ token: string }>("v2/auth/wechat-mp/session", data, "GET")
     if (el.code) {
       this.setToken(el.data.token)
     }
@@ -179,7 +179,7 @@ class api {
    * @param data 
    */
   async userlogin(data: { openid: string, unionid: string, avanter: string, user: string, passwd: string }) {
-    const el = await this.fetch<{ token: string }>('auth/wplogin', data)
+    const el = await this.fetch<{ token: string }>('v2/auth/wplogin', data)
     if (el.code) {
       this.setToken(el.data.token)
     }
@@ -192,14 +192,14 @@ class api {
    * @param avanter 头像链接
    */
   updateAvanter(nickName: string, avanter: string) {
-    return this.fetch('updateAvanter', { nickName, avanter })
+    return this.fetch('v2/user/profile/avatar', { nickName, avanter })
   }
 
   /**
    * 用于解绑微信和透传账号的绑定关系
    */
   async unbindwx() {
-    const el = await this.fetch('unbindwx')
+    const el = await this.fetch('v2/user/profile/unbind-wx')
     this.token = ""
     return el
   }
@@ -217,7 +217,7 @@ class api {
    * @param data 
    */
   registerUser(data: { user: string, openid: string, name: string, tel: string, avanter: string }) {
-    return this.fetch("auth/wxRegister", data)
+    return this.fetch("v2/auth/wechat-mp/register", data)
   }
 
   /**
@@ -225,14 +225,14 @@ class api {
    * @param mac 
    */
   bindDev(mac: string) {
-    return this.fetch<any>('bindDev', { mac })
+    return this.fetch<any>('v2/user/devices', { mac })
   }
 
   /**
    * 获取未确认告警数量
    */
   getAlarmunconfirmed() {
-    return this.fetch<number>('getAlarmunconfirmed')
+    return this.fetch<number>("v2/user/alarms/unconfirmed-count", {}, "GET")
   }
 
   /**
@@ -349,7 +349,7 @@ class api {
    * @returns 
    */
   wxlogin(code: string, state: string) {
-    return this.fetch("auth/wxlogin", { code, state })
+    return this.fetch("v2/auth/wechat-web/login", { code, state })
   }
 
   crc(data: any) {
@@ -361,7 +361,7 @@ class api {
    * @returns 
    */
   BindDev() {
-    return this.fetch<Uart.BindDevice>("BindDev")
+    return this.fetch<Uart.BindDevice>("v2/user/devices", {}, "GET")
   }
 
   /**
@@ -369,17 +369,29 @@ class api {
    * @returns 
    */
   userInfo() {
-    return this.fetch<Uart.UserInfo>("userInfo")
+    return this.fetch<Uart.UserInfo>("v2/user/profile", {}, "GET")
   }
 
   /**
-   * 获取用户告警
-   * @param start 
-   * @param end 
-   * @returns 
+   * 获取用户告警（分页）
+   * @param startTs 起始时间，毫秒数字戳（必传）
+   * @param endTs 结束时间，毫秒数字戳（必传）
+   * @param page 页码（从 1 开始）
+   * @param pageSize 每页条数（默认 20，上限 200）
+   * @returns { code, data: { items, pagination: { page, pageSize, total } } }
+   *  注意：后端只回 page/pageSize/total 三个字段，hasNext / hasPrev / totalPages 由前端自算
+   *  注意：后端走 DTO 严格白名单，query 参数名必须是 startTs/endTs（不是 start/end）
    */
-  getAlarm(start: string = new Date().toLocaleDateString().replace(/\//g, "-") + " 0:00:00", end: string = new Date().toLocaleDateString().replace(/\//g, "-") + " 23:59:59") {
-    return this.fetch<(Uart.uartAlarmObject & { time: string })[]>("loguartterminaldatatransfinites", { start, end })
+  getAlarm(
+    startTs: number = new Date().setHours(0, 0, 0, 0),
+    endTs: number = new Date().setHours(23, 59, 59, 999),
+    page: number = 1,
+    pageSize: number = 20
+  ) {
+    return this.fetch<{
+      items: (Uart.uartAlarmObject & { time: string })[],
+      pagination: { page: number, pageSize: number, total: number }
+    }>("v2/user/alarms/history", { startTs, endTs, page, pageSize }, "GET")
   }
 
   /**
@@ -388,7 +400,7 @@ class api {
    * @returns 
    */
   confrimAlarm(id?: string) {
-    return this.fetch("confrimAlarm", { id })
+    return this.fetch("v2/user/alarms/" + id + "/confirm", { id })
   }
 
   /**
@@ -397,7 +409,7 @@ class api {
    * @returns 
    */
   getTerminalOnline(mac: string) {
-    return this.fetch<Uart.Terminal | null>("getTerminalOnline", { mac })
+    return this.fetch("v2/user/devices/" + mac + "/online", {}, "GET")
   }
 
   /**
@@ -407,7 +419,7 @@ class api {
   * @returns 
   */
   modifyTerminal(mac: string, name: string) {
-    return this.fetch('modifyTerminal', { mac, name })
+    return this.fetch('v2/user/devices/' + mac, { name }, "POST")
   }
 
   /**
@@ -415,7 +427,7 @@ class api {
   * @param mac 
   */
   addUserTerminal(mac: string) {
-    return this.fetch("addUserTerminal", { mac })
+    return this.fetch("v2/user/devices", { mac })
   }
 
   /**
@@ -424,7 +436,7 @@ class api {
   * @returns 
   */
   delUserTerminal(mac: string) {
-    return this.fetch("delUserTerminal", { mac })
+    return this.fetch("v2/user/devices/" + mac, {}, "DELETE")
   }
 
   /**
@@ -433,7 +445,7 @@ class api {
   * @returns 
   */
   getDevTypes(Type: string) {
-    return this.fetch<Uart.DevsType[]>("getDevTypes", { Type })
+    return this.fetch<Uart.DevsType[]>("v2/user/protocols/dev-types", { Type }, "POST")
   }
 
   /**
@@ -442,7 +454,7 @@ class api {
   * @param pid 
   */
   delTerminalMountDev(mac: string, pid: number) {
-    return this.fetch("delTerminalMountDev", { mac, pid })
+    return this.fetch("v2/user/devices/" + mac + "/mount/" + pid, {}, "DELETE")
   }
 
   /**
@@ -452,7 +464,7 @@ class api {
   * @returns 
   */
   addTerminalMountDev(mac: string, mountDev: Uart.TerminalMountDevs) {
-    return this.fetch("addTerminalMountDev", { mac, mountDev })
+    return this.fetch("v2/user/devices/" + mac + "/mount", { mountDev })
   }
 
   /**
@@ -462,7 +474,7 @@ class api {
   * @returns 
   */
   getUserAlarmSetup() {
-    return this.fetch<Uart.userSetup>("getUserAlarmSetup")
+    return this.fetch<Uart.userSetup>("v2/user/alarms/setup", {}, "GET")
   }
 
   /**
@@ -472,7 +484,7 @@ class api {
   * @returns 
   */
   modifyUserAlarmSetupTel(tels: string[], mails: string[]) {
-    return this.fetch("modifyUserAlarmSetupTel", { tels, mails })
+    return this.fetch("v2/user/alarms/setup", { tels, mails })
   }
 
   /**
@@ -482,7 +494,7 @@ class api {
   * @returns 
   */
   modifyUserInfo(data: Partial<Uart.UserInfo>) {
-    return this.fetch("modifyUserInfo", { data })
+    return this.fetch("v2/user/profile", { data }, "POST")
   }
 
   /**
@@ -491,7 +503,7 @@ class api {
   * @returns 
   */
   mpTicket() {
-    return this.fetch("mpTicket")
+    return this.fetch("v2/user/profile/mp-ticket", {}, "GET")
   }
 
   /**
@@ -500,7 +512,7 @@ class api {
   * @returns 
   */
   wpTicket() {
-    return this.fetch("wpTicket")
+    return this.fetch("v2/user/profile/wp-ticket", {}, "GET")
   }
 
 
@@ -509,7 +521,7 @@ class api {
   * @param protocol 
   */
   getUserAlarmProtocol(protocol: string) {
-    return this.fetch<Uart.ProtocolConstantThreshold>("getUserAlarmProtocol", { protocol })
+    return this.fetch<Uart.ProtocolConstantThreshold>("v2/user/alarms/setup/protocols/" + protocol, {}, "GET")
   }
 
   /**
@@ -517,16 +529,61 @@ class api {
   * @param protocol 
   */
   getAlarmProtocol(protocol: string) {
-    return this.fetch<Uart.ProtocolConstantThreshold>("getAlarmProtocol", { protocol })
+    return this.fetch<Uart.ProtocolConstantThreshold>("v2/user/alarms/protocols/" + protocol + "/thresholds", {}, "GET")
   }
 
   /**
-  * 获取用户设备运行数据
-  * @param mac 
-  * @param pid 
-  */
+   * 获取用户设备运行数据
+   * @param mac
+   * @param pid
+   */
   getTerminalData(mac: string, pid: number | string) {
-    return this.fetch<Uart.queryResultSave>("getTerminalData", { mac, pid })
+    return this.fetch<Uart.queryResultSave>("v2/user/devices/" + mac + "/mount/" + pid + "/data", {}, "GET")
+  }
+
+  /**
+   * 获取用户设备某参数历史数据（分页）
+   * @param mac DTU MAC
+   * @param pid 挂载设备 pid
+   * @param name 参数名（单参数或数组）
+   * @param start 起始时间戳（ms）
+   * @param end 结束时间戳（ms）
+   * @param page 页码（从 1 开始，默认 1）
+   * @param pageSize 每页条数（默认 50，上限 200）
+   * @returns { code, data: { items, pagination: { page, pageSize, total, totalPages, hasNext, hasPrev } } }
+   */
+  getTerminalDataHistory(
+    mac: string,
+    pid: number | string,
+    name: string | string[],
+    start: number,
+    end: number,
+    page: number = 1,
+    pageSize: number = 50
+  ) {
+    return new Promise<{
+      code: number,
+      data: {
+        items: { name: string, value: string, time: number }[],
+        pagination: { page: number, pageSize: number, total: number, totalPages: number, hasNext: boolean, hasPrev: boolean }
+      }
+    }>((resolve, reject) => {
+      const token = this.token || ""
+      wx.request({
+        url: urlRequest + "/api/v2/user/devices/" + mac + "/mount/" + pid + "/data/history",
+        data: { name, start, end, page, pageSize },
+        method: "POST",
+        header: { authorization: token, type: 'wp' },
+        success: res => {
+          console.log('[history] raw response:', res)
+          resolve(res.data as any)
+        },
+        fail: e => {
+          console.error('[history] request failed:', e)
+          reject(e)
+        }
+      })
+    })
   }
 
   /**
@@ -538,7 +595,7 @@ class api {
    * @returns 
    */
   getTerminalDatas(mac: string, pid: number | string, name: string, datetime: string) {
-    return this.fetch<Uart.queryResultSave[]>("getTerminalDatas", { mac, pid, name, datetime })
+    return this.fetch<Uart.queryResultSave[]>("v2/user/devices/" + mac + "/mount/" + pid + "/data/history", { name, datetime })
   }
 
   /**
@@ -547,7 +604,7 @@ class api {
   * @param pid 
   */
   refreshDevTimeOut(mac: string, pid: number) {
-    return this.fetch("refreshDevTimeOut", { mac, pid })
+    return this.fetch("v2/user/devices/" + mac + "/mount/" + pid + "/refresh")
   }
 
   /**
@@ -557,7 +614,7 @@ class api {
   * @returns 
   */
   SendProcotolInstructSet(query: Uart.instructQueryArg, item: Uart.OprateInstruct) {
-    return this.fetch<Uart.ApolloMongoResult>("SendProcotolInstructSet", { query, item })
+    return this.fetch<Uart.ApolloMongoResult>("v2/user/devices/" + query.DevMac + "/mount/" + query.pid + "/instruct", { item })
   }
 
   /**
@@ -566,7 +623,7 @@ class api {
    * @returns 
    */
   getProtocol(protocol: string) {
-    return this.fetch<Uart.protocol>("getProtocol", { protocol })
+    return this.fetch<Uart.protocol>("v2/user/protocols/" + protocol, {}, "GET")
   }
 
   /**
@@ -577,7 +634,7 @@ class api {
   * @returns 
   */
   setUserSetupProtocol(protocol: string, type: Uart.ConstantThresholdType, arg: any) {
-    return this.fetch("setUserSetupProtocol", { protocol, type, arg })
+    return this.fetch("v2/user/protocols/setup", { protocol, type, arg })
   }
 
   /**
@@ -589,17 +646,17 @@ class api {
    * @param alias 
    * @returns 
    */
-  setAlias(mac: string, pid: number, protocol: string, name: string, alias: string) {
-    return this.fetch("setAlias", { mac, pid, protocol, name, alias })
+  setAlias(mac: string, pid: number, _protocol: string, _name: string, alias: string) {
+    return this.fetch("v2/user/devices/" + mac + "/mount/" + pid + "/alias", { alias })
   }
 
   /**
-  * 获取终端信息
-  * @param mac 
-  * @returns 
-  */
+   * 获取终端信息
+   * @param mac
+   * @returns
+   */
   getTerminal(mac: string) {
-    return this.fetch<Uart.Terminal>("getTerminal", { mac })
+    return this.fetch<Uart.Terminal>("v2/user/devices/" + mac, {}, "GET")
   }
 
   /**
@@ -607,7 +664,7 @@ class api {
   * @param id 
   */
   getUserLayout(id: string) {
-    return this.fetch<Uart.userLayout>("getUserLayout", { id })
+    return this.fetch<Uart.userLayout>("v2/user/layouts/" + id, {}, "GET")
   }
 
   /**
@@ -615,7 +672,7 @@ class api {
   * @param id 
   */
   getAggregation(id: string) {
-    return this.fetch<Uart.Aggregation>("getAggregation", { id })
+    return this.fetch<Uart.Aggregation>("v2/user/aggregations/" + id, {}, "GET")
   }
 
   /**
@@ -625,7 +682,7 @@ class api {
   * @returns 
   */
   addAggregation(name: string, aggs: Uart.AggregationDev[]) {
-    return this.fetch("addAggregation", { name, aggs })
+    return this.fetch("v2/user/aggregations", { name, aggs })
   }
 
   /**
@@ -635,7 +692,7 @@ class api {
    * @returns 
    */
   deleteAggregation(id: string) {
-    return this.fetch("deleteAggregation", { id })
+    return this.fetch("v2/user/aggregations/" + id, {}, "DELETE")
   }
 
   /**
@@ -646,7 +703,7 @@ class api {
   * @param Layout 
   */
   setUserLayout(id: string, type: string, bg: string, Layout: Uart.AggregationLayoutNode[]) {
-    return this.fetch<Uart.ApolloMongoResult>("setUserLayout", { id, type, bg, Layout })
+    return this.fetch<Uart.ApolloMongoResult>("v2/user/layouts", { id, type, bg, Layout })
   }
 
 
@@ -720,7 +777,7 @@ class api {
    * @returns 
    */
   getRegisterDev(id: string) {
-    return this.fetch<Uart.registerDev>("getRegisterDev", { id })
+    return this.fetch<Uart.registerDev>("v2/user/devices/register/" + id, {}, "GET")
   }
 
   /**
@@ -763,7 +820,7 @@ class api {
    * @param code 
    */
   qr(code: string) {
-    return this.fetch<string>("qr", { code })
+    return this.fetch<string>("v2/user/profile/qr", { code })
   }
 
 
@@ -783,24 +840,29 @@ class api {
    * @method api通用requst方法
    * @param object 
    */
-  async fetch<T = any>(url: string, data: Object = {}, method: "GET" | "POST" = "POST", timeout: number = 1000 * 60) {
+  async fetch<T = any>(url: string, data: Object = {}, method: "GET" | "POST" | "PATCH" | "DELETE" | "PUT" = "POST", timeout: number = 1000 * 60) {
     const token: string = this.token || await wx.getStorage({ key: 'token' }).then(el => el.data).catch(() => "")
+    // 微信 wx.request 不支持 PATCH，用 POST + X-HTTP-Method-Override 头
+    const realMethod: "GET" | "POST" | "DELETE" | "PUT" = method === "PATCH" ? "POST" : method as any
+    const overrideHeader = method === "PATCH" ? { "X-HTTP-Method-Override": "PATCH" } : {}
     return await new Promise<result<T>>((resolve, reject) => {
       wx.request<result<T>>({
         timeout,
         url: urlRequest + "/api/" + url,
         data,
-        method,
+        method: realMethod,
         enableHttp2: true,
-        header: { authorization: token, type: 'wp' },
+        header: { authorization: token, type: 'wp', ...overrideHeader },
         success: res => {
+          console.log(res);
+          
           switch (res.data.code) {
             case 201:
               wx.navigateTo({
                 url: '/pages/util/smsValidation/smsValidation',
                 events: {
                   code: (code: string) => {
-                    this.fetch('smsCodeValidation', { code }).then(codeValidation => {
+                     this.fetch('v2/user/profile/sms-verify', { code }).then(codeValidation => {
                       if (codeValidation.code) {
                         this.fetch(url, data, method).then(res => {
                           resolve(res.data as any)
@@ -819,18 +881,35 @@ class api {
               break;
             case 0:
               {
+                console.log(res);
                 console.log(res.data);
 
                 switch (res.data.status) {
                   case 403:
-                    wx.navigateTo({
-                      url: '/pages/login/login'
+                    wx.showModal({
+                      title: '权限不足',
+                      content: res.data.message || '登录已失效或账号权限不足，请重新登录',
+                      showCancel: false,
+                      success: () => {
+                        // 清掉本地 token，避免下次还带过期 token
+                        this.token = ""
+                        wx.removeStorageSync('token')
+                        wx.reLaunch({
+                          url: '/pages/login/login'
+                        })
+                      }
                     })
                     break;
 
                   case 405:
                     wx.switchTab({
                       url: '/pages/index/index'
+                    })
+                    break
+                  case 500:
+                    wx.showModal({
+                      title: '请求出错',
+                      content: res.data.message
                     })
                     break
 

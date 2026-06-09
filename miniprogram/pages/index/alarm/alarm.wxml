@@ -2,20 +2,77 @@
 <page-meta>
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
-<view class="container">
-  <view>
-    <van-cell title="选择日期" value="{{date}}" bind:click="showCalendar"></van-cell>
-    <van-calendar allow-same-day max-range="30" title="选择查询日期" show="{{dateShow}}" type="range" min-date="{{minDate}}"
-      max-date="{{maxDate}}" bind:close="onClose" default-date="{{[maxDate,maxDate]}}" bind:confirm="onConfirm">
-    </van-calendar>
+<view class="page">
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-title">告警中心</view>
+      <view class="hero-actions">
+        <view class="hero-btn" bindtap="subMessage">订阅</view>
+        <view class="hero-btn is-solid" bindtap="allQuest">全部确认</view>
+      </view>
+    </view>
+    <view class="hero-meta" bindtap="showCalendar">
+      <text class="hero-meta-icon">📅</text>
+      <text>{{date}} · 共 {{total}} 条</text>
+    </view>
   </view>
-  <view>
-    <van-cell title="告警信息列表">
-      <van-button wx:if="{{!userInfo.wxId}}" size="small" round type="info" bindtap="subMessage">订阅告警</van-button>
-      <van-button wx:if="{{Alarm.length>0}}" size="small" round type="primary" bindtap="allQuest">全部确认</van-button>
-    </van-cell>
-    <van-cell wx:for="{{Alarm}}" wx:key="_id" icon="{{item.isOk?'success':'fail'}}" title="{{item.mac}}"
-      label="{{item.time}}" value="{{item.msg}}" clickable center bind:click="showalarm" data-item="{{item}}"
-      data-key="{{index}}" title-style="{{item.isOk?'':'color: red;'}}" />
+
+  <van-calendar allow-same-day max-range="30" title="选择查询日期" show="{{dateShow}}" type="range" min-date="{{minDate}}"
+    max-date="{{maxDate}}" bind:close="onClose" default-date="{{[maxDate,maxDate]}}" bind:confirm="onConfirm">
+  </van-calendar>
+
+  <!-- Unconfirmed count -->
+  <view class="unconfirmed">
+    <view class="kpi-row">
+      <view class="kpi-card">
+        <text class="kpi-num {{globalUnconfirmed > 0 ? 'is-alarm' : 'is-zero'}}">{{globalUnconfirmed}}</text>
+        <text class="kpi-label">全系统未确认</text>
+      </view>
+      <view class="kpi-card">
+        <text class="kpi-num">{{rangeTotal}}</text>
+        <text class="kpi-label">本时段告警</text>
+      </view>
+    </view>
   </view>
+
+  <!-- Filter chips -->
+  <view class="filter-chips">
+    <view class="chip {{filter === 'all' ? 'is-active' : ''}}"
+      data-key="all" bindtap="onFilterTap">全部</view>
+    <view class="chip {{filter === 'unconfirmed' ? 'is-active' : ''}}"
+      data-key="unconfirmed" bindtap="onFilterTap">仅未确认</view>
+  </view>
+
+  <!-- Alarm list -->
+  <view class="alarm-list">
+    <view wx:for="{{filteredAlarm}}" wx:key="_id"
+      class="alarm-card {{item.isOk ? 'is-acked' : ''}}"
+      data-item="{{item}}" data-key="{{index}}" bindtap="showalarm">
+      <view class="alarm-head">
+        <view class="alarm-left">
+          <view class="alarm-status {{item.isOk ? 'is-success' : 'is-danger'}}"></view>
+          <text class="alarm-device">{{item.mac}}</text>
+        </view>
+        <text class="alarm-tag">{{item.tag}}</text>
+      </view>
+      <view class="alarm-msg">{{item.msg}}</view>
+      <view class="alarm-foot">
+        <text class="alarm-time">{{item.time}}</text>
+        <view class="alarm-confirm {{item.isOk ? 'is-done' : ''}}"
+          catchtap="onConfirmTap" data-item="{{item}}">
+          {{item.isOk ? '已确认' : '确认'}}
+        </view>
+      </view>
+    </view>
+
+    <view class="list-foot">
+      <text wx:if="{{listLoading}}">加载中…</text>
+      <text wx:elif="{{!hasNext && filteredAlarm.length > 0}}">— 没有更多了 —</text>
+      <text wx:elif="{{filteredAlarm.length === 0 && filter === 'unconfirmed'}}" class="list-empty">没有未确认告警 ✨</text>
+      <text wx:elif="{{filteredAlarm.length === 0}}" class="list-empty">该时间段内暂无告警</text>
+    </view>
+  </view>
+
 </view>

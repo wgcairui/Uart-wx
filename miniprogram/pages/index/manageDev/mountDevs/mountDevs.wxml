@@ -3,31 +3,101 @@
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
 
-<view class="container">
-  <view class="main">
-    <van-button type="info" round block bindtap="deleteDTU">删除DTU</van-button>
-    <van-button type="primary" round block bindtap="addMonutDev">添加设备</van-button>
+<view class="page">
+
+  <!-- === Hero === -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-info">
+        <text class="hero-eyebrow">DTU</text>
+        <view class="hero-name-row">
+          <text class="hero-name">{{terminal.name || '未命名'}}</text>
+          <view class="dev-pill {{terminal.online ? 'is-online' : 'is-offline'}}">
+            <view class="dev-pill-dot"></view>
+            <text>{{terminal.online ? '在线' : '离线'}}</text>
+          </view>
+        </view>
+        <view class="hero-meta">
+          <text class="hero-meta-icon">🔗</text>
+          <text class="hero-mac">{{terminal.DevMac}}</text>
+        </view>
+      </view>
+      <view class="hero-icon-btn hero-icon-btn-danger" bindtap="onDelDtuTap">
+        <text class="hero-icon-btn-text">✕</text>
+      </view>
+    </view>
+
+    <!-- KPI 行 -->
+    <view class="kpi-row">
+      <view class="kpi">
+        <view class="kpi-num is-online">{{onlineCount}}</view>
+        <view class="kpi-label">在线设备</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num">{{totalCount}}</view>
+        <view class="kpi-label">挂载总数</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num is-offline">{{totalCount - onlineCount}}</view>
+        <view class="kpi-label">离线设备</view>
+      </view>
+    </view>
   </view>
-  <view class="devs">
-    <view class="devs-item" wx:for="{{terminal.mountDevs}}" wx:key="key">
-      <view class="devs-item-card">
-        <view class="devs-item-card-body">
-          <text style="font-size:26rpx;">{{item.mountDev}} | {{item.pid}}</text>
-          <view class="devs-item-card-content">
-            <view>
-              <view>
-                <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
-                <text> {{item.online?'在线':'离线'}}</text>
-              </view>
-              <text class="">{{item.protocol}}</text>
-            </view>
-            <view class="devs-item-card-pic">
-              <van-button type="warning" round size="small" data-item="{{item}}" data-key="{{item.DevMac}}"
-                bindtap="deleteMountDev">删除</van-button>
-            </view>
+
+  <!-- === 列表 === -->
+  <view class="list">
+    <!-- 空状态 -->
+    <view wx:if="{{mountItems.length === 0}}" class="empty">
+      <view class="empty-icon">📟</view>
+      <view class="empty-text">该 DTU 下还没有挂载设备</view>
+      <view class="empty-hint">点击下方按钮添加</view>
+    </view>
+
+    <!-- 设备卡片（与 index/manageDev 视觉一致） -->
+    <view
+      wx:for="{{mountItems}}"
+      wx:key="pid"
+      class="dev-card {{item.online ? 'is-online' : 'is-offline'}}"
+    >
+      <view class="dev-card-status"></view>
+      <view class="dev-card-main">
+        <view class="dev-card-head">
+          <view class="dev-name-row">
+            <view class="dev-icon">{{item.icon}}</view>
+            <text class="dev-name">{{item.mountDev}}</text>
+          </view>
+          <view class="dev-pill {{item.online ? 'is-online' : 'is-offline'}}">
+            <view class="dev-pill-dot"></view>
+            <text>{{item.online ? '在线' : '离线'}}</text>
+          </view>
+        </view>
+        <view class="dev-card-meta">
+          <view class="dev-meta-item">
+            <text class="dev-meta-label">协议</text>
+            <text class="dev-meta-value">{{item.protocol || '—'}}</text>
+          </view>
+          <view class="dev-meta-item">
+            <text class="dev-meta-label">PID</text>
+            <text class="dev-meta-value">{{item.pid}}</text>
+          </view>
+          <view wx:if="{{item.type}}" class="dev-meta-item">
+            <text class="dev-meta-label">类型</text>
+            <text class="dev-meta-value">{{item.type}}</text>
           </view>
         </view>
       </view>
+      <!-- 行内删除按钮：catchtap 防止后续扩展卡片 tap 时误触 -->
+      <view class="dev-card-del" catchtap="onDelMountTap" data-item="{{item}}">
+        <text class="dev-card-del-icon">✕</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- === 底部添加按钮 === -->
+  <view class="footer-add">
+    <view class="footer-add-btn" bindtap="toAdd">
+      <text class="footer-add-icon">＋</text>
+      <text class="footer-add-text">添加挂载设备</text>
     </view>
   </view>
 

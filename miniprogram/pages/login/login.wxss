@@ -1,53 +1,486 @@
 /* miniprogram/pages/login/login.wxss */
-.avanter {
+page {
+  background: #f4f7fb;
+}
+
+.page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding-bottom: 60rpx;
+}
+
+/* === Hero === */
+.hero {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  padding: 60rpx 28rpx 56rpx;
+  color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 22pt;
+}
+
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 24rpx;
+}
+
+.hero-brand-logo {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.hero-brand-name {
+  font-size: 28rpx;
+  font-weight: 500;
+  letter-spacing: 2rpx;
+  opacity: 0.95;
+}
+
+.avatar-wrap {
   position: relative;
-}
-
-.tab {
-  padding-top: 36px;
-}
-
-.register {
-  margin-top: 36px;
-}
-
-.getAvanter {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 64px;
-}
-
-.userinfo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.userinfo-avatar {
   width: 168rpx;
   height: 168rpx;
-  margin: 20rpx;
   border-radius: 50%;
-  margin-bottom: 40rpx;
+  background: rgba(255, 255, 255, 0.18);
+  border: 4rpx solid rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.12);
+  margin-bottom: 16rpx;
+  /* 重置 button 默认样式 */
+  padding: 0;
+  line-height: 1;
+  display: block;
 }
 
-.getUserInfo {
-  margin-top: 32px;
+.avatar-wrap::after {
+  border: none;
 }
 
-.readme {
-  padding: 48rpx 36rpx;
-  font-size: 23rpx;
+/* 默认头像态：明显是占位 */
+.avatar-wrap.is-default {
+  border-color: rgba(255, 213, 79, 0.6);
+  border-style: dashed;
+}
+
+/* 真实头像态：实心白边 */
+.avatar-wrap.is-real {
+  border-color: rgba(255, 255, 255, 0.65);
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 占位 emoji 居中覆盖 */
+.avatar-placeholder {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-placeholder-emoji {
+  font-size: 96rpx;
+  opacity: 0.85;
+  line-height: 1;
+}
+
+/* 头像右上角「更新」角标 */
+.avatar-edit-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 4rpx 14rpx;
+  background: #ffd54f;
+  color: #1a2438;
+  font-size: 20rpx;
+  font-weight: 500;
+  border-radius: 999rpx;
+  line-height: 1.4;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.15);
+}
+
+.avatar-edit-badge-text {
+  color: #1a2438;
+}
+
+.hero-nick {
+  font-size: 30rpx;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+  opacity: 0.95;
+  display: none;  /* 老 hero-nick 隐藏(被下方 nick-input 替代) */
+}
+
+/* 昵称输入(type="nickname"——唤起「使用微信昵称」快捷选项) */
+.nick-row {
+  margin: 4rpx 0 4rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.nick-input {
+  /* input 是微信原生组件,padding 在某些基础库下不生效,
+     必须用 height/min-height 强制撑开,否则会被压扁成一条线 */
+  width: 440rpx;
+  height: 72rpx;
+  min-height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+  border: 2rpx solid rgba(255, 255, 255, 0.45);
+  border-radius: 999rpx;
+  box-sizing: border-box;
+}
+
+.nick-input-placeholder {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 28rpx;
   font-weight: 500;
 }
 
-.trial{
+/* 头像下方点击提示 */
+.avatar-tip {
+  margin: 0 0 24rpx;
+  padding: 10rpx 22rpx;
+  background: rgba(255, 213, 79, 0.22);
+  border: 1rpx solid rgba(255, 213, 79, 0.45);
+  border-radius: 999rpx;
+}
+
+.avatar-tip:active {
+  background: rgba(255, 213, 79, 0.35);
+  transform: scale(0.98);
+}
+
+.avatar-tip-text {
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+/* === Tab 胶囊 === */
+.tabs {
+  display: flex;
+  margin: 28rpx 20rpx 0;
+  background: #ffffff;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 999rpx;
+  padding: 6rpx;
+  box-shadow: 0 2rpx 10rpx rgba(40, 60, 110, 0.05);
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 14rpx 0;
+  font-size: 26rpx;
+  color: #7c8595;
+  border-radius: 999rpx;
+  transition: background 0.15s ease, color 0.15s ease;
+  /* 重置可能的默认样式 */
+  margin: 0;
+  line-height: 1.4;
+}
+
+.tab.is-active {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  color: #ffffff;
+  font-weight: 500;
+  box-shadow: 0 3rpx 10rpx rgba(72, 126, 217, 0.32);
+}
+
+.tab:active {
+  transform: scale(0.99);
+}
+
+/* === 表单卡（账号登录 + 微信手机号输入降级） === */
+.card {
+  margin: 20rpx 20rpx 0;
+  background: #ffffff;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 20rpx rgba(40, 60, 110, 0.06);
+  padding: 8rpx 24rpx 24rpx;
+}
+
+.form-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a2438;
+  padding: 22rpx 0 14rpx;
+  border-bottom: 1rpx solid #f0f2f7;
+  margin-bottom: 8rpx;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+  gap: 14rpx;
+  border-bottom: 1rpx solid #f0f2f7;
+}
+
+.form-row:last-of-type {
+  border-bottom: none;
+}
+
+.form-label {
+  font-size: 26rpx;
+  color: #3a4256;
+  font-weight: 500;
+  min-width: 100rpx;
+  flex-shrink: 0;
+}
+
+.form-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  min-width: 0;
+}
+
+.form-input {
+  flex: 1;
+  /* input 原生组件,显式 height 让行高稳定 */
+  height: 56rpx;
+  min-height: 56rpx;
+  line-height: 56rpx;
+  font-size: 26rpx;
+  color: #1a2438;
+  background: transparent;
+  border: none;
+  padding: 0;
+  min-width: 0;
+}
+
+.form-input-placeholder {
+  color: #c0c5d2;
+  font-size: 26rpx;
+}
+
+.form-append {
+  flex-shrink: 0;
+  padding: 8rpx 22rpx;
+  font-size: 22rpx;
+  color: #487ed9;
+  background: rgba(72, 126, 217, 0.10);
+  border-radius: 999rpx;
+  line-height: 1.4;
+  border: none;
+  margin: 0;
+}
+
+.form-append::after {
+  border: none;
+}
+
+.form-append:active {
+  background: rgba(72, 126, 217, 0.20);
+}
+
+/* === 微信手机号授权大按钮(主路径) === */
+.btn-wx-phone {
+  display: block;
   width: 100%;
-  padding-bottom: 18px;
+  margin-top: 12rpx;
+  padding: 24rpx 0;
+  background: linear-gradient(135deg, #07c160 0%, #04a350 100%);
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 500;
+  border-radius: 16rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.30);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
+  border: none;
+  line-height: 1.4;
+}
+
+.btn-wx-phone::after {
+  border: none;
+}
+
+.btn-wx-phone:active {
+  transform: scale(0.98);
+  box-shadow: 0 3rpx 10rpx rgba(7, 193, 96, 0.22);
+}
+
+.btn-wx-phone[disabled] {
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.btn-wx-phone-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  color: #ffffff;
+}
+
+.btn-wx-phone-icon {
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.btn-wx-phone-text {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.btn-wx-phone-done {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999rpx;
+  padding: 8rpx 22rpx;
+  display: inline-flex;
+}
+
+.btn-wx-phone-reget {
+  font-size: 22rpx;
+  opacity: 0.85;
+  margin-left: 8rpx;
+  padding-left: 12rpx;
+  border-left: 1rpx solid rgba(255, 255, 255, 0.35);
+}
+
+/* 微信手机号已获取 - 状态卡 */
+.tel-success {
+  margin-top: 18rpx;
+  padding: 16rpx 20rpx;
+  background: rgba(7, 193, 96, 0.06);
+  border: 1rpx solid rgba(7, 193, 96, 0.20);
+  border-radius: 12rpx;
+}
+
+.tel-success-row {
+  display: flex;
+  align-items: baseline;
+  padding: 6rpx 0;
+  gap: 16rpx;
+}
+
+.tel-success-label {
+  font-size: 22rpx;
+  color: #7c8595;
+  min-width: 100rpx;
+  flex-shrink: 0;
+}
+
+.tel-success-value {
+  font-size: 26rpx;
+  color: #1a2438;
+  font-weight: 500;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+}
+
+/* 降级路径 - 手输 input */
+.tel-fallback {
+  margin-top: 22rpx;
+}
+
+.tel-fallback-divider {
+  display: flex;
+  align-items: center;
+  margin: 8rpx 0 16rpx;
+  gap: 16rpx;
+}
+
+.tel-fallback-divider::before,
+.tel-fallback-divider::after {
+  content: "";
+  flex: 1;
+  height: 1rpx;
+  background: #f0f2f7;
+}
+
+.tel-fallback-divider-text {
+  font-size: 22rpx;
+  color: #c0c5d2;
+  flex-shrink: 0;
+}
+
+/* 降级路径触发器(在主路径已显示/未拒绝时显示) */
+.tel-fallback-trigger {
+  margin-top: 18rpx;
+  text-align: center;
+  padding: 8rpx 0;
+}
+
+.tel-fallback-trigger:active {
+  opacity: 0.6;
+}
+
+.tel-fallback-trigger-text {
+  font-size: 22rpx;
+  color: #487ed9;
+  text-decoration: underline;
+}
+
+.form-append-cancel {
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: #7c8595 !important;
+}
+
+.form-append-cancel:active {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* === 主按钮 === */
+.btn-primary {
+  margin-top: 32rpx;
+  width: 100%;
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 500;
+  border-radius: 999rpx;
+  padding: 24rpx 0;
+  text-align: center;
+  box-shadow: 0 6rpx 20rpx rgba(72, 126, 217, 0.32);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
+  border: none;
+}
+
+.btn-primary::after {
+  border: none;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  box-shadow: 0 3rpx 10rpx rgba(72, 126, 217, 0.22);
+}
+
+.btn-primary[disabled] {
+  opacity: 0.55;
+  box-shadow: none;
+}
+
+.btn-primary.is-loading {
+  opacity: 0.75;
+}
+
+/* === 说明 === */
+.readme {
+  margin: 28rpx 28rpx 0;
+  padding: 20rpx 22rpx;
+  background: rgba(72, 126, 217, 0.06);
+  border: 1rpx solid rgba(72, 126, 217, 0.12);
+  border-radius: 12rpx;
+}
+
+.readme text {
+  font-size: 22rpx;
+  color: #7c8595;
+  line-height: 1.6;
 }

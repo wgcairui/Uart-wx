@@ -4,75 +4,132 @@
 </page-meta>
 
 <import src="index.skeleton.wxml" />
+<template is="skeleton" wx:if="{{loading}}" />
 
-<template is="skeleton" wx-if="{{loading}}" />
-<view class="container">
+<view class="page">
 
-  <view class="content" wx:if="{{ready}}">
-    <!-- 顶部横幅 -->
-    <view class="pan">
-      <van-notice-bar scrollable="{{ false }}" wx:if="{{alarm}}" left-icon="volume-o" text="{{alarm}}" mode="link"
-        bindtap="seeAlarm" />
-      <van-notice-bar scrollable="{{ false }}" color="#1989fa" background="#ecf9ff" left-icon="info-o"
-        text="{{state}}" />
-        <van-notice-bar scrollable="{{ false }}" wx:if="{{!sub}}" left-icon="volume-o" text="订阅公众号,告警消息及时提醒!!!" mode="link"
-        bindtap="subMessage" />
+  <!-- Hero: 标题 + 动作 + 3 KPI -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-title">我的设备</view>
+      <view class="hero-actions">
+        <view class="hero-icon-btn" bindtap="openMore">
+          <text class="hero-icon-text">···</text>
+        </view>
+      </view>
     </view>
-    <!-- 展示设备页面 -->
-    <view class="tab">
-      <van-tabs sticky swipeable animated border lazy-render>
-        <van-tab title="设备">
-          <view class="devs">
-            <view class="devs-item" wx:for="{{dtuItem}}" wx:key="key" bindtap="showMountDevData" data-item="{{item}}">
-              <view class="devs-item-card">
-                <view class="devs-item-card-body">
-                  <text style="font-size:26rpx;">{{item.mountDev}} | {{item.dtu}}</text>
-                  <view class="devs-item-card-content">
-                    <view>
-                      <view>
-                        <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
-                        <text> {{item.online?'在线':'离线'}}</text>
-                      </view>
-                      <text class="">{{item.protocol}}</text>
-                    </view>
-                    <view class="devs-item-card-pic">
-                      <image src="{{item.pic}}"></image>
-                    </view>
-                  </view>
-                </view>
-              </view>
-              
-            </view>
-            <view wx:if="{{dtuItem.length === 0}}" class="trial" bindtap="trial">
-                <van-button type="info">切换测试账号体验使用?</van-button>
-              </view>
-          </view>
-        </van-tab>
-        <van-tab title="透传终端">
-          <view class="devs">
-            <view class="devs-item" wx:for="{{DTUs}}" wx:key="key" bindtap="toDev" data-item="{{item}}">
-              <view class="devs-item-card">
-                <view class="devs-item-card-body">
-                  <text style="font-size:26rpx;">{{item.name}}</text>
-                  <view class="devs-item-card-content">
-                    <view>
-                      <view>
-                        <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
-                        <text> {{item.online?'在线':'离线'}}</text>
-                      </view>
-                      <text class="">{{item.mountDevs.length || 0}}个设备</text>
-                    </view>
-                    <view class="devs-item-card-pic">
-                      <van-icon size="2em" name="cluster-o"></van-icon>
-                    </view>
-                  </view>
-                </view>
-              </view>
-            </view>
-          </view>
-        </van-tab>
-      </van-tabs>
+    <view class="kpi-row">
+      <view class="kpi">
+        <view class="kpi-num">{{dtuItem.length}}</view>
+        <view class="kpi-label">设备</view>
+      </view>
+      <view class="kpi" bindtap="onKpiTap" data-key="online">
+        <view class="kpi-num">{{onlineCount}}</view>
+        <view class="kpi-label">在线</view>
+      </view>
+      <view class="kpi" bindtap="seeAlarm">
+        <view class="kpi-num {{alarmNum > 0 ? 'is-alarm' : ''}}">{{alarmNum}}</view>
+        <view class="kpi-label">未确认告警</view>
+      </view>
     </view>
   </view>
+
+  <!-- 订阅 hint（弱化的"建议"，只在未订阅时显示） -->
+  <view wx:if="{{!sub}}" class="subscribe-hint" bindtap="subMessage">
+    <view class="subscribe-hint-icon">📢</view>
+    <text class="subscribe-hint-text">绑定公众号后告警将实时推送</text>
+    <text class="subscribe-hint-action">查看 →</text>
+  </view>
+
+  <!-- 设备 / 透传终端 Tab -->
+  <view class="tab">
+    <van-tabs sticky swipeable animated border lazy-render>
+      <van-tab title="设备">
+        <view class="devs">
+          <view class="dev-card {{item.online ? 'is-online' : 'is-offline'}}" wx:for="{{dtuItem}}" wx:key="key" bindtap="showMountDevData" data-item="{{item}}">
+            <view class="dev-card-status"></view>
+            <view class="dev-card-main">
+              <view class="dev-card-head">
+                <view class="dev-name-row">
+                  <view class="dev-icon">
+                    <van-icon name="chart-trending-o" size="22px" />
+                  </view>
+                  <text class="dev-name">{{item.mountDev}}</text>
+                </view>
+                <view class="dev-pill {{item.online ? 'is-online' : 'is-offline'}}">
+                  <view class="dev-pill-dot"></view>
+                  <text>{{item.online ? '在线' : '离线'}}</text>
+                </view>
+              </view>
+              <view class="dev-card-meta">
+                <view class="dev-meta-item">
+                  <text class="dev-meta-label">协议</text>
+                  <text class="dev-meta-value">{{item.protocol}}</text>
+                </view>
+                <view class="dev-meta-item">
+                  <text class="dev-meta-label">DTU</text>
+                  <text class="dev-meta-value">{{item.dtu}}</text>
+                </view>
+              </view>
+              <view class="dev-card-foot" wx:if="{{item.updateTime}}">
+                <van-icon name="clock-o" size="12px" color="#a8b0bf" />
+                <text class="dev-time">{{item.updateTime}}</text>
+              </view>
+            </view>
+            <view class="dev-card-pic">
+              <view class="dev-pic-box">
+                <image wx:if="{{item.pic}}" src="{{item.pic}}" mode="aspectFit" class="dev-pic-img" />
+                <van-icon wx:else name="chart-trending-o" size="22px" color="#487ed9" />
+              </view>
+            </view>
+          </view>
+          <view wx:if="{{dtuItem.length === 0}}" class="trial" bindtap="trial">
+            <van-button type="info">切换测试账号体验使用?</van-button>
+          </view>
+        </view>
+      </van-tab>
+      <van-tab title="透传终端">
+        <view class="devs">
+          <view class="dev-card {{item.online ? 'is-online' : 'is-offline'}}" wx:for="{{DTUs}}" wx:key="key" bindtap="toDev" data-item="{{item}}">
+            <view class="dev-card-status"></view>
+            <view class="dev-card-main">
+              <view class="dev-card-head">
+                <view class="dev-name-row">
+                  <view class="dev-icon">
+                    <van-icon name="server-o" size="22px" />
+                  </view>
+                  <text class="dev-name">{{item.name}}</text>
+                </view>
+                <view class="dev-pill {{item.online ? 'is-online' : 'is-offline'}}">
+                  <view class="dev-pill-dot"></view>
+                  <text>{{item.online ? '在线' : '离线'}}</text>
+                </view>
+              </view>
+              <view class="dev-card-meta">
+                <view class="dev-meta-item" wx:if="{{item.mountDevs.length > 0}}">
+                  <text class="dev-meta-label">挂载</text>
+                  <text class="dev-meta-value">{{item.mountDevs.length}} 个</text>
+                </view>
+                <view class="dev-meta-item">
+                  <text class="dev-meta-label">MAC</text>
+                  <text class="dev-meta-value">{{item.dtu || item.mac}}</text>
+                </view>
+              </view>
+              <view class="dev-card-foot" wx:if="{{item.updateTime}}">
+                <van-icon name="clock-o" size="12px" color="#a8b0bf" />
+                <text class="dev-time">{{item.updateTime}}</text>
+              </view>
+            </view>
+            <view class="dev-card-pic">
+              <view class="dev-pic-box">
+                <van-icon name="server-o" size="22px" color="#487ed9" />
+              </view>
+            </view>
+          </view>
+        </view>
+      </van-tab>
+    </van-tabs>
+  </view>
+
   <official-account bindload="bindload" binderror="binderror"></official-account>
 </view>

@@ -1,11 +1,5 @@
 {
-  "usingComponents": {
-    "van-button": "@vant/weapp/button/index",
-    "van-image": "@vant/weapp/image/index",
-    "van-field": "@vant/weapp/field/index",
-    "van-tab": "@vant/weapp/tab/index",
-    "van-tabs": "@vant/weapp/tabs/index"
-  },
+  "usingComponents": {},
   "navigationBarTitleText": "微信注册",
   "enablePullDownRefresh": false
 }

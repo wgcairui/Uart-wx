@@ -1,15 +1,156 @@
-<!--pages/index/alarmSetting/modifyTel/modifyTel.wxml-->
-<view class="set-alarm">
-  <van-cell-group title="手机号最多3个">
-    <my-input wx:for="{{tel}}" wx:key="*this" value="{{item}}" bind:submit="modifyTel" data-key="{{item}}"></my-input>
-    <van-cell>
-      <van-button disabled="{{tel.length>=3}}" size="small" round type="info" bindtap="addTel">添加新号码</van-button></van-cell>
-  </van-cell-group>
-  <van-cell-group title="邮箱数不限">
-    <my-input wx:for="{{mail}}" wx:key="*this" value="{{item}}" bind:submit="modifyMail" data-key="{{item}}"></my-input>
-    <van-cell>
-      <van-button size="small" round type="info" bindtap="addMail">添加新邮箱</van-button></van-cell>
-  </van-cell-group>
+<!--miniprogram/pages/index/alarmSetting/modifyTel/modifyTel.wxml-->
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
 
-  <van-button  round type="info" bindtap="submit" block>完成设置</van-button>
+<view class="page">
+
+  <!-- === Hero === -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-info">
+        <text class="hero-eyebrow">联系方式</text>
+        <text class="hero-title">告警通知设置</text>
+        <view class="hero-meta">
+          <text class="hero-meta-icon">📨</text>
+          <text>手机与邮箱独立配置，可单独保存</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- === Tab 切换 === -->
+  <view class="tabs">
+    <view
+      class="tab {{currentTab === 'tel' ? 'is-active' : ''}}"
+      data-tab="tel"
+      bindtap="onSwitchTab"
+    >
+      <text class="tab-icon">📱</text>
+      <text class="tab-label">告警手机</text>
+      <text class="tab-count">{{telItems.length}}/3</text>
+    </view>
+    <view
+      class="tab {{currentTab === 'mail' ? 'is-active' : ''}}"
+      data-tab="mail"
+      bindtap="onSwitchTab"
+    >
+      <text class="tab-icon">✉</text>
+      <text class="tab-label">告警邮箱</text>
+      <text class="tab-count">{{mailItems.length}}</text>
+    </view>
+  </view>
+
+  <!-- === Tab 1: 告警手机 === -->
+  <view wx:if="{{currentTab === 'tel'}}" class="card form-card">
+    <view class="form-head">
+      <text class="form-title">📱 告警手机</text>
+      <text class="form-limit">最多 3 个</text>
+    </view>
+
+    <view wx:if="{{telItems.length === 0}}" class="empty-hint-row">
+      <text class="empty-hint-text">还没有添加手机号，点击下方"添加"开始</text>
+    </view>
+
+    <view
+      wx:for="{{telItems}}"
+      wx:key="index"
+      wx:for-item="item"
+      class="form-row-wrap {{item.touched && !item.valid ? 'is-error' : ''}}"
+    >
+      <view class="form-row">
+        <input
+          class="form-input"
+          type="number"
+          maxlength="11"
+          value="{{item.value}}"
+          placeholder="请输入 11 位手机号"
+          placeholder-class="form-placeholder"
+          data-index="{{index}}"
+          bindinput="onTelInput"
+          bindblur="onTelBlur"
+          confirm-type="done"
+        />
+        <view class="form-row-del" catchtap="onTelDelete" data-index="{{index}}">
+          <text class="form-row-del-icon">✕</text>
+        </view>
+      </view>
+      <view wx:if="{{item.touched && !item.valid && item.value}}" class="form-error">
+        <text class="form-error-text">手机号格式不正确</text>
+      </view>
+    </view>
+
+    <view class="form-add" bindtap="onTelAdd">
+      <text class="form-add-icon">＋</text>
+      <text class="form-add-text">添加手机号</text>
+    </view>
+
+    <view class="form-tip">
+      <text class="form-tip-icon">💡</text>
+      <text class="form-tip-text">手机号格式：11 位数字，开头为 13/14/15/16/17/18/19</text>
+    </view>
+  </view>
+
+  <!-- === Tab 2: 告警邮箱 === -->
+  <view wx:if="{{currentTab === 'mail'}}" class="card form-card">
+    <view class="form-head">
+      <text class="form-title">✉ 告警邮箱</text>
+      <text class="form-limit">数量不限</text>
+    </view>
+
+    <view wx:if="{{mailItems.length === 0}}" class="empty-hint-row">
+      <text class="empty-hint-text">还没有添加邮箱，点击下方"添加"开始</text>
+    </view>
+
+    <view
+      wx:for="{{mailItems}}"
+      wx:key="index"
+      wx:for-item="item"
+      class="form-row-wrap {{item.touched && !item.valid ? 'is-error' : ''}}"
+    >
+      <view class="form-row">
+        <input
+          class="form-input"
+          type="text"
+          value="{{item.value}}"
+          placeholder="请输入邮箱地址"
+          placeholder-class="form-placeholder"
+          data-index="{{index}}"
+          bindinput="onMailInput"
+          bindblur="onMailBlur"
+          confirm-type="done"
+        />
+        <view class="form-row-del" catchtap="onMailDelete" data-index="{{index}}">
+          <text class="form-row-del-icon">✕</text>
+        </view>
+      </view>
+      <view wx:if="{{item.touched && !item.valid && item.value}}" class="form-error">
+        <text class="form-error-text">邮箱格式不正确</text>
+      </view>
+    </view>
+
+    <view class="form-add" bindtap="onMailAdd">
+      <text class="form-add-icon">＋</text>
+      <text class="form-add-text">添加邮箱</text>
+    </view>
+
+    <view class="form-tip">
+      <text class="form-tip-icon">💡</text>
+      <text class="form-tip-text">支持标准邮箱格式，建议使用常用邮箱避免进垃圾箱</text>
+    </view>
+  </view>
+
+  <!-- === 底部固定保存按钮 === -->
+  <view class="footer-save">
+    <view
+      class="save-btn {{saving ? 'is-loading' : ''}}"
+      bindtap="onSaveTap"
+    >
+      <text class="save-btn-icon">{{saving ? '⏳' : '💾'}}</text>
+      <text class="save-btn-text">
+        {{saving ? '保存中...' : (currentTab === 'tel' ? '保存手机设置' : '保存邮箱设置')}}
+      </text>
+    </view>
+  </view>
+
 </view>

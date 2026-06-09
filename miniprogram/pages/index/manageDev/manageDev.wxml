@@ -3,45 +3,94 @@
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
 
-<view class="container">
-  <view class="main">
-    <van-button type="primary" round block bindtap="addDTU">添加设备</van-button>
-  </view>
-  <view class="devs">
-    <view class="devs-item" wx:for="{{devs}}" wx:key="key" bindtap="toDev" data-item="{{item}}">
-      <view class="devs-item-card">
-        <view class="devs-item-card-body">
-          <text style="font-size:26rpx;">{{item.name || item.DevMac}}</text>
-          <view class="devs-item-card-content">
-            <view>
-              <view>
-                <van-icon name="star" size="6px" color="{{item.online?'#00a1ff':'red'}}" />
-                <text> {{item.online?'在线':'离线'}}</text>
-              </view>
-              <text class="">{{item.mountDevs.length || 0}}个设备</text>
-            </view>
-            <view class="devs-item-card-pic">
-              <van-icon size="2em" name="cluster-o"></van-icon>
-            </view>
-          </view>
+<view class="page">
 
+  <!-- === Hero === -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-title">管理绑定DTU</view>
+      <view class="hero-meta">
+        <text>在线 {{onlineCount}}</text>
+        <text class="hero-meta-dot">·</text>
+        <text>总 {{devItems.length}}</text>
+      </view>
+    </view>
+
+    <!-- KPI 行 -->
+    <view class="kpi-row">
+      <view class="kpi">
+        <view class="kpi-num is-online">{{onlineCount}}</view>
+        <view class="kpi-label">DTU 在线</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num is-offline">{{offlineCount}}</view>
+        <view class="kpi-label">DTU 离线</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num">{{totalMountCount}}</view>
+        <view class="kpi-label">挂载设备</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- === 列表 === -->
+  <view class="list">
+    <!-- 空状态 -->
+    <view wx:if="{{devItems.length === 0}}" class="empty">
+      <view class="empty-icon">📡</view>
+      <view class="empty-text">还没有绑定任何 DTU</view>
+      <view class="empty-hint">点击下方按钮，扫码或手动添加</view>
+    </view>
+
+    <!-- DTU 卡片列表（与 index dev-card 视觉一致） -->
+    <view
+      wx:for="{{devItems}}"
+      wx:key="DevMac"
+      class="dev-card {{item.online ? 'is-online' : 'is-offline'}}"
+      data-mac="{{item.DevMac}}"
+      bindtap="toDev"
+    >
+      <view class="dev-card-status"></view>
+      <view class="dev-card-main">
+        <view class="dev-card-head">
+          <view class="dev-name-row">
+            <view class="dev-icon">📡</view>
+            <text class="dev-name">{{item.name}}</text>
+          </view>
+          <view class="dev-pill {{item.online ? 'is-online' : 'is-offline'}}">
+            <view class="dev-pill-dot"></view>
+            <text>{{item.online ? '在线' : '离线'}}</text>
+          </view>
+        </view>
+        <view class="dev-card-meta">
+          <view class="dev-meta-item">
+            <text class="dev-meta-label">挂载</text>
+            <text class="dev-meta-value">{{item.mountCount}} 台</text>
+          </view>
+          <view wx:if="{{item.online && item.mountCount > 0}}" class="dev-meta-item">
+            <text class="dev-meta-label">在线</text>
+            <text class="dev-meta-value">{{item.onlineMountCount}} 台</text>
+          </view>
+          <view class="dev-meta-item dev-meta-item-mac">
+            <text class="dev-meta-label">MAC</text>
+            <text class="dev-meta-value dev-mac">{{item.DevMac}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="dev-card-pic">
+        <view class="dev-pic-box">
+          <text class="dev-pic-emoji">📡</text>
         </view>
       </view>
     </view>
   </view>
-  <!-- <view wx:for="{{devs}}" wx:key="_id">
-    <van-cell icon="cluster" title="{{item.name}}" class="bg-dark-cell">
-      <van-icon name="clear" data-item="{{item}}" bindtap="deleteDTU" />
-    </van-cell>
-    <van-cell wx:for="{{item.mountDevs}}" wx:key="index" wx:for-item="item2" title="{{item2.mountDev}}"
-      label="{{item2.protocol}}" center>
-      <van-tag type="primary" size="medium">{{item2.Type}}</van-tag>
-      <van-tag type="primary" size="medium">{{item2.pid}}</van-tag>
-      <van-icon name="clear" data-item="{{item2}}" data-key="{{item.DevMac}}" bindtap="deleteMountDev" />
-    </van-cell>
-    <van-cell>
-      <van-button type="primary" round size="small" data-item="{{item}}" bindtap="addMonutDev">添加设备</van-button>
-      <van-button type="info" round size="small" data-item="{{item.DevMac}}" bindtap="showDTUInfo">DTU信息</van-button>
-    </van-cell>
-  </view> -->
+
+  <!-- === 底部添加按钮 === -->
+  <view class="footer-add">
+    <view class="footer-add-btn" bindtap="onAddTap">
+      <text class="footer-add-icon">＋</text>
+      <text class="footer-add-text">添加 DTU</text>
+    </view>
+  </view>
+
 </view>
