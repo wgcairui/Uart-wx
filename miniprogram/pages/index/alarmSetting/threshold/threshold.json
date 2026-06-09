@@ -1,6 +1,4 @@
 {
-  "usingComponents": {
-    "van-stepper": "@vant/weapp/stepper/index"
-  },
-  "enablePullDownRefresh": false
+  "usingComponents": {},
+  "navigationBarTitleText": "阈值配置"
 }
