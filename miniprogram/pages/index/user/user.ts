@@ -136,30 +136,16 @@ Page({
   // 返回的 tempFilePath 是本次启动有效的临时路径——需要 wx.uploadFile 上传业务服务器拿到永久 URL
   async onChooseAvatar(e: any) {
     const tempPath: string | undefined = e?.detail?.avatarUrl
+    // ★ 业务约束:后端没有设计保存用户自己上传的图片,只接受微信 CDN 头像
+    //   真机下:
+    //     - "用微信头像" → http://tmp/xxx.jpeg 或 https://thirdwx.qlogo.cn/...
+    //     - "从相册/拍照" → wxfile://tmp_xxx.jpg
+    //   之前前端硬拦截 wxfile://,但**开发工具下选"用微信头像"也可能拿到非 http 路径**,
+    //   把所有非 http 路径拒了会误杀真微信头像。改为:不前端拦截,只 log,
+    //   业务约束交给后端 api.updateAvanter 拒绝(后端拿到非微信 CDN URL 直接 4xx 即可)
+    console.log('[user] onChooseAvatar tempPath:', tempPath)
     if (!tempPath) {
       wx.showToast({ title: '已取消选择', icon: 'none' })
-      return
-    }
-    // ★ 业务约束:后端没有设计保存用户自己上传的图片,只接受微信头像
-    //   chooseAvatar 系统面板有 3 个选项:用微信头像 / 从相册选 / 拍照
-    //   真机下 scheme 区分:
-    //     - http://tmp/... 或 https://...  → 微信 CDN 头像(可接受)
-    //     - wxfile://tmp_xxx.jpg           → 本地相册/拍照文件(拒绝)
-    //   ⚠️ 注意:开发工具返回的 scheme 统一是 http://tmp/... ,所以开发工具测试时本检查会"误判通过"
-    const isWxHosted = /^https?:\/\//.test(tempPath)
-    const isLocalFile = /^wxfile:\/\//.test(tempPath)
-    if (isLocalFile) {
-      wx.showModal({
-        title: '不支持自定义图片',
-        content: '后端未设计保存您自己上传的图片,请在面板中选择"使用微信头像"。',
-        showCancel: false,
-        confirmText: '我知道了',
-      })
-      return
-    }
-    if (!isWxHosted) {
-      // 未知 scheme(理论上不会出现)——保守拒绝
-      wx.showToast({ title: '不支持的头像来源', icon: 'none' })
       return
     }
     // 1. 立即显示(tempFilePath 本次启动有效,够看)

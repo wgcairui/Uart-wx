@@ -48,24 +48,17 @@ Page({
     */
   onChooseAvatar(e: any) {
     const tempUrl: string | undefined = e?.detail?.avatarUrl
+    // ★ 业务约束:后端没有设计保存用户自己上传的图片,只接受微信 CDN 头像
+    //   真机下:
+    //     - "用微信头像" → http://tmp/xxx.jpeg 或 https://thirdwx.qlogo.cn/...
+    //     - "从相册/拍照" → wxfile://tmp_xxx.jpg
+    //   之前前端硬拦截 wxfile://,但**开发工具下选"用微信头像"也可能拿到非 http 路径**,
+    //   把所有非 http 路径拒了会误杀真微信头像。改为:不前端拦截,只 log,
+    //   业务约束交给后端 api.updateAvanter 拒绝(后端拿到非微信 CDN URL 直接 4xx 即可)
+    console.log('[login] onChooseAvatar tempUrl:', tempUrl)
     if (!tempUrl) {
       // 用户在 chooseAvatar 面板点了关闭(没选)
       this.setData({ avatarTip: '没选择?可点我重新选,或继续用默认头像注册' })
-      return
-    }
-    // 拒绝本地相册/拍照(后端没设计存)
-    if (/^wxfile:\/\//.test(tempUrl)) {
-      wx.showModal({
-        title: '不支持自定义图片',
-        content: '请在面板中选择"使用微信头像",后端未设计保存您自己上传的图片。',
-        showCancel: false,
-        confirmText: '我知道了',
-      })
-      this.setData({ avatarTip: '请选择"使用微信头像",不能上传自己的图' })
-      return
-    }
-    if (!/^https?:\/\//.test(tempUrl)) {
-      wx.showToast({ title: '不支持的头像来源', icon: 'none' })
       return
     }
     this.setData({
