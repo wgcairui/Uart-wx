@@ -132,8 +132,108 @@ Page({
   },
 
   /* === Hero actions === */
-  onEditProfileTap() {
-    this.updateAvanter()
+  // 选择微信头像(2022-11 官方推荐方案)
+  // 返回的 tempFilePath 是本次启动有效的临时路径——需要 wx.uploadFile 上传业务服务器拿到永久 URL
+  async onChooseAvatar(e: any) {
+    const tempPath: string | undefined = e?.detail?.avatarUrl
+    if (!tempPath) {
+      wx.showToast({ title: '已取消选择', icon: 'none' })
+      return
+    }
+    // ★ 业务约束:后端没有设计保存用户自己上传的图片,只接受微信头像
+    //   chooseAvatar 系统面板有 3 个选项:用微信头像 / 从相册选 / 拍照
+    //   真机下 scheme 区分:
+    //     - http://tmp/... 或 https://...  → 微信 CDN 头像(可接受)
+    //     - wxfile://tmp_xxx.jpg           → 本地相册/拍照文件(拒绝)
+    //   ⚠️ 注意:开发工具返回的 scheme 统一是 http://tmp/... ,所以开发工具测试时本检查会"误判通过"
+    const isWxHosted = /^https?:\/\//.test(tempPath)
+    const isLocalFile = /^wxfile:\/\//.test(tempPath)
+    if (isLocalFile) {
+      wx.showModal({
+        title: '不支持自定义图片',
+        content: '后端未设计保存您自己上传的图片,请在面板中选择"使用微信头像"。',
+        showCancel: false,
+        confirmText: '我知道了',
+      })
+      return
+    }
+    if (!isWxHosted) {
+      // 未知 scheme(理论上不会出现)——保守拒绝
+      wx.showToast({ title: '不支持的头像来源', icon: 'none' })
+      return
+    }
+    // 1. 立即显示(tempFilePath 本次启动有效,够看)
+    this.setData({ avanter: tempPath })
+    // 2. 异步上传到业务服务器,拿到永久 URL 后再调 api.updateAvanter
+    this.uploadAvatarToServer(tempPath)
+  },
+
+  /**
+   * 上传头像到业务服务器 → 拿到永久 URL → api.updateAvanter
+   * TODO: 把下面的 UPLOAD_ENDPOINT 替换成实际后端接收 multipart/form-data 的接口
+   *       字段名是 'file'(可改)
+   */
+  async uploadAvatarToServer(tempPath: string) {
+    const UPLOAD_ENDPOINT = ''  // TODO: 例如 'v2/upload/avatar'
+    if (!UPLOAD_ENDPOINT) {
+      // 还没配置上传接口——保留 temp 路径当显示用,提示用户
+      wx.showToast({
+        title: '头像已选(临时),配置上传后持久化',
+        icon: 'none',
+        duration: 2500,
+      })
+      // 仍然调 updateAvanter,让后端至少存个 temp 路径
+      api.updateAvanter(this.data.name || '微信用户', tempPath).then(({ code, msg }) => {
+        if (code === 200) wx.showToast({ title: '已更新(临时路径)', icon: 'none' })
+        else wx.showModal({ title: '更新失败', content: msg || '请稍后重试', icon: 'none' })
+      })
+      return
+    }
+    wx.showLoading({ title: '上传中…' })
+    try {
+      const res: any = await wx.uploadFile({
+        url: UPLOAD_ENDPOINT,
+        filePath: tempPath,
+        name: 'file',
+      })
+      wx.hideLoading()
+      // 解析业务服务器响应(通常 data 是 JSON 字符串)
+      const body = JSON.parse(res.data || '{}')
+      const permanentUrl: string = body?.data?.url || body?.url
+      if (!permanentUrl) {
+        wx.showToast({ title: '上传失败', icon: 'none' })
+        return
+      }
+      this.setData({ avanter: permanentUrl })
+      api.updateAvanter(this.data.name || '微信用户', permanentUrl).then(({ code, msg }) => {
+        if (code === 200) wx.showToast({ title: '更新成功' })
+        else wx.showModal({ title: '更新失败', content: msg || '请稍后重试', icon: 'none' })
+      })
+    } catch (err) {
+      wx.hideLoading()
+      wx.showToast({ title: '上传失败', icon: 'none' })
+    }
+  },
+
+  // 昵称输入(微信 type="nickname" 模式,基础库 ≥2.21.2)
+  onNickInput(e: vantEvent) {
+    this.setData({ name: e.detail.value })
+  },
+  onNickBlur(e: vantEvent) {
+    const v = (e.detail.value || '').toString().trim()
+    if (!v) return
+    if (v === this.data.name) return
+    this.setData({ name: v })
+    // 失焦时同步给后端
+    api.updateAvanter(v, this.data.avanter || '').then(({ code, msg }) => {
+      if (code !== 200) wx.showModal({ title: '昵称更新失败', content: msg || '请稍后重试', icon: 'none' })
+    })
+  },
+  // 昵称审核结果(基础库 ≥2.29.1)
+  onNickReview(e: any) {
+    const { pass, timeout } = e?.detail || {}
+    if (timeout || pass !== false) return
+    wx.showToast({ title: '昵称审核未通过,请更换', icon: 'none' })
   },
 
   /**
@@ -213,9 +313,12 @@ Page({
     })
     if (!d.confirm) return
     api.ws.close({})
-    const { code } = await api.unbindwx()
-    if (code) this.clearCacheAndReLaunch()
-    else wx.exitMiniProgram()
+    const { code, msg } = await api.unbindwx()
+    if (code === 200) {
+      await this.clearCacheAndReLaunch()
+    } else {
+      wx.showToast({ title: msg || '解绑失败,请稍后重试', icon: 'none' })
+    }
   },
 
   onExitTestTap() {
@@ -226,22 +329,10 @@ Page({
   /* === Helpers === */
   async clearCacheAndReLaunch() {
     try { await wx.clearStorage() } catch (e) { /* swallow */ }
-    wx.exitMiniProgram()
+    // 解绑后回到登录页（api.unbindwx 内部已清 token，这里再 reLaunch 触发跳登录）
+    wx.reLaunch({ url: '/pages/login/login' })
   },
 
-  // 更新用户头像和名称
-  updateAvanter() {
-    wx.getUserProfile({
-      desc: '用于更新用户头像和昵称',
-      success: (info) => {
-        const { nickName, avatarUrl } = info.userInfo
-        api.updateAvanter(nickName, avatarUrl).then(() => {
-          wx.showToast({ title: '更新成功' })
-          this.start()
-        })
-      },
-    })
-  },
 
   onPullDownRefresh: async function () {
     this.loadAppMeta()

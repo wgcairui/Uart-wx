@@ -27,6 +27,17 @@ page {
   width: 128rpx;
   height: 128rpx;
   flex-shrink: 0;
+  /* 重置 button 默认样式(chooseAvatar 必须是 button) */
+  padding: 0;
+  line-height: 1;
+  display: block;
+  background: transparent;
+  border: none;
+  margin: 0;
+}
+
+.hero-avatar::after {
+  border: none;
 }
 
 .hero-avatar-img {
@@ -86,6 +97,31 @@ page {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* 昵称输入(type="nickname"——唤起「使用微信昵称」快捷选项) */
+.hero-name-input {
+  /* input 是微信原生组件,padding 不生效,必须用 height 强制撑开 */
+  height: 56rpx;
+  min-height: 56rpx;
+  line-height: 56rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  max-width: 360rpx;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.hero-name-placeholder {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 36rpx;
+  font-weight: 600;
 }
 
 .hero-badge {

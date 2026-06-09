@@ -8,14 +8,30 @@
   <!-- === Hero === -->
   <view class="hero">
     <view class="hero-row">
-      <view class="hero-avatar" bindtap="onEditProfileTap">
+      <!-- 头像:chooseAvatar(2022-11 后官方唯一可靠方式) -->
+      <button
+        class="hero-avatar"
+        open-type="chooseAvatar"
+        bindchooseavatar="onChooseAvatar"
+        hover-class="none"
+      >
         <image wx:if="{{avanter}}" class="hero-avatar-img" src="{{avanter}}" mode="aspectFill" />
         <view wx:else class="hero-avatar-placeholder">{{name ? name[0] : '?'}}</view>
         <view class="hero-avatar-edit">编辑</view>
-      </view>
+      </button>
       <view class="hero-info">
         <view class="hero-name-row">
-          <text class="hero-name">{{name || '未登录'}}</text>
+          <!-- 昵称:type="nickname" 唤起「使用微信昵称」快捷选项 -->
+          <input
+            class="hero-name-input"
+            type="nickname"
+            value="{{name}}"
+            placeholder="未登录"
+            placeholder-class="hero-name-placeholder"
+            bindinput="onNickInput"
+            bindblur="onNickBlur"
+            bindnicknamereview="onNickReview"
+          />
           <view wx:if="{{test}}" class="hero-badge hero-badge-test">测试</view>
         </view>
         <view wx:if="{{wxId}}" class="hero-meta">
