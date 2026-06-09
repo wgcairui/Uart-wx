@@ -1,42 +1,181 @@
 <!--miniprogram/pages/login/login.wxml-->
 <page-meta>
-	<navigation-bar front-color="#ffffff" background-color="#487ed9" />
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
-<view class="container">
-	<view>
-		<view class="avanter" bindtap="getUserInfo">
-			<van-image round width="7rem" height="7rem" src="{{userInfo.avatarUrl}}" use-error-slot>
-				<text slot="error">更新头像</text>
-			</van-image>
-			<text>{{userInfo.nickName}}</text>
-		</view>
-		<view class="trial">
-			<van-button type="info" bindtap="trial" class="center register" round>我要试用?
-			</van-button>
-		</view>
-		<van-tabs type="card" bind:click="tabclick" animated active="{{active}}">
-			<van-tab class="tab" title="微信注册">
-				<van-cell-group>
-					<van-field title-width="3em" model:value="{{tel}}" center clearable label="phone" placeholder="输入手机号码" use-button-slot>
-						<van-button slot="button" size="small" type="primary" open-type="getPhoneNumber" bindgetphonenumber="getphonenumber">获取手机号码</van-button>
-					</van-field>
-					<van-button type="primary" loading="{{registerloading}}" bindtap="register" class="center register" round block>注册
-					</van-button>
-				</van-cell-group>
-			</van-tab>
-			<van-tab class="tab" title="账号登录">
-				<van-cell-group>
-					<van-field model:value="{{ accontUser }}" required clearable label="用户名" placeholder="请输入用户名" />
-					<van-field model:value="{{ accontPasswd }}" type="password" label="密码" placeholder="请输入密码" required border="{{ false }}" />
-					<van-button id="login" disabled="{{!accontUser && !accontPasswd}}" type="primary" loading="{{loginloading}}" bindtap="login" class="center register login" round block>登录
-					</van-button>
-				</van-cell-group>
-			</van-tab>
-		</van-tabs>
+<view class="page">
 
-		<view class="readme">
-			<text> 本小程序用于特定范围用户(使用我司云平台物联网设备)在手机上查看个人搭配的透传设备,需要使用云平台账号或授权使用微信用户信息(手机号,用户名,头像,id)注册使用,无法在开放范围提供服务,敬请谅解
-			</text>
-		</view>
-	</view>
+  <!-- === Hero（渐变 + 头像 + 试用入口） === -->
+  <view class="hero">
+    <view class="hero-brand">
+      <view class="hero-brand-logo">📡</view>
+      <view class="hero-brand-name">雷迪司透传平台</view>
+    </view>
+
+    <!-- 头像:chooseAvatar(2022-11 后官方唯一可靠方式) -->
+    <button
+      class="avatar-wrap {{hasWxProfile ? 'is-real' : 'is-default'}}"
+      open-type="chooseAvatar"
+      bindchooseavatar="onChooseAvatar"
+      hover-class="none"
+    >
+      <image class="avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill" />
+      <view class="avatar-placeholder" wx:if="{{!hasWxProfile}}">
+        <text class="avatar-placeholder-emoji">👤</text>
+      </view>
+      <view class="avatar-edit-badge" wx:if="{{!hasWxProfile}}">
+        <text class="avatar-edit-badge-text">选择</text>
+      </view>
+    </button>
+
+    <!-- 昵称:type="nickname" 唤起昵称输入键盘 + 「使用微信昵称」快捷选项 -->
+    <view class="nick-row">
+      <input
+        class="nick-input"
+        type="nickname"
+        placeholder="点击输入昵称"
+        placeholder-class="nick-input-placeholder"
+        value="{{userInfo.nickName}}"
+        bindblur="onNickBlur"
+        bindinput="onNickInput"
+        bindnicknamereview="onNickReview"
+      />
+    </view>
+
+    <view class="avatar-tip" wx:if="{{avatarTip}}">
+      <text class="avatar-tip-text">👆 {{avatarTip}}</text>
+    </view>
+
+    <view class="hero-trial" bindtap="trial">
+      <text class="hero-trial-text">🎁 我要试用</text>
+    </view>
+  </view>
+
+  <!-- === Tab 胶囊 === -->
+  <view class="tabs">
+    <view class="tab {{active === 0 ? 'is-active' : ''}}" data-key="0" bindtap="onTabTap">
+      <text>微信注册</text>
+    </view>
+    <view class="tab {{active === 1 ? 'is-active' : ''}}" data-key="1" bindtap="onTabTap">
+      <text>账号登录</text>
+    </view>
+  </view>
+
+  <!-- === Tab 0: 微信注册 === -->
+  <view class="card" wx:if="{{active === 0}}">
+    <view class="form-title">📱 手机号注册</view>
+
+    <!-- 主入口:微信一键拿手机号(显眼大块,主路径) -->
+    <button
+      class="btn-wx-phone {{getTelLoading ? 'is-loading' : ''}}"
+      open-type="getPhoneNumber"
+      bindgetphonenumber="onWxPhoneTap"
+      disabled="{{getTelLoading}}"
+      hover-class="none"
+    >
+      <view wx:if="{{!hasWxTel && !getTelLoading}}" class="btn-wx-phone-content">
+        <text class="btn-wx-phone-icon">📱</text>
+        <text class="btn-wx-phone-text">使用微信绑定的手机号</text>
+      </view>
+      <view wx:elif="{{getTelLoading}}" class="btn-wx-phone-content">
+        <text class="btn-wx-phone-icon">⏳</text>
+        <text class="btn-wx-phone-text">获取中…</text>
+      </view>
+      <view wx:else class="btn-wx-phone-content btn-wx-phone-done">
+        <text class="btn-wx-phone-icon">✅</text>
+        <text class="btn-wx-phone-text">已获取 {{tel}}</text>
+        <text class="btn-wx-phone-reget">重新获取</text>
+      </view>
+    </button>
+
+    <!-- 已获取状态:显示微信手机号 + 默认昵称 -->
+    <view wx:if="{{hasWxTel}}" class="tel-success">
+      <view class="tel-success-row">
+        <text class="tel-success-label">手机号</text>
+        <text class="tel-success-value">{{tel}}</text>
+      </view>
+      <view class="tel-success-row">
+        <text class="tel-success-label">默认昵称</text>
+        <text class="tel-success-value">{{userInfo.nickName}}</text>
+      </view>
+    </view>
+
+    <!-- 降级路径:手输手机号(默认隐藏,展开后才出现) -->
+    <view wx:if="{{showTelInput}}" class="tel-fallback">
+      <view class="tel-fallback-divider">
+        <text class="tel-fallback-divider-text">或手输手机号</text>
+      </view>
+      <view class="form-row">
+        <text class="form-label">手机号</text>
+        <view class="form-input-wrap">
+          <input
+            class="form-input"
+            type="number"
+            maxlength="11"
+            placeholder="输入手机号码"
+            placeholder-class="form-input-placeholder"
+            value="{{telFromInput}}"
+            bindinput="onTelInput"
+          />
+          <view class="form-append form-append-cancel" bindtap="onHideTelInputTap">收起</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 拒绝授权后 / 用户主动选择手输 -->
+    <view wx:elif="{{!hasWxTel && !getTelLoading}}" class="tel-fallback-trigger" bindtap="onShowTelInputTap">
+      <text class="tel-fallback-trigger-text">没有绑定手机号?点此手输</text>
+    </view>
+
+    <button
+      class="btn-primary {{registerloading ? 'is-loading' : ''}}"
+      bindtap="register"
+      disabled="{{registerloading}}"
+      hover-class="none"
+    >{{ registerloading ? '注册中…' : '注册（开通消息订阅）' }}</button>
+  </view>
+
+  <!-- === Tab 1: 账号登录 === -->
+  <view class="card" wx:if="{{active === 1}}">
+    <view class="form-title">🔑 账号登录</view>
+
+    <view class="form-row">
+      <text class="form-label">用户名</text>
+      <view class="form-input-wrap">
+        <input
+          class="form-input"
+          placeholder="请输入用户名"
+          placeholder-class="form-input-placeholder"
+          value="{{accontUser}}"
+          bindinput="onUserInput"
+        />
+      </view>
+    </view>
+
+    <view class="form-row">
+      <text class="form-label">密码</text>
+      <view class="form-input-wrap">
+        <input
+          class="form-input"
+          password
+          placeholder="请输入密码"
+          placeholder-class="form-input-placeholder"
+          value="{{accontPasswd}}"
+          bindinput="onPasswdInput"
+        />
+      </view>
+    </view>
+
+    <button
+      class="btn-primary {{loginloading ? 'is-loading' : ''}}"
+      bindtap="login"
+      disabled="{{loginloading || !accontUser || !accontPasswd}}"
+      hover-class="none"
+    >{{ loginloading ? '登录中…' : '登录' }}</button>
+  </view>
+
+  <!-- === 说明 === -->
+  <view class="readme">
+    <text>本小程序用于特定范围用户(使用我司云平台物联网设备)在手机上查看个人搭配的透传设备,需要使用云平台账号或授权使用微信用户信息(手机号、用户名、头像、id)注册使用,无法在开放范围提供服务,敬请谅解。</text>
+  </view>
+
 </view>
