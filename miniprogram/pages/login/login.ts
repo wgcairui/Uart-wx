@@ -8,14 +8,14 @@ Page({
    * 页面的初始数据
    */
   data: {
-    active: 0 as 0 | 1,  // 0 = 微信注册, 1 = 账号登录
+    active: 0 as 0 | 1,  // 0 = 手机号注册, 1 = 账号登录
     userInfo: {
       avatarUrl: DEFAULT_AVATAR,
     } as WechatMiniprogram.UserInfo,
-    hasWxProfile: false,  // 是否拿到真实微信头像/昵称
-    avatarTip: '点击获取微信头像和昵称',  // 头像下方提示文案
-    hasWxTel: false,  // 是否已通过微信授权拿到手机号
-    tel: '',  // 微信拿到的手机号(后 4 位用于默认昵称)
+    hasWxProfile: false,  // 是否拿到真实头像/昵称
+    avatarTip: '点击选择头像',  // 头像下方提示文案
+    hasWxTel: false,  // 是否已通过本机手机号快捷登录拿到手机号
+    tel: '',  // 获取到的手机号(后 4 位用于默认昵称)
     telFromInput: '',  // 用户手输的手机号(降级路径)
     showTelInput: false,  // 是否展开手输 input(fallback)
     getTelLoading: false,
@@ -35,26 +35,26 @@ Page({
   },
 
   /**
-   * 选择微信头像(2022-11 官方推荐方案)
-    * button open-type="chooseAvatar" 唤起系统级选择面板(从相册选 / 拍照 / 用微信头像),
-    * 回调 e.detail.avatarUrl 是微信返回的**临时 URL**,需要后续上传到业务服务器持久化
-    * —— 临时 URL 只在本次小程序启动期间有效,关闭后失效
-    *
-    * ★ 业务约束:后端没有设计保存用户自己上传的图片,只接受微信头像
-    *   真机下 scheme 区分:
-    *     - http://tmp/... 或 https://...  → 微信 CDN 头像(可接受)
-    *     - wxfile://tmp_xxx.jpg           → 本地相册/拍照文件(拒绝)
-    *   ⚠️ 注意:开发工具返回的 scheme 统一是 http://tmp/... ,所以开发工具测试时本检查会"误判通过"
-    */
+   * 选择头像(chooseAvatar 官方推荐方式)
+   * button open-type="chooseAvatar" 唤起系统级选择面板(从相册选 / 拍照 / 用当前账号头像),
+   * 回调 e.detail.avatarUrl 是返回的**临时 URL**,需要后续上传到业务服务器持久化
+   * —— 临时 URL 只在本次小程序启动期间有效,关闭后失效
+   *
+   * ★ 业务约束:后端没有设计保存用户自己上传的图片,只接受本平台账号头像
+   *   真机下 scheme 区分:
+   *     - http://tmp/... 或 https://...  → 平台 CDN 头像(可接受)
+   *     - wxfile://tmp_xxx.jpg           → 本地相册/拍照文件(拒绝)
+   *   ⚠️ 注意:开发工具返回的 scheme 统一是 http://tmp/... ,所以开发工具测试时本检查会"误判通过"
+   */
   onChooseAvatar(e: any) {
     const tempUrl: string | undefined = e?.detail?.avatarUrl
-    // ★ 业务约束:后端没有设计保存用户自己上传的图片,只接受微信 CDN 头像
+    // ★ 业务约束:后端没有设计保存用户自己上传的图片,只接受平台 CDN 头像
     //   真机下:
-    //     - "用微信头像" → http://tmp/xxx.jpeg 或 https://thirdwx.qlogo.cn/...
+    //     - "用当前账号头像" → http://tmp/xxx.jpeg 或 https://thirdwx.qlogo.cn/...
     //     - "从相册/拍照" → wxfile://tmp_xxx.jpg
-    //   之前前端硬拦截 wxfile://,但**开发工具下选"用微信头像"也可能拿到非 http 路径**,
-    //   把所有非 http 路径拒了会误杀真微信头像。改为:不前端拦截,只 log,
-    //   业务约束交给后端 api.updateAvanter 拒绝(后端拿到非微信 CDN URL 直接 4xx 即可)
+    //   之前前端硬拦截 wxfile://,但**开发工具下选"用当前账号头像"也可能拿到非 http 路径**,
+    //   把所有非 http 路径拒了会误杀真头像。改为:不前端拦截,只 log,
+    //   业务约束交给后端 api.updateAvanter 拒绝(后端拿到非平台 CDN URL 直接 4xx 即可)
     console.log('[login] onChooseAvatar tempUrl:', tempUrl)
     if (!tempUrl) {
       // 用户在 chooseAvatar 面板点了关闭(没选)
@@ -72,8 +72,8 @@ Page({
     }
   },
 
-  // 昵称输入(微信 type="nickname" 模式,基础库 ≥2.21.2)
-  // 唤起昵称输入键盘,键盘上方有「使用微信昵称」快捷选项,用户点一下自动填入
+  // 昵称输入(type="nickname" 模式,基础库 ≥2.21.2)
+  // 唤起昵称输入键盘,键盘上方有「使用当前账号昵称」快捷选项,用户点一下自动填入
   onNickInput(e: vantEvent) {
     this.setData({ 'userInfo.nickName': e.detail.value })
   },
@@ -82,7 +82,7 @@ Page({
     const v = (e.detail.value || '').toString().trim()
     if (v) this.setData({ 'userInfo.nickName': v })
   },
-  // 昵称审核结果(基础库 ≥2.29.1)——告诉用户是否通过微信的内容安全检测
+  // 昵称审核结果(基础库 ≥2.29.1)——告诉用户是否通过内容安全检测
   onNickReview(e: any) {
     const { pass, timeout } = e?.detail || {}
     if (timeout) return
@@ -95,7 +95,7 @@ Page({
   promptGetPhone() {
     wx.showModal({
       title: '继续完成注册',
-      content: '接下来需要您授权使用微信绑定的手机号,即可完成注册。',
+      content: '接下来请完成本机手机号验证,即可完成注册。',
       confirmText: '好的',
       showCancel: false,
     })
@@ -106,7 +106,7 @@ Page({
     const k = Number(e.currentTarget.dataset.key) as 0 | 1
     if (k === this.data.active) return
     this.setData({ active: k })
-    wx.setNavigationBarTitle({ title: k === 0 ? '微信注册' : '账号登录' })
+    wx.setNavigationBarTitle({ title: k === 0 ? '手机号注册' : '账号登录' })
   },
 
   // 输入双向绑定(自实现 input 不能用 model:value,所以单独 handler)
@@ -120,7 +120,7 @@ Page({
     this.setData({ accontPasswd: e.detail.value })
   },
 
-  // 主入口:点大按钮 → 弹微信授权拿手机号
+  // 主入口:点大按钮 → 弹手机号授权拿手机号
   async onWxPhoneTap(e: vantEvent) {
     // 没有 encryptedData = 用户点了"拒绝"或"不允许"
     if (!e.detail.encryptedData) {
@@ -142,12 +142,12 @@ Page({
       }
       const tel = data.phoneNumber
       // 优先级修复:之前 `'user' + tel.slice(-4)` 因为 + 优先级高于 ||,实际是 (this.data.userInfo.nickName || 'user') + tel.slice(-4),可读性差;加括号明确语义
-      const fallbackNick = '微信用户' + tel.slice(-4)
+      const fallbackNick = '用户' + tel.slice(-4)
       const nextNick = this.data.userInfo.nickName || fallbackNick
       this.setData({
         tel,
         hasWxTel: true,
-        showTelInput: false,  // 拿到微信手机号 → 收起手输
+        showTelInput: false,  // 拿到手机号 → 收起手输
         getTelLoading: false,
         'userInfo.nickName': nextNick,
       })
@@ -155,7 +155,7 @@ Page({
       if (!this.data.hasWxProfile) {
         wx.showModal({
           title: '完善资料',
-          content: '点击上方头像区域,选择微信头像或自定义图片。',
+          content: '点击上方头像区域,选择头像或自定义图片。',
           confirmText: '我知道了',
           showCancel: false,
         })
@@ -174,14 +174,14 @@ Page({
     this.setData({ showTelInput: true })
   },
 
-  // 收回手输 input(用户决定改用微信授权)
+  // 收回手输 input(用户决定改用本机手机号授权)
   onHideTelInputTap() {
     this.setData({ showTelInput: false, telFromInput: '' })
   },
 
   // 注册用户
   async register() {
-    // 手机号来源:微信授权 > 手输
+    // 手机号来源:本机授权 > 手输
     const tel = this.data.tel || this.data.telFromInput
     if (!tel || !/^(13[0-9]|15[0-9]|166|17[0-9]|18[0-9]|14[0-9])[0-9]{8}$/.test(tel.toString())) {
       wx.showToast({ title: '需要有效的手机号码', icon: 'none' })
@@ -192,7 +192,7 @@ Page({
     const { code, message } = await api.registerUser({
       user: unionid,
       openid,
-      name: nickName || '微信用户',
+      name: nickName || '用户',
       avanter: avatarUrl || DEFAULT_AVATAR,
       tel,
     })
@@ -233,12 +233,10 @@ Page({
     }
   },
 
-  // 试用
+  // 试用:不走 userlogin 真实登录(免得 onLoad 拿空设备列表体验差),
+  //       直接打 storage 标志 + 跳首页,首页读标志后塞 demo 设备
   trial() {
-    this.setData({
-      accontPasswd: '123456',
-      accontUser: 'test',
-    })
-    this.login()
+    wx.setStorageSync('trialMode', 1)
+    wx.reLaunch({ url: '/pages/index/index' })
   },
 })

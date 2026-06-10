@@ -10,6 +10,49 @@ const DEV_PICS: Record<string, string> = {
   "空调": 'https://besiv-uart.oss-cn-hangzhou.aliyuncs.com/png/c3c1852270ca35fd56135d8fda2a9977.png'
 }
 
+// 试用模式 demo 数据（写死,不依赖后端,只用于首页展示效果）
+// 点击进设备详情页时是空数据——这是预期的,试用页只是预览 UI
+// 用 as any 绕过严格类型检查:demo 数据不需要所有真实后端必填字段
+const DEMO_DTU = {
+  name: '演示-DEMO-终端',
+  DevMac: 'DEMO-00-00-00-00-00',
+  online: true,
+  mountDevs: [
+    {
+      Type: 'UPS',
+      mountDev: 'UPS-001',
+      protocol: 'Modbus-RTU',
+      pid: 0,
+      online: true,
+    } as any,
+    {
+      Type: '温湿度',
+      mountDev: 'TH-002',
+      protocol: 'Modbus-RTU',
+      pid: 1,
+      online: true,
+    } as any,
+    {
+      Type: '电量仪',
+      mountDev: 'PWR-003',
+      protocol: 'Modbus-RTU',
+      pid: 2,
+      online: false,  // 故意一个离线,展示离线态样式
+    } as any,
+  ] as any,
+}
+
+// 把 demo DTU 展平为 dtuItem 结构(对齐 sortDevs 的映射规则)
+function buildDemoDtuItem(dtu: any) {
+  return (dtu.mountDevs || []).map((dev: any, idx: number) => ({
+    ...dev,
+    pic: DEV_PICS[dev.Type],
+    dtu: dtu.name,
+    online: dev.online && dtu.online,
+    key: `demo-${idx}`,
+  }))
+}
+
 // 获取应用实例
 Page({
   data: {
@@ -29,25 +72,31 @@ Page({
     sub: false
   },
   onLoad(query: any) {
+    // 试用模式短路:从登录页 trial() 跳过来,直接塞 demo 设备,不走真实 wx.login
+    if (wx.getStorageSync('trialMode')) {
+      wx.removeStorageSync('trialMode')
+      this.trial()
+      return
+    }
     wx.showLoading({ title: 'login' })
     wx.login({
       success: async login => {
         // 发送网络请求，获取在线账户
         const { code, data } = await api.login({ js_code: login.code, scene: query.scene ? decodeURIComponent(query.scene) : '' })
         console.log({code,data,login});
-        
+
         if (code) {
           const user = await api.userInfo()
           wx.hideLoading()
 
-          // 判断user用户组,如果是admin则跳转到专有页面
+          // 判断user用户组,如果是 admin 则跳转到专有页面
           switch (user.data.userGroup) {
             case "admin":
             case "root":
               wx.reLaunch({ url: "/pages/admin/index" })
               break
             default:
-              
+
               this.setData({ ready: true, sub: Boolean(user.data.wxId) })
               await this.start()
               break
@@ -205,16 +254,16 @@ Page({
   },
 
   trial(){
-    wx.showLoading({ title: 'login' })
-    wx.login({
-      success: async login => {
-        // 发送网络请求，获取在线账户
-        const { code } = await api.trial({ js_code: login.code})
-        if (code) {
-          this.start()
-          wx.hideLoading()
-        }
-      }
+    // ★ 试用模式:不调真实 trial 接口,直接塞写死的 demo 设备
+    //   - wx.login + api.trial 拿到的 token 在 bindDev 拉不到真实设备,空首页体验差
+    //   - demo 设备仅用于 UI 预览,点击进设备详情页是空数据(预期行为)
+    const demoDtuItem = buildDemoDtuItem(DEMO_DTU)
+    this.setData({
+      DTUs: [DEMO_DTU] as any,
+      dtuItem: demoDtuItem as any,
+      onlineCount: demoDtuItem.filter((d: any) => d.online).length,
+      ready: true,
+      confirm: true,  // 屏蔽「添加设备」模态
     })
   }
 

@@ -118,7 +118,7 @@ page {
   display: none;  /* 老 hero-nick 隐藏(被下方 nick-input 替代) */
 }
 
-/* 昵称输入(type="nickname"——唤起「使用微信昵称」快捷选项) */
+/* 昵称输入(type="nickname"——唤起「使用当前账号昵称」快捷选项) */
 .nick-row {
   margin: 4rpx 0 4rpx;
   display: flex;
@@ -126,7 +126,7 @@ page {
 }
 
 .nick-input {
-  /* input 是微信原生组件,padding 在某些基础库下不生效,
+  /* input 是原生组件,padding 在某些基础库下不生效,
      必须用 height/min-height 强制撑开,否则会被压扁成一条线 */
   width: 440rpx;
   height: 72rpx;
@@ -203,7 +203,7 @@ page {
   transform: scale(0.99);
 }
 
-/* === 表单卡（账号登录 + 微信手机号输入降级） === */
+/* === 表单卡（账号登录 + 手机号输入降级） === */
 .card {
   margin: 20rpx 20rpx 0;
   background: #ffffff;
@@ -289,19 +289,19 @@ page {
   background: rgba(72, 126, 217, 0.20);
 }
 
-/* === 微信手机号授权大按钮(主路径) === */
+/* === 手机号快捷登录大按钮(主路径) === */
 .btn-wx-phone {
   display: block;
   width: 100%;
   margin-top: 12rpx;
   padding: 24rpx 0;
-  background: linear-gradient(135deg, #07c160 0%, #04a350 100%);
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
   color: #ffffff;
   font-size: 28rpx;
   font-weight: 500;
   border-radius: 16rpx;
   text-align: center;
-  box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.30);
+  box-shadow: 0 6rpx 20rpx rgba(72, 126, 217, 0.30);
   transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.15s ease;
   border: none;
   line-height: 1.4;
@@ -313,7 +313,7 @@ page {
 
 .btn-wx-phone:active {
   transform: scale(0.98);
-  box-shadow: 0 3rpx 10rpx rgba(7, 193, 96, 0.22);
+  box-shadow: 0 3rpx 10rpx rgba(72, 126, 217, 0.22);
 }
 
 .btn-wx-phone[disabled] {
@@ -354,12 +354,12 @@ page {
   border-left: 1rpx solid rgba(255, 255, 255, 0.35);
 }
 
-/* 微信手机号已获取 - 状态卡 */
+/* 手机号已获取 - 状态卡 */
 .tel-success {
   margin-top: 18rpx;
   padding: 16rpx 20rpx;
-  background: rgba(7, 193, 96, 0.06);
-  border: 1rpx solid rgba(7, 193, 96, 0.20);
+  background: rgba(72, 126, 217, 0.06);
+  border: 1rpx solid rgba(72, 126, 217, 0.20);
   border-radius: 12rpx;
 }
 

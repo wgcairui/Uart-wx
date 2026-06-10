@@ -58,6 +58,13 @@ Page({
     })
   },
   async onReady() {
+    // 试用模式短路:demo 设备没有真实协议/阈值数据,后端会返回权限不足。
+    // 改为根据设备 Type 注入写死的 mock 数据,页面能展示完整骨架(参数列表/温湿度大数字/UPS 工作模式)
+    if (this.isDemoMode()) {
+      this.loadDemoData()
+      wx.hideLoading()
+      return
+    }
     wx.showLoading({ title: '获取运行数据' })
     const sys = await api.getAlarmProtocol(this.data.protocol)
     const user = await api.getUserAlarmProtocol(this.data.protocol)
@@ -70,8 +77,8 @@ Page({
       this.setData({
         "Constant.user": user.data,
       })
-      
-      
+
+
     }
     if(user.data?.ShowTag?.length > 0){
       this.setData({
@@ -89,6 +96,131 @@ Page({
 
     await this.GetDevsRunInfo()
     wx.hideLoading()
+  },
+
+  // 判定是否试用模式:demo 设备用 'DEMO-' 前缀的 MAC,后端没有这些数据,一律静默失败
+  isDemoMode(): boolean {
+    return /^DEMO-/.test(this.data.mac || '')
+  },
+
+  // 试用模式 - 注入 mock 数据
+  // 根据当前 Type 注入对应的 Constant + result 列表,
+  // 字段对齐 wxml 渲染依赖:result.time / result.result[] / Constant.sys.Constant.{WorkMode,Temperature,Humidity} / th.*
+  loadDemoData() {
+    const type = this.data.Type
+    const now = new Date().toLocaleString('zh-CN', { hour12: false })
+
+    // 通用 - 全部展示项(枚举型参数用 issimulate=true + options,实参型用 unit)
+    const baseRow = (overrides: any) => ({
+      alarm: false,
+      issimulate: false,
+      options: null,
+      unit: null,
+      ...overrides,
+    })
+
+    if (type === 'UPS') {
+      this.setData({
+        'Constant.sys': {
+          Constant: {
+            WorkMode: '工作模式',
+            InputVolt: '输入电压',
+            OutputVolt: '输出电压',
+            Load: '负载',
+            Battery: '电池容量',
+            Temperature: '机内温度',
+          },
+        } as any,
+        'Constant.user': { Constant: {} } as any,
+        'Constant.show': new Set(),
+        result: {
+          time: now,
+          result: [
+            baseRow({ name: '工作模式', parseValue: '在线模式', issimulate: true, options: [
+              { key: '0', value: '在线模式' },
+              { key: '1', value: '电池模式' },
+              { key: '2', value: '旁路模式' },
+            ]}),
+            baseRow({ name: '输入电压', parseValue: '220.5', unit: 'V' }),
+            baseRow({ name: '输出电压', parseValue: '220.0', unit: 'V' }),
+            baseRow({ name: '负载', parseValue: '38', unit: '%' }),
+            baseRow({ name: '电池容量', parseValue: '96', unit: '%' }),
+            baseRow({ name: '机内温度', parseValue: '32.5', unit: '℃' }),
+            baseRow({ name: '输入频率', parseValue: '50.02', unit: 'Hz' }),
+            baseRow({ name: '输出频率', parseValue: '50.00', unit: 'Hz' }),
+          ],
+        } as any,
+        upsPic: 'http://www.ladishb.com/upload/342021__ups3.gif',  // 在线模式对应图
+      })
+      return
+    }
+
+    if (type === '温湿度') {
+      this.setData({
+        'Constant.sys': {
+          Constant: {
+            Temperature: '温度',
+            Humidity: '湿度',
+          },
+        } as any,
+        'Constant.user': { Constant: {} } as any,
+        'Constant.show': new Set(),
+        result: {
+          time: now,
+          result: [
+            baseRow({ name: '温度', parseValue: '24.6', unit: '℃' }),
+            baseRow({ name: '湿度', parseValue: '58.2', unit: '%' }),
+            baseRow({ name: '露点', parseValue: '15.8', unit: '℃' }),
+            baseRow({ name: '舒适度', parseValue: '舒适', issimulate: true, options: [
+              { key: '0', value: '舒适' },
+              { key: '1', value: '较舒适' },
+              { key: '2', value: '不舒适' },
+            ]}),
+          ],
+        } as any,
+        th: { temperature: '24.6', humidity: '58.2' },
+      })
+      return
+    }
+
+    // 电量仪 + 默认 fallback
+    if (type === '电量仪') {
+      this.setData({
+        'Constant.sys': { Constant: {} } as any,
+        'Constant.user': { Constant: {} } as any,
+        'Constant.show': new Set(),
+        result: {
+          time: now,
+          result: [
+            baseRow({ name: '电压', parseValue: '220.3', unit: 'V' }),
+            baseRow({ name: '电流', parseValue: '5.42', unit: 'A' }),
+            baseRow({ name: '有功功率', parseValue: '1.18', unit: 'kW' }),
+            baseRow({ name: '无功功率', parseValue: '0.12', unit: 'kVar' }),
+            baseRow({ name: '功率因数', parseValue: '0.98' }),
+            baseRow({ name: '正向有功电能', parseValue: '1234.56', unit: 'kWh' }),
+            baseRow({ name: '频率', parseValue: '50.01', unit: 'Hz' }),
+          ],
+        } as any,
+      })
+      return
+    }
+
+    // 未知类型 - 给一组通用参数
+    this.setData({
+      'Constant.sys': { Constant: {} } as any,
+      'Constant.user': { Constant: {} } as any,
+      'Constant.show': new Set(),
+      result: {
+        time: now,
+        result: [
+          baseRow({ name: '运行状态', parseValue: '正常', issimulate: true, options: [
+            { key: '0', value: '正常' },
+            { key: '1', value: '告警' },
+          ]}),
+          baseRow({ name: '采样值', parseValue: '128', unit: 'count' }),
+        ],
+      } as any,
+    })
   },
   /**
    * 生命周期函数--监听页面显示
