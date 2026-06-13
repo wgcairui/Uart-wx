@@ -817,10 +817,20 @@ class api {
 
   /**
    * 获取code对应的base64QR图片数据
-   * @param code 
+   * @param code
    */
   qr(code: string) {
     return this.fetch<string>("v2/user/profile/qr", { code })
+  }
+
+  /**
+   * 上报客户端错误 (对齐 server 规范 v1, 2026-06-13 与 uart-server 协商)
+   * POST v2/user/error-log
+   * @param payload Uart.ClientErrorLogDto
+   * @param timeout 默认 10s, 错误上报不阻塞主流程太久
+   */
+  reportError(payload: Uart.ClientErrorLogDto, timeout: number = 10 * 1000) {
+    return this.fetch("v2/user/error-log", payload, "POST", timeout)
   }
 
 
