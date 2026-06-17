@@ -917,6 +917,27 @@ class api {
                     })
                     break
                   case 500:
+                    {
+                      // 2026-06-17: 加诊断日志,前端这边 stack/url/method 都缺,
+                      // 下次 devs 页面弹 "请求出错 / Cannot read properties of null"
+                      // 时,能从 dev tools console 直接拿到这次请求的 url/method/params
+                      // 和后端 response.message,定位是哪个 endpoint 抛的
+                      //
+                      // requestId 优先用后端 X-Request-Id(配合 server-error-record
+                      // 落库的 requestId 一一对应),fallback 客户端自生成
+                      const _headers: any = (res as any).header || {}
+                      const _serverReqId = _headers['X-Request-Id'] || _headers['x-request-id']
+                      console.error('[api-500]', {
+                        requestId: _serverReqId || ('client-' + Date.now().toString(36)),
+                        ts: new Date().toISOString(),
+                        url,
+                        method,
+                        params: method === 'GET' ? data : undefined,
+                        body: method !== 'GET' ? data : undefined,
+                        tokenSuffix: token ? String(token).slice(-6) : '(no-token)',
+                        response: res.data
+                      })
+                    }
                     wx.showModal({
                       title: '请求出错',
                       content: res.data.message
