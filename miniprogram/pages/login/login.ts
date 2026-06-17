@@ -13,7 +13,6 @@ Page({
       avatarUrl: DEFAULT_AVATAR,
     } as WechatMiniprogram.UserInfo,
     hasWxProfile: false,  // 是否拿到真实微信头像/昵称
-    avatarTip: '点击设置头像和昵称',  // 头像下方提示文案
     hasWxTel: false,  // 是否已通过微信授权拿到手机号
     tel: '',  // 微信拿到的手机号(后 4 位用于默认昵称)
     telFromInput: '',  // 用户手输的手机号(降级路径)
@@ -58,13 +57,12 @@ Page({
     console.log('[login] onChooseAvatar tempUrl:', tempUrl)
     if (!tempUrl) {
       // 用户在 chooseAvatar 面板点了关闭(没选)
-      this.setData({ avatarTip: '没选择?可点我重新选,或继续用默认头像注册' })
+      // 2026-06-18: 头像下方提示胶囊已去掉, 此处不再 setData 提示文案
       return
     }
     this.setData({
       'userInfo.avatarUrl': tempUrl,
       hasWxProfile: true,
-      avatarTip: '',
     })
     // 拿完头像 → 自动跳到手机号授权(如果还没拿)
     if (!this.data.hasWxTel) {

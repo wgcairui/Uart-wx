@@ -41,10 +41,6 @@
       />
     </view>
 
-    <view class="avatar-tip" wx:if="{{avatarTip}}">
-      <text class="avatar-tip-text">👆 {{avatarTip}}</text>
-    </view>
-
     <view class="hero-trial" bindtap="trial">
       <text class="hero-trial-text">🎁 我要试用</text>
     </view>
