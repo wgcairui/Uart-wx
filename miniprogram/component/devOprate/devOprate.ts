@@ -9,6 +9,11 @@ Component({
   properties: {
     protocol: {
       type: String
+    },
+    // 2026-06-17: 父组件传 loading 状态，按钮 disabled + 显示 loading 图标
+    loading: {
+      type: Boolean,
+      value: false
     }
   },
 

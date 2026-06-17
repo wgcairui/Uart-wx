@@ -7,3 +7,9 @@
 .control .van-button{
   margin: 8rpx 16rpx;
 }
+/* 2026-06-17: loading 时按钮视觉反馈 (van-button 自带 .van-button--disabled) */
+.control .van-button.van-button--disabled{
+  opacity: 0.55;
+  background: var(--primary-color, #487ed9) !important;
+  color: #fff !important;
+}

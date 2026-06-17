@@ -255,40 +255,44 @@ Page({
       })
       return
     }
-    wx.showLoading({ title: '正在发送' })
+    // 2026-06-17: ActionSheet 关闭动画跟 showLoading 有竞争，
+    // 延 1 帧再弹 loading，确保遮罩一定出现
+    setTimeout(() => {
+      wx.showLoading({ title: '正在发送', mask: true })
+    }, 16)
     this.setData({
       _oprateStat: true
     })
-    const { code, data, msg } = await api.SendProcotolInstructSet({ mountDev: this.data.mountDev, pid: Number(this.data.pid), protocol: this.data.protocol, DevMac: this.data.mac } as any, item)
+    let resp: { code?: number; data?: any; msg?: string }
+    try {
+      resp = await api.SendProcotolInstructSet({ mountDev: this.data.mountDev, pid: Number(this.data.pid), protocol: this.data.protocol, DevMac: this.data.mac } as any, item)
+    } catch (err) {
+      // 网络层 / fetch 异常，api.ts 已 console.error 过
+      this.setData({ _oprateStat: false })
+      wx.hideLoading()
+      wx.showModal({
+        title: '网络异常',
+        content: '指令发送失败，请检查网络后重试',
+        showCancel: false
+      })
+      return
+    }
     this.setData({
       _oprateStat: false
     })
     wx.hideLoading()
-    // 如果设备未通过校验，则跳转到校验短信验证码页面
-    /* if (ok === 4) {
-      wx.showModal({
-        title: '权限验证',
-        content: '操作指令需要验证您的设备,是否通过短信开始验证？',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: '/pages/util/smsValidation/smsValidation',
-              events: {
-                validationSuccess: () => {
-                  console.log('sms validation success');
-                  this.oprate({ detail: item })
-                }
-              }
-            })
-          }
-        }
-      })
-    }  */
-    wx.showModal({
-      title: code ? 'Success' : 'Error',
-      content: code ? data.msg : msg
-    })
 
+    if (resp.code) {
+      // 成功 → 轻量 toast，不阻塞用户
+      wx.showToast({ title: resp.data?.msg || '发送成功', icon: 'success', duration: 1500 })
+    } else {
+      // 业务失败 / server 抛错 → 弹窗，msg 兜底
+      wx.showModal({
+        title: '发送失败',
+        content: resp.msg || resp.data?.message || '指令未执行，请重试',
+        showCancel: false
+      })
+    }
   },
   // 跳转告警设置（直接进主页，不弹菜单）
   alarm(_e: vantEvent) {

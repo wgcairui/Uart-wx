@@ -54,7 +54,7 @@
     <view class="param-card">
       <view class="param-card-head">
         <view class="param-card-label">运行状态</view>
-        <dev-oprate protocol="{{protocol}}" bind:oprate="oprate" bind:alarm="alarm"></dev-oprate>
+        <dev-oprate protocol="{{protocol}}" loading="{{_oprateStat}}" bind:oprate="oprate" bind:alarm="alarm"></dev-oprate>
       </view>
     </view>
 
