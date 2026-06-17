@@ -1,4 +1,5 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "注册设备"
+  "enablePullDownRefresh": true,
+  "navigationBarTitleText": "批量登记设备"
 }
