@@ -8,12 +8,12 @@ Page({
    * 页面的初始数据
    */
   data: {
-    active: 0 as 0 | 1,  // 0 = 微信注册, 1 = 账号登录
+    active: 0 as 0 | 1,  // 0 = 手机号登录, 1 = 账号登录
     userInfo: {
       avatarUrl: DEFAULT_AVATAR,
     } as WechatMiniprogram.UserInfo,
     hasWxProfile: false,  // 是否拿到真实微信头像/昵称
-    avatarTip: '点击获取微信头像和昵称',  // 头像下方提示文案
+    avatarTip: '点击设置头像和昵称',  // 头像下方提示文案
     hasWxTel: false,  // 是否已通过微信授权拿到手机号
     tel: '',  // 微信拿到的手机号(后 4 位用于默认昵称)
     telFromInput: '',  // 用户手输的手机号(降级路径)
@@ -95,7 +95,7 @@ Page({
   promptGetPhone() {
     wx.showModal({
       title: '继续完成注册',
-      content: '接下来需要您授权使用微信绑定的手机号,即可完成注册。',
+      content: '接下来需要您授权使用本机手机号,即可完成注册。',
       confirmText: '好的',
       showCancel: false,
     })
@@ -106,7 +106,7 @@ Page({
     const k = Number(e.currentTarget.dataset.key) as 0 | 1
     if (k === this.data.active) return
     this.setData({ active: k })
-    wx.setNavigationBarTitle({ title: k === 0 ? '微信注册' : '账号登录' })
+    wx.setNavigationBarTitle({ title: k === 0 ? '手机号登录' : '账号登录' })
   },
 
   // 输入双向绑定(自实现 input 不能用 model:value,所以单独 handler)
@@ -142,7 +142,7 @@ Page({
       }
       const tel = data.phoneNumber
       // 优先级修复:之前 `'user' + tel.slice(-4)` 因为 + 优先级高于 ||,实际是 (this.data.userInfo.nickName || 'user') + tel.slice(-4),可读性差;加括号明确语义
-      const fallbackNick = '微信用户' + tel.slice(-4)
+      const fallbackNick = '用户' + tel.slice(-4)
       const nextNick = this.data.userInfo.nickName || fallbackNick
       this.setData({
         tel,
@@ -155,7 +155,7 @@ Page({
       if (!this.data.hasWxProfile) {
         wx.showModal({
           title: '完善资料',
-          content: '点击上方头像区域,选择微信头像或自定义图片。',
+          content: '点击上方头像区域,设置头像或自定义图片。',
           confirmText: '我知道了',
           showCancel: false,
         })
@@ -192,7 +192,7 @@ Page({
     const { code, message } = await api.registerUser({
       user: unionid,
       openid,
-      name: nickName || '微信用户',
+      name: nickName || '用户',
       avanter: avatarUrl || DEFAULT_AVATAR,
       tel,
     })
