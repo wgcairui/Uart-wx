@@ -239,7 +239,7 @@ Page({
     this.oprate({ detail: { name: item.name, value: opt.key, val: Number(opt.key) } as any })
   },
 
-  // 发送操作指令
+  // 发送操作指令（处理中含 server 处理 + 设备 socket 通信，全屏遮罩一直挂到响应）
   async oprate(e: Pick<vantEvent<Uart.OprateInstruct>, 'detail'>) {
     if (this.data._oprateStat) return
     const item: Uart.OprateInstruct = e.detail
@@ -258,7 +258,7 @@ Page({
     // 2026-06-17: ActionSheet 关闭动画跟 showLoading 有竞争，
     // 延 1 帧再弹 loading，确保遮罩一定出现
     setTimeout(() => {
-      wx.showLoading({ title: '正在发送', mask: true })
+      wx.showLoading({ title: '正在处理', mask: true })
     }, 16)
     this.setData({
       _oprateStat: true
