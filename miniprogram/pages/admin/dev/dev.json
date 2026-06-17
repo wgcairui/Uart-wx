@@ -1,7 +1,5 @@
 {
-  "usingComponents": {
-    "van-field": "@vant/weapp/field/index"
-  },
+  "usingComponents": {},
   "enablePullDownRefresh": false,
-  "navigationBarTitleText": "查询注册设备"
+  "navigationBarTitleText": "查询 LADS 设备"
 }

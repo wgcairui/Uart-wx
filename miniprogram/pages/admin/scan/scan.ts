@@ -1,114 +1,202 @@
+// miniprogram/pages/admin/scan/scan.ts
+// 管理员扫 DTU 条形码 → 查询透传DTU详细信息 + AT 指令 / 远程调试 / 初始化
+// 视觉规范见 docs/style-guide.md
+
 import { ObjectToStrquery } from "../../../utils/util"
 import api from "../../../utils/api"
+
+interface InfoRow {
+  label: string
+  value: string
+  empty?: boolean
+}
+
+interface MountDevCard {
+  type: string
+  mountDev: string
+  pid: string | number
+  protocol: string
+  bindDev: string
+  online: boolean
+  onlineLabel: string
+  raw: Uart.TerminalMountDevs
+}
+
 Page({
   data: {
     mac: '',
     macs: [] as string[],
     terminal: {
       name: '',
+      DevMac: '',
       mountNode: '',
-      mountDevs: [] as Uart.TerminalMountDevs[],
       uptime: '',
+      AT: false,
+      jw: '',
+      port: 0,
+      uart: '',
       signal: 0,
-      remark: ''
-    } as Uart.Terminal,
-    remoteUrl: '',
+      remark: '',
+      online: false,
+      onlineLabel: '离线',
+      mountDevs: [] as Uart.TerminalMountDevs[],
+      iccidInfo: null as any,
+    } as Uart.Terminal & { onlineLabel: string },
+
+    // 派生
+    terminalInfo: [] as InfoRow[],
+    iccidInfo: [] as InfoRow[],
+    iccidFlowPercent: 0,
+    hasIccid: false,
+    mountDevCards: [] as MountDevCard[],
+
+    // 操作按钮区
     uarts: ['2400,8,1,NONE,NFC', '4800,8,1,NONE,HD', '9600,8,1,NONE,HD', '19200,8,1,NONE,HD', '115200,8,1,NONE,HD'],
-    qrReady: false
   },
 
   onLoad() {
     wx.getStorage({
       key: "macHis",
       success: (res) => {
-        console.log(res.data);
-        this.setData({
-          macs: res.data
-        })
+        this.setData({ macs: res.data || [] })
       }
     })
   },
+
   // 调用微信api，扫描DTU条形码
   async scanMac() {
     const scanResult = await wx.scanCode({})
-    this.setData({
-      mac: scanResult.result
-    })
+    this.setData({ mac: scanResult.result })
     this.scanRequst()
   },
+
+  // 输入框回车
+  onMacInput(e: WechatMiniprogram.Input) {
+    this.setData({ mac: e.detail.value })
+  },
+
   // 查询DTU设备信息
   async scanRequst() {
+    if (!this.data.mac) return
     wx.showLoading({ title: '查询中' })
     const { code, data } = await api.getRootTerminal(this.data.mac)
     wx.hideLoading()
-    if (code && data) {
-      this.setData({
-        mac: data.DevMac,
-        terminal: data
-      })
+    if (code === 200 && data) {
       this.addHis(data.DevMac)
-      api.onMessage<string>('MacUpdate'+data.DevMac, () => {
-        console.log(`listen MacUpdate,mac:${data.DevMac}`);
-        this.scanMac()
+      this.rebuildTerminal(data)
+      api.onMessage<string>('MacUpdate' + data.DevMac, () => {
+        console.log(`listen MacUpdate, mac:${data.DevMac}`)
+        this.scanRequst()
       })
     } else {
       wx.showModal({
-        title: 'search',
-        content: '此设备没有注册，请核对设备是否在我司渠道购买'
+        title: '查询失败',
+        content: '此设备没有注册，请核对设备是否在我司渠道购买',
+        showCancel: false,
       })
     }
   },
 
   /**
-   * 点击历史记录查询
-   * @param e 
+   * 点击历史记录 chip 查询
    */
-  search(e:vantEvent){
-    this.setData({
-      mac:e.target.id
-    })
+  search(e: WechatMiniprogram.TouchEvent) {
+    this.setData({ mac: (e.currentTarget as any).id })
     this.scanRequst()
   },
 
   /**
-   * 添加历史记录
-   * @param mac 
+   * 添加历史记录（最多 6 个）
    */
   addHis(mac: string) {
-    if (this.data.macs.length > 5) {
-      this.data.macs.pop()
+    const macSet = new Set([mac, ...this.data.macs])
+    if (macSet.size > 6) {
+      const arr = Array.from(macSet)
+      this.data.macs = arr.slice(0, 6)
     }
-    const macSet = new Set(this.data.macs)
-    macSet.add(mac)
+    const list = Array.from(macSet).slice(0, 6)
+    this.setData({ macs: list })
+    wx.setStorage({ key: 'macHis', data: list })
+  },
+
+  /**
+   * 派生 terminal 信息卡数据
+   */
+  rebuildTerminal(data: Uart.Terminal) {
+    const terminal = {
+      ...data,
+      onlineLabel: data.online ? '在线' : '离线',
+    } as any
+    const terminalInfo: InfoRow[] = [
+      { label: 'IMEI',     value: data.DevMac || '—' },
+      { label: 'DTU 名称', value: data.name || '—' },
+      { label: '接入节点', value: data.mountNode || '—' },
+      { label: '上线时间', value: data.uptime || '—' },
+      { label: 'AT 指令',  value: data.AT ? '支持' : '不支持' },
+      { label: 'GPS',      value: data.jw || '—' },
+      { label: 'Port',     value: data.port ? String(data.port) : '—' },
+      { label: '通讯',     value: data.uart || '—' },
+      { label: '信号强度', value: data.signal != null ? `> ${data.signal}` : '—' },
+      { label: '备注',     value: data.remark || '—', empty: !data.remark },
+      { label: '挂载设备', value: `${(data.mountDevs || []).length} 个` },
+    ]
+    // 物联卡信息
+    const icc = (data as any).iccidInfo
+    let iccidInfo: InfoRow[] = []
+    let iccidFlowPercent = 0
+    const hasIccid = Boolean(icc && icc.statu)
+    if (hasIccid) {
+      const total = Number(icc.flowResource) || 0
+      const used = Number(icc.flowUsed) || 0
+      iccidFlowPercent = total > 0 ? Math.min(100, Math.round((used / total) * 100)) : 0
+      iccidInfo = [
+        { label: '起始日期',   value: icc.validDate || '—' },
+        { label: '结束日期',   value: icc.expireDate || '—' },
+        { label: '全部流量',   value: total ? `${(total / 1024).toFixed(2)} MB` : '—' },
+        { label: '已使用流量', value: used  ? `${(used  / 1024).toFixed(2)} MB` : '—' },
+        { label: '使用比例',   value: `${iccidFlowPercent}%` },
+        { label: '套餐',       value: icc.resName || '—' },
+      ]
+    }
+
+    // 挂载设备卡（每项派生 onlineLabel）
+    const mountDevCards: MountDevCard[] = (data.mountDevs || []).map((el: any) => ({
+      type: el.Type || '—',
+      mountDev: el.mountDev || '—',
+      pid: el.pid,
+      protocol: el.protocol || '—',
+      bindDev: el.bindDev || '—',
+      online: Boolean(el.online),
+      onlineLabel: el.online ? '在线' : '离线',
+      raw: el,
+    }))
+
     this.setData({
-      macs: [...macSet]
-    })
-    wx.setStorage({
-      key: 'macHis',
-      data: [...macSet]
+      mac: data.DevMac,
+      terminal,
+      terminalInfo,
+      iccidInfo,
+      iccidFlowPercent,
+      hasIccid,
+      mountDevCards,
     })
   },
 
+  // 初始化 DTU
   async initTerminal() {
     const { confirm } = await wx.showModal({
-      title: '初始化' + this.data.terminal.name,
-      content: '初始化操作不可逆,会清除dtu绑定的设备信息,告警信息,且只能清除未被绑定的dtu!!!'
+      title: '初始化 ' + this.data.terminal.name,
+      content: '初始化操作不可逆，会清除 DTU 绑定的设备信息、告警信息，且只能清除未被绑定的 DTU!!!',
     })
-    if (confirm) {
-      wx.showLoading({ title: 'loading' })
-      const { code, data, msg } = await api.initTerminal(this.data.terminal.DevMac)
-      if (code) {
-        wx.showModal({
-          title: 'success',
-          content: `耗时${data}ms`
-        })
-        this.scanRequst()
-      } else {
-        wx.showModal({
-          title: 'error',
-          content: msg
-        })
-      }
+    if (!confirm) return
+    wx.showLoading({ title: '正在初始化…' })
+    const { code, data, message } = await api.initTerminal(this.data.terminal.DevMac)
+    wx.hideLoading()
+    if (code === 200) {
+      wx.showModal({ title: '完成', content: `耗时 ${data}ms`, showCancel: false })
+      this.scanRequst()
+    } else {
+      wx.showModal({ title: '初始化失败', content: message || '请稍后重试', showCancel: false })
     }
   },
 
@@ -116,294 +204,154 @@ Page({
    * 修改波特率
    */
   async modifyUart() {
-    const d = await wx.showActionSheet({
-      itemList: this.data.uarts
-    })
-    if (this.data.terminal.DevMac && d.errMsg === 'showActionSheet:ok') {
-      const uart = `+++AT+UART=1,` + this.data.uarts[d.tapIndex]
-      wx.showLoading({ title: '正在修改' })
-      const { code, data } = await api.sendATInstruct(this.data.terminal.DevMac, uart)
-      wx.hideLoading()
-      if (code && data.ok) {
-        wx.showToast({
-          title: 'success',
-          content: data.msg
-        })
-        this.setData({
-          "terminal.uart": this.data.uarts[d.tapIndex]
-        })
-      } else {
-        wx.showModal({
-          title: '操作失败',
-          content: data.msg
-        })
-      }
+    if (!this.data.terminal.DevMac) return
+    let d: WechatMiniprogram.ShowActionSheetSuccessCallbackResult
+    try {
+      d = await wx.showActionSheet({ itemList: this.data.uarts })
+    } catch (e) {
+      return
     }
-
+    const uart = `+++AT+UART=1,` + this.data.uarts[d.tapIndex]
+    wx.showLoading({ title: '正在修改' })
+    const { code, data, message } = await api.sendATInstruct(this.data.terminal.DevMac, uart)
+    wx.hideLoading()
+    if (code === 200 && data?.ok) {
+      wx.showToast({ title: '已修改', icon: 'success' })
+      this.setData({ "terminal.uart": this.data.uarts[d.tapIndex] })
+    } else {
+      wx.showModal({ title: '操作失败', content: data?.msg || message || '请稍后重试', showCancel: false })
+    }
   },
 
+  // 重启 DTU
   async resetDtu() {
-    wx.showModal({
-      title: "重启Dtu",
-      content: "确定现在重启Dtu吗?",
-      success: async () => {
-        const uart = `+++AT+Z`
-        wx.showLoading({ title: '正在修改' })
-        const { code, data } = await api.sendATInstruct(this.data.terminal.DevMac, uart)
-        wx.hideLoading()
-        if (code) {
-          wx.showToast({
-            title: 'success',
-            content: data.msg
-          })
-        }
-      }
-    })
+    const { confirm } = await wx.showModal({ title: '重启 DTU', content: '确定现在重启 DTU 吗?' })
+    if (!confirm) return
+    wx.showLoading({ title: '正在重启' })
+    const uart = `+++AT+Z`
+    const { code, data, message } = await api.sendATInstruct(this.data.terminal.DevMac, uart)
+    wx.hideLoading()
+    if (code === 200) {
+      wx.showToast({ title: data?.msg || '已重启', icon: 'success' })
+    } else {
+      wx.showModal({ title: '重启失败', content: message || '请稍后重试', showCancel: false })
+    }
   },
+
   /**
-   * 绑定设备id
+   * 绑定设备 id：扫一个设备编号，确认后挂到当前 DTU
    */
   async bindDevId() {
-    const scanResult = await wx.scanCode({})
-    wx.showLoading({ title: 'loading' })
+    let scanResult: WechatMiniprogram.ScanCodeSuccessCallbackResult
+    try {
+      scanResult = await wx.scanCode({})
+    } catch (e) {
+      return
+    }
+    wx.showLoading({ title: '查询中' })
     const t = await api.getTerminal(scanResult.result)
     if (t.data) {
       wx.hideLoading()
       wx.showModal({
-        title: 'error',
-        content: `${scanResult.result}已被dtu:${t.data.DevMac} 绑定`
+        title: '已被绑定',
+        content: `${scanResult.result} 已被 DTU: ${t.data.DevMac} 绑定`,
+        showCancel: false,
       })
       return
     }
-    const { data } = await api.getRegisterDev(scanResult.result)
+    const { code, data } = await api.getRegisterDev(scanResult.result)
     wx.hideLoading()
-    if (data) {
+    if (code === 200 && data) {
       const { confirm } = await wx.showModal({
         title: '确认绑定信息',
-        content: `类型:${data.Type}\n 设备:${data.mountDev}\n 协议:${data.protocol}\n 地址:${data.pid}`
+        content: `类型: ${data.Type}\n设备: ${data.mountDev}\n协议: ${data.protocol}\n地址: ${data.pid}`,
       })
-      if (confirm) {
-        wx.showLoading({ title: '正在绑定设备' })
-        const r = await api.addTerminalMountDev(this.data.terminal.DevMac, { mountDev: data.mountDev, Type: data.Type, protocol: data.protocol, pid: data.pid, bindDev: scanResult.result })
-        wx.hideLoading()
-        if (r.code) {
-          wx.showToast({
-            title: '设备绑定成功'
-          })
-          this.scanRequst()
-        }
+      if (!confirm) return
+      wx.showLoading({ title: '正在绑定' })
+      const r = await api.addTerminalMountDev(this.data.terminal.DevMac, {
+        mountDev: data.mountDev,
+        Type: data.Type,
+        protocol: data.protocol,
+        pid: data.pid,
+        bindDev: scanResult.result,
+      } as any)
+      wx.hideLoading()
+      if (r.code === 200) {
+        wx.showToast({ title: '绑定成功', icon: 'success' })
+        this.scanRequst()
+      } else {
+        wx.showModal({ title: '绑定失败', content: (r as any).message || '请稍后重试', showCancel: false })
       }
     } else {
       wx.showModal({
-        title: '流程出错',
-        content: `${scanResult.result}未注册,请先注册后绑定`
+        title: '未注册',
+        content: `${scanResult.result} 未注册，请先注册后绑定`,
+        showCancel: false,
       })
     }
-
   },
 
-  // 查看设备数据
-  see(event: vantEvent<Uart.TerminalMountDevs>) {
-    const { pid, mountDev, protocol, Type } = event.currentTarget.dataset.item
+  // 查看挂载设备的运行数据
+  see(e: WechatMiniprogram.TouchEvent) {
+    const item = (e.currentTarget.dataset as any).item as Uart.TerminalMountDevs
     wx.navigateTo({
-      url: '/pages/admin/devs/devs' + ObjectToStrquery({ pid: String(pid), mountDev, protocol, DevMac: this.data.terminal.DevMac, Type })
+      url: '/pages/admin/devs/devs' + ObjectToStrquery({
+        pid: String(item.pid),
+        mountDev: item.mountDev,
+        protocol: item.protocol,
+        DevMac: this.data.terminal.DevMac,
+        Type: item.Type,
+      }),
     })
   },
 
-  // 删除绑定设备
-  async rmBind(e: vantEvent<Uart.registerDev>) {
-    const item = e.currentTarget.dataset.item
+  // 删除挂载的设备
+  async rmBind(e: WechatMiniprogram.TouchEvent) {
+    const item = (e.currentTarget.dataset as any).item as Uart.TerminalMountDevs
     const { confirm } = await wx.showModal({
-      title: '删除绑定设备',
-      content: `确定删除 ${item.mountDev} ???`
+      title: '删除挂载设备',
+      content: `确定删除 ${item.mountDev}?`,
     })
-    if (confirm) {
-      api.delTerminalMountDev(this.data.terminal.DevMac, item.pid).then(() => {
-        this.scanRequst()
-      })
+    if (!confirm) return
+    const { code, message } = await api.delTerminalMountDev(this.data.terminal.DevMac, item.pid)
+    if (code === 200) {
+      wx.showToast({ title: '已删除', icon: 'success' })
+      this.scanRequst()
+    } else {
+      wx.showModal({ title: '删除失败', content: message || '请稍后重试', showCancel: false })
     }
-
-
   },
-  //远程调试设备
+
+  // 远程调试
   async iotRemoteUrl() {
     const { code, data } = await api.iotRemoteUrl(this.data.mac)
-    if (!code) {
+    if (code !== 200) {
+      wx.showModal({ title: '获取失败', content: '设备未绑定到 IOT 账号', showCancel: false })
+      return
+    }
+    if (!/remote_code=$/.test(data)) {
       wx.showModal({
-        title: '获取失败',
-        content: '设备未绑定到IOT账号'
-      })
-    } else {
-      if (!/remote_code=$/.test(data)) {
-        wx.showModal({
-          title: '调试地址',
-          content: data,
-          success() {
+        title: '调试地址',
+        content: data,
+        confirmText: '复制',
+        success: (res) => {
+          if (res.confirm) {
             wx.setClipboardData({
               data,
-              success() {
-                wx.showToast({
-                  title: '已复制网址到剪切板'
-                })
-              }
+              success: () => wx.showToast({ title: '已复制到剪贴板', icon: 'success' }),
             })
           }
-        })
-      } else {
-        wx.showModal({
-          title: '获取失败',
-          content: '设备未连接到iot server中心'
-        })
-      }
+        },
+      })
+    } else {
+      wx.showModal({ title: '获取失败', content: '设备未连接到 IOT server 中心', showCancel: false })
     }
   },
 
-
-
-  /**
-   * 生成标签
-   */
-  /* async generateLabel() {
-    this.setData({
-      qrReady: false
-    })
-    const mac = this.data.terminal.DevMac
-    const pic_readmeqr = await this.dowmPic("https://www.ladishb.com/upload/9_18_2021_qrcode_www.yuque.com.png")
-    const pic_wpqr = await this.dowmPic("https://www.ladishb.com/upload/3312021__LADS_Uart.5df2cc6.png")
-    const pic_mac = await this.generateFile(mac)
-    this.setData({
-      qrReady: true
-    })
-    const res = await new Promise<any>(resolve => {
-      wx.createSelectorQuery()
-        .select("#canvas1")
-        .fields({ node: true, size: true })
-        .exec(res => resolve(res))
-    })
-    const canvas = res[0].node as WechatMiniprogram.Canvas
-    canvas.height = 180
-    canvas.width = 380
-    const ctx = canvas.getContext("2d") as WechatMiniprogram.CanvasContext
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, 350, 200);
-    ctx.fillStyle = "#000000";
-    ctx.drawImage(await this.generateCanvasImg(canvas, pic_readmeqr), 10, 5, 110, 95)
-    ctx.fillText('操作说明', 50, 110)
-    ctx.drawImage(await this.generateCanvasImg(canvas, pic_wpqr), 120, 5, 110, 95)
-    ctx.fillText('小程序', 165, 110)
-    ctx.drawImage(await this.generateCanvasImg(canvas, pic_mac), 230, 5, 110, 95)
-    ctx.fillText('mac:' + mac, 240, 110)
-  }, */
-
-  /**
-   * 下载标签
-   */
-  /* async downLabel() {
-    const res = await new Promise<any>(resolve => {
-      wx.createSelectorQuery()
-        .select("#canvas1")
-        .fields({ node: true, size: true })
-        .exec(res => resolve(res))
-    })
-    const canvas = res[0].node as WechatMiniprogram.Canvas
-    wx.canvasToTempFilePath({
-      canvasId: "canvas1",
-      quality: 1,
-      canvas,
-      fileType: "jpg",
-      destHeight: 300,
-      destWidth: 700,
-      success(res) {
-        wx.saveImageToPhotosAlbum({
-          filePath: res.tempFilePath,
-          success(res) {
-            if (res.errMsg = "saveImageToPhotosAlbum:ok") {
-              wx.showToast({
-                title: "已保存到照片库",
-                icon: "success"
-              })
-            }
-          }
-        })
-      }
-    })
+  onPullDownRefresh: async function () {
+    if (this.data.terminal.DevMac) {
+      await this.scanRequst()
+    }
+    wx.stopPullDownRefresh()
   },
-
-  async generateFile(code: string) {
-    const base = await api.qr(code)
-    const filePath = `${wx.env.USER_DATA_PATH}/${code}.png`
-    const m = wx.getFileSystemManager()
-    return await new Promise<string>(resolve => {
-      m.writeFile({
-        filePath,
-        data: base.data.replace(/[\r\n]/g, '').slice(22),
-        encoding: "base64",
-        success() {
-          resolve(filePath)
-        },
-        fail(e) {
-          wx.showToast({
-            title: e.errMsg,
-            icon: "error"
-          })
-        }
-      })
-    })
-  },
- */
-  /**
-   * 
-   * @param canvas 
-   * @param path 
-   */
-  /* generateCanvasImg(canvas: WechatMiniprogram.Canvas, path: string) {
-    return new Promise<string>(resolve => {
-      const img = canvas.createImage()
-      img.onload = () => resolve(img as any)
-      img.onerror = (e) => {
-        wx.showToast({
-          title: e.errMsg,
-          icon: "error"
-        })
-      }
-      img.src = path
-    })
-  },
- */
-  /**
-   * 下载文件
-   */
-  /* dowmPic(url: string) {
-    const nArr = url.split("/")
-    const name = nArr[nArr.length - 1]
-    const filename = `${wx.env.USER_DATA_PATH}/${name}`
-    //console.log({ nArr, name, filename });
-
-    return new Promise<string>(resolve => {
-      // 判断文件是否存在,不存在就下载文件
-      const m = wx.getFileSystemManager()
-      m.stat({
-        path: filename,
-        success() {
-          resolve(filename)
-        },
-        fail(e) {
-          console.log(e.errMsg);
-          wx.downloadFile({
-            url,
-            filePath: filename,
-            success(res) {
-              resolve(res.filePath)
-            },
-            fail(e) {
-              wx.showToast({
-                title: e.errMsg,
-                icon: "error"
-              })
-            }
-          })
-        }
-      })
-    })
-  }, */
 })

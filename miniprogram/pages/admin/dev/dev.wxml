@@ -1,23 +1,52 @@
 <!--miniprogram/pages/admin/dev/dev.wxml-->
-<view class="container">
-  <view>
-    <van-cell-group>
-      <van-field model:value="{{id}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描设备编号条码"
-        bind:click-icon="scanMac" />
-    </van-cell-group>
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
+
+<view class="page">
+
+  <!-- 搜索区 -->
+  <view class="search-bar card">
+    <view class="search-input-wrap">
+      <input
+        class="search-input"
+        type="text"
+        value="{{id}}"
+        placeholder="输入或扫描设备编号"
+        placeholder-class="search-input-placeholder"
+        bindinput="onIdInput"
+        bindconfirm="scanRequst"
+      />
+      <view class="search-scan" bindtap="scanMac">📷</view>
+    </view>
+    <button class="search-btn" bindtap="scanRequst" disabled="{{!id}}">查询设备</button>
   </view>
-  <view style="display:flex;justify-content: space-evenly;">
-    <van-button round type="info" bind:click="scanRequst" disabled="{{!id}}" block>查询设备</van-button>
+
+  <!-- 设备信息卡（仅在有数据时） -->
+  <view wx:if="{{hasDev}}" class="card">
+    <view class="card-title">设备信息</view>
+    <view class="info-list">
+      <view
+        wx:for="{{devInfo}}"
+        wx:key="label"
+        class="info-row {{index === devInfo.length - 1 ? 'info-row-last' : ''}}"
+      >
+        <text class="info-key">{{item.label}}</text>
+        <text class="info-val {{item.empty ? 'info-val-empty' : ''}}">{{item.value}}</text>
+      </view>
+    </view>
   </view>
-  <view class="info card" wx:if="{{dev.id}}">
-    <van-cell-group title="设备信息">
-      <van-cell title="ID" value="{{dev.id}}" />
-      <van-cell title="类型" value="{{dev.Type}}" />
-      <van-cell title="设备" value="{{dev.mountDev}}" />
-      <van-cell title="协议" value="{{dev.protocol}}" />
-      <van-cell title="地址" value="{{dev.pid}}" />
-      <van-cell title="注册时间" value="{{dev.timeStamp}}" />
-    </van-cell-group>
-    <van-button round type="warning" size="small" bind:click="delRegisterDev" block>删除!!</van-button>
+
+  <!-- 空状态 -->
+  <view wx:else class="empty">
+    <view class="empty-icon">📟</view>
+    <view class="empty-text">输入或扫描设备编号查询</view>
+    <view class="empty-hint">查询后可以查看设备注册信息并执行删除操作</view>
   </view>
+
+  <!-- 底部固定删除按钮（仅在有数据时） -->
+  <view wx:if="{{hasDev}}" class="footer-action">
+    <button class="btn btn-danger btn-lg" bindtap="delRegisterDev">删除设备</button>
+  </view>
+
 </view>

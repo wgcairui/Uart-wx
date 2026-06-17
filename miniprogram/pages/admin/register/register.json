@@ -1,11 +1,5 @@
 {
-  "usingComponents": {
-    "van-field": "@vant/weapp/field/index",
-    "van-radio": "@vant/weapp/radio/index",
-  "van-radio-group": "@vant/weapp/radio-group/index",
-  "van-row": "@vant/weapp/row/index",
-  "van-col": "@vant/weapp/col/index"
-  },
-  "navigationBarTitleText": "批量登记DTU",
-  "enablePullDownRefresh": false
+  "usingComponents": {},
+  "enablePullDownRefresh": true,
+  "navigationBarTitleText": "批量登记 DTU"
 }

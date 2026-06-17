@@ -155,4 +155,40 @@ if (code === 200) {
 - TS / WXML 派生数据约定
 - 适配避坑清单
 
-**做新页面 / 改页面样式前必看**。已应用页面：index / alarm / user / manageDev / mountDevs。
+**做新页面 / 改页面样式前必看**。已应用页面：index / alarm / user / manageDev / mountDevs / **admin 全套（见下）**。
+
+### admin 页面重构（2026-06-18 feat/admin-pages-refactor 分支）
+
+7 个 admin 页面已按 style-guide 全面重做，去掉所有 Vant 依赖（van-grid / van-cell / van-field / van-button / van-tag / van-row / van-col / van-dropdown / van-radio），改用纯 view + CSS 实现：
+
+| 页面 | 模式 | 关键变化 |
+|---|---|---|
+| `pages/admin/index` | 照抄 `pages/index/user/user` | hero + 菜单 sections（常用 / 其它 / 系统 / 账户）|
+| `pages/admin/scan` | 自定义（DTU 详情独有） | 搜索 + 历史 chip + hero + 设备信息 + 物联卡（带流量比例条）+ 4 操作 + 挂载设备卡 |
+| `pages/admin/registerDev` | 照抄 `pages/index/manageDev/addMountDev` | hero + IMEI 输入 + 设备类型/型号/协议 picker + 底部提交 |
+| `pages/admin/devs` | **强孪生** `pages/index/devs` | 简化版——不做 enum 操作 / 告警设置，只读 + 跳图表（见下方"强孪生"小节）|
+| `pages/admin/dev` | `scan` 简化版 | 搜索 + 设备信息 + 底部删除 |
+| `pages/admin/register` | `registerDev` 派生 | IMEI 12位校验 + 节点选择（带容量比例条）|
+| `pages/admin/node` | hero + KPI + 节点卡 | 节点三态（normal/busy/full）+ 比例条 |
+
+**共同改造点**：
+- 所有 `if (code)` 改为 `if (code === 200)`（项目约定，见上文「业务成功判定」节）
+- 所有信息卡用 `rebuildXxxInfo()` 派生到 `data` 数组，wxml 直接读 `item.value`（避免 WXML 调 page 方法）
+- 所有 `setData` 多 key 一次性写入
+- `api.onMessage` 监听沿用，但 key 校验用本地变量避免 strictNullChecks
+- 删了 scan.ts 里一大坨被注释掉的 canvas 标签生成代码（generateLabel / downLabel / dowmPic / generateFile / generateCanvasImg），彻底清理历史遗留
+
+### admin/devs 跟 index/devs 强孪生（不合并，但同步重做）
+
+两个页面**走同一个 v2/user API**（`api.getTerminalData(mac, pid)`），数据/状态/操作完全同构。**没有合并**——两个 page 入口是按 role 走的，admin 端通过 `pages/admin/scan` 跳转，user 端通过 `pages/index/manageDev/mountDevs` 跳转，URL 路径已经分别注册到 app.json。维护成本可控，重构时两边同步改即可。
+
+| 差异点 | `pages/index/devs` | `pages/admin/devs` |
+|---|---|---|
+| 枚举操作（`onEnumTap` → 发指令） | ✅ | ❌ |
+| 告警设置（`alarm()` 跳 alarmSetting） | ✅ | ❌ |
+| 操作按钮卡（`dev-oprate` 组件） | ✅ | ❌ |
+| 设备图（UPS / 空调 / 温湿度） | ✅ | ❌（admin 用法是"快速核对数据"，不放图）|
+| 数据表 / filter / 跳图表 | ✅ | ✅ |
+| hero + 运行参数 | ✅ | ✅ |
+
+> 后续如果要做"合并为单 page，role 在 onLoad 分发"的重构，可以在本次孪生基础上推进——两份 wxml/wxss 高度同构，差异段已经提取清楚。

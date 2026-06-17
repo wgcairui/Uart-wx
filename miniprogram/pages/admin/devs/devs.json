@@ -1,5 +1,5 @@
 {
-  "usingComponents": {
-    "my-table": "../../../component/devTable/devTable"
-  }
+  "usingComponents": {},
+  "enablePullDownRefresh": true,
+  "navigationBarTitleText": "设备运行数据"
 }
