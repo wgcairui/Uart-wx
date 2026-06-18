@@ -1,9 +1,71 @@
-<!--miniprogram/pages/index/devs/devs.wxml-->
+<!--miniprogram/pages/admin/devs/devs.wxml-->
 <page-meta>
   <navigation-bar front-color="#ffffff" background-color="#487ed9" />
 </page-meta>
-<view class="container">
-  <my-table result="{{result}}" bind:filter="filter" bind:line="toline">
-    <van-cell value="{{result.time}}"></van-cell>
-  </my-table>
-</view> 
+
+<view class="page">
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-bg"></view>
+    <view class="hero-content">
+      <view class="hero-meta">
+        <view class="hero-time">
+          <text class="hero-time-icon">⏱</text>
+          <text>{{result.time || '—'}}</text>
+        </view>
+      </view>
+      <view class="hero-title">{{mountDev || '设备详情'}}</view>
+      <view class="hero-subtitle">{{Type || '物联网终端'}} · 协议 {{protocol}}</view>
+    </view>
+  </view>
+
+  <view class="content">
+    <!-- 搜索框 -->
+    <view class="search-bar">
+      <view class="search-input-wrap">
+        <text class="search-icon">🔍</text>
+        <input
+          class="search-input"
+          type="text"
+          value="{{filter}}"
+          placeholder="请输入参数搜索"
+          placeholder-class="search-input-placeholder"
+          bindinput="onFilterInput"
+        />
+      </view>
+    </view>
+
+    <!-- 列表 head -->
+    <view class="param-section-head">
+      <text class="param-section-title">运行参数</text>
+      <text class="param-section-count">{{result.result.length}} 项</text>
+    </view>
+
+    <!-- 参数列表 -->
+    <view class="param-list">
+      <view
+        wx:for="{{result.result}}"
+        wx:key="name"
+        wx:for-item="row"
+        class="param-item {{row.alarm ? 'is-alarm' : ''}}"
+      >
+        <view class="param-item-dot" wx:if="{{row.alarm}}"></view>
+        <view class="param-item-head" bindtap="toline" data-name="{{row.name}}">
+          <view class="param-item-name">{{row.alias || row.name}}</view>
+          <view class="param-item-value">
+            <text wx:if="{{row.parseValue}}">{{row.parseValue}}</text>
+            <text wx:else class="param-item-empty">--</text>
+            <text class="param-item-unit" wx:if="{{row.unit}}">{{row.unit}}</text>
+            <text class="param-item-arrow">›</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{result.result.length === 0}}" class="empty">
+      <view class="empty-icon">📊</view>
+      <view class="empty-text">暂无运行数据</view>
+      <view class="empty-hint">下拉刷新重试</view>
+    </view>
+  </view>
+</view>

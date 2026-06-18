@@ -1,86 +1,163 @@
 <!--miniprogram/pages/admin/scan/scan.wxml-->
-<view class="container">
-  <view>
-    <van-cell-group>
-      <van-field model:value="{{mac}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描DTU的编号" bind:click-icon="scanMac" />
-    </van-cell-group>
-  </view>
-  <view style="display:flex;justify-content: space-evenly;">
-    <van-button icon="search" round type="info" bind:click="scanRequst" disabled="{{!mac}}" block>查询设备</van-button>
-  </view>
-  <van-cell-group title="历史查询记录">
-    <van-cell title="{{item}}" id="{{item}}" bindtap="search" wx:if="{{macs.length>0}}" wx:for="{{macs}}" wx:key="item">
-      <van-icon slot="right-icon" name="search" class="custom-icon" />
-    </van-cell>
-  </van-cell-group>
-  <view class="info card" wx:if="{{terminal.name}}">
-    <van-cell-group title="设备信息">
-      <van-cell title="IMEI" value="{{terminal.DevMac}}" />
-      <van-cell title="DTU名称" value="{{terminal.name}}" />
-      <van-cell title="接入节点" value="{{terminal.mountNode}}" />
-      <van-cell title="上线时间" value="{{terminal.uptime}}" />
-      <van-cell title="AT指令支持" value="{{terminal.AT?'是':'否'}}" />
-      <van-cell title="Gps" value="{{terminal.jw}}" />
-      <van-cell title="Port" value="{{terminal.port}}" />
-      <van-cell title="通讯" value="{{terminal.uart}}" />
-      <van-cell title="信号强度>25" value="{{terminal.signal}}" />
-      <van-cell title="备注" value="{{terminal.remark}}" />
-      <van-cell title="状态">
-        <van-tag size="large" type="{{terminal.online?'success':'warning'}}">{{terminal.online?'在线':'离线'}}</van-tag>
-      </van-cell>
-      <van-cell wx:if="{{terminal.mountDevs}}" title="挂载设备数目" value="{{terminal.mountDevs.length}}" />
-      <van-cell-group title="物联卡信息" wx:if="{{terminal.iccidInfo && terminal.iccidInfo.statu}}">
-        <van-cell title="起始日期" value="{{terminal.iccidInfo.validDate}}" />
-        <van-cell title="结束日期" value="{{terminal.iccidInfo.expireDate}}" />
-        <van-cell title="全部流量" value="{{terminal.iccidInfo.flowResource/1024}}MB" />
-        <van-cell title="已使用流量" value="{{(terminal.iccidInfo.flowUsed/1024)}}MB" />
-        <van-cell title="使用比例" value="{{((terminal.iccidInfo.flowUsed/terminal.iccidInfo.flowResource)*100)}}%" />
-        <van-cell title="套餐" value="{{terminal.iccidInfo.resName}}" />
-      </van-cell-group>
-      <!-- <canvas id="canvas1" type="2d" style="height: 200px;width: 350px;"></canvas> -->
-      <van-row>
-        <van-col span="12">
-          <van-button block round type="info" bind:click="bindDevId">绑定设备Id</van-button>
-        </van-col>
-        <van-col span="12">
-          <van-button block type="info" round bindtap="modifyUart">修改波特率</van-button>
-        </van-col>
-      </van-row>
-      <van-row>
-        <van-col span="6">
-          <van-button size="small" type="info" bindtap="resetDtu" round>重启设备</van-button>
-        </van-col>
-        <van-col span="8">
-          <van-button size="small" type="warning" round bindtap="initTerminal" style="margin-left:1rem">初始化设备</van-button>
-        </van-col>
-        <van-col span="10">
-          <van-button size="small" type="primary" bindtap="iotRemoteUrl" round style="margin-left:1rem">获取远程调试地址
-          </van-button>
-        </van-col>
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
 
-      </van-row>
-      <!-- <van-button block type="info" round bindtap="downLabel" disabled="{{!qrReady}}">下载标签</van-button> -->
-    </van-cell-group>
-  </view>
-  <view wx:if="{{terminal.mountDevs && terminal.mountDevs.length>0}}" class="info card">
-    <van-cell-group wx:for="{{terminal.mountDevs}}" wx:key="index" title="第[{{index+1}}]个设备">
-      <van-cell title="设备类型" value="{{item.Type}}"></van-cell>
-      <van-cell title="设备型号" value="{{item.mountDev}}"></van-cell>
-      <van-cell title="设备地址" value="{{item.pid}}"></van-cell>
-      <van-cell title="设备协议" value="{{item.protocol}}"></van-cell>
-      <van-cell title="设备Id" value="{{item.bindDev}}"></van-cell>
-      <van-cell title="状态">
-        <van-tag size="large" type="{{item.online?'success':'warning'}}">{{item.online?'在线':'离线'}}</van-tag>
-      </van-cell>
-      <van-row>
-        <van-col span="12">
-          <van-button block type="info" round bindtap="see" data-item="{{item}}">查看</van-button>
-        </van-col>
-        <van-col span="12">
-          <van-button block type="warning" round bindtap="rmBind" data-item="{{item}}">删除</van-button>
-        </van-col>
-      </van-row>
-    </van-cell-group>
+<view class="page">
 
+  <!-- === 搜索区（常驻顶部） === -->
+  <view class="search-bar card">
+    <view class="search-input-wrap">
+      <input
+        class="search-input"
+        type="text"
+        value="{{mac}}"
+        placeholder="输入或扫描 DTU 的编号"
+        placeholder-class="search-input-placeholder"
+        bindinput="onMacInput"
+        bindconfirm="scanRequst"
+      />
+      <view class="search-scan" bindtap="scanMac">📷</view>
+    </view>
+    <button class="search-btn" bindtap="scanRequst" disabled="{{!mac}}">查询</button>
   </view>
+
+  <!-- === 历史查询记录 chip === -->
+  <view wx:if="{{macs.length > 0}}" class="history card">
+    <view class="card-title">历史查询</view>
+    <view class="chips">
+      <view
+        wx:for="{{macs}}"
+        wx:key="*this"
+        class="chip {{item === mac ? 'is-active' : ''}}"
+        id="{{item}}"
+        bindtap="search"
+      >{{item}}</view>
+    </view>
+  </view>
+
+  <!-- === 设备信息（仅在有数据时显示） === -->
+  <block wx:if="{{terminal.DevMac}}">
+
+    <!-- Hero -->
+    <view class="hero">
+      <view class="hero-row">
+        <view class="hero-info">
+          <view class="hero-name-row">
+            <view class="hero-name">{{terminal.name || '未命名 DTU'}}</view>
+            <view class="dev-pill {{terminal.online ? 'is-online' : 'is-offline'}}">
+              <view class="dev-pill-dot"></view>
+              <text>{{terminal.onlineLabel}}</text>
+            </view>
+          </view>
+          <view class="hero-meta">
+            <text class="hero-meta-icon">📡</text>
+            <text class="hero-meta-mono">{{terminal.DevMac}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 设备信息卡 -->
+    <view class="card">
+      <view class="card-title">设备信息</view>
+      <view class="info-list">
+        <view
+          wx:for="{{terminalInfo}}"
+          wx:key="label"
+          class="info-row {{index === terminalInfo.length - 1 ? 'info-row-last' : ''}}"
+        >
+          <text class="info-key">{{item.label}}</text>
+          <text class="info-val {{item.empty ? 'info-val-empty' : ''}}">{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 物联卡信息卡（仅在有 iccidInfo 时） -->
+    <view wx:if="{{hasIccid}}" class="card">
+      <view class="card-title">物联卡信息</view>
+
+      <!-- 流量使用比例条 -->
+      <view class="flow-bar-wrap">
+        <view class="flow-bar">
+          <view class="flow-bar-fill" style="width: {{iccidFlowPercent}}%;"></view>
+        </view>
+        <text class="flow-bar-label">已用 {{iccidFlowPercent}}%</text>
+      </view>
+
+      <view class="info-list">
+        <view
+          wx:for="{{iccidInfo}}"
+          wx:key="label"
+          class="info-row {{index === iccidInfo.length - 1 ? 'info-row-last' : ''}}"
+        >
+          <text class="info-key">{{item.label}}</text>
+          <text class="info-val">{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮区 -->
+    <view class="card actions">
+      <view class="actions-row">
+        <button class="btn btn-primary" bindtap="bindDevId">📎 绑定设备 Id</button>
+        <button class="btn btn-secondary" bindtap="modifyUart">⚙ 修改波特率</button>
+      </view>
+      <view class="actions-row">
+        <button class="btn btn-secondary" bindtap="resetDtu">↻ 重启设备</button>
+        <button class="btn btn-secondary" bindtap="iotRemoteUrl">🔗 远程调试</button>
+      </view>
+      <button class="btn btn-danger" bindtap="initTerminal">⚠ 初始化设备</button>
+    </view>
+
+    <!-- 挂载设备列表 -->
+    <view wx:if="{{mountDevCards.length > 0}}" class="card">
+      <view class="card-title">挂载设备（{{mountDevCards.length}}）</view>
+      <view class="mount-list">
+        <view
+          wx:for="{{mountDevCards}}"
+          wx:key="pid"
+          wx:for-item="card"
+          class="mount-card {{index === mountDevCards.length - 1 ? 'mount-card-last' : ''}}"
+        >
+          <view class="mount-head">
+            <view class="mount-title">
+              <view class="mount-icon">📟</view>
+              <view class="mount-name-wrap">
+                <view class="mount-name">{{card.mountDev}}</view>
+                <view class="mount-type">{{card.type}} · 协议 {{card.protocol}}</view>
+              </view>
+            </view>
+            <view class="dev-pill {{card.online ? 'is-online' : 'is-offline'}}">
+              <view class="dev-pill-dot"></view>
+              <text>{{card.onlineLabel}}</text>
+            </view>
+          </view>
+          <view class="mount-info">
+            <view class="mount-info-row">
+              <text class="mount-info-key">地址</text>
+              <text class="mount-info-val mount-info-mono">{{card.pid}}</text>
+            </view>
+            <view class="mount-info-row">
+              <text class="mount-info-key">设备 Id</text>
+              <text class="mount-info-val mount-info-mono">{{card.bindDev}}</text>
+            </view>
+          </view>
+          <view class="mount-actions">
+            <button class="btn btn-secondary btn-sm" data-item="{{card.raw}}" bindtap="see">查看</button>
+            <button class="btn btn-danger btn-sm" data-item="{{card.raw}}" bindtap="rmBind">删除</button>
+          </view>
+        </view>
+      </view>
+    </view>
+
+  </block>
+
+  <!-- 空状态 -->
+  <view wx:else class="empty">
+    <view class="empty-icon">📡</view>
+    <view class="empty-text">输入或扫描 DTU 编号查询</view>
+    <view class="empty-hint">查询后可以看到 DTU 详细信息、挂载设备、物联卡流量等</view>
+  </view>
+
 </view>

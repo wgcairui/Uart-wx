@@ -1,10 +1,68 @@
 <!--miniprogram/pages/admin/node/node.wxml-->
-<view container>
-  <van-cell-group wx:for="{{nodes}}" wx:key="IP" title="{{item.Name}}" class="card">
-    <van-cell title="IP" value="{{item.IP}}"></van-cell>
-    <van-cell title="Port" value="{{item.Port}}"></van-cell>
-    <van-cell title="最大连接数" value="{{item.MaxConnections}}"></van-cell>
-    <van-cell title="已使用连接数" value="{{item.count}}"></van-cell>
-    <van-cell title="使用比例" value="{{item.count/item.MaxConnections}}%"></van-cell>
-  </van-cell-group>
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
+
+<view class="page">
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-info">
+        <view class="hero-title">LADS 节点状态</view>
+        <view class="hero-sub">查看所有节点的连接容量与使用情况</view>
+      </view>
+    </view>
+
+    <view class="kpi-row">
+      <view class="kpi">
+        <view class="kpi-num">{{totalNodes}}</view>
+        <view class="kpi-label">节点数</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num">{{totalUsed}}/{{totalMax}}</view>
+        <view class="kpi-label">连接（已用/总）</view>
+      </view>
+      <view class="kpi">
+        <view class="kpi-num">{{overallRatioLabel}}</view>
+        <view class="kpi-label">整体使用率</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 节点列表 -->
+  <view class="card">
+    <view class="card-title">节点列表</view>
+    <view class="node-list">
+      <view
+        wx:for="{{nodes}}"
+        wx:key="Name"
+        wx:for-item="node"
+        class="node-card {{index === nodes.length - 1 ? 'node-card-last' : ''}}"
+      >
+        <view class="node-head">
+          <view class="node-name-wrap">
+            <view class="node-name">{{node.Name}}</view>
+            <view class="node-meta">{{node.IP}}:{{node.Port}}</view>
+          </view>
+          <view class="node-pill node-pill-{{node.status}}">
+            <view class="node-pill-dot"></view>
+            <text>{{node.statusLabel}}</text>
+          </view>
+        </view>
+        <view class="node-progress">
+          <view class="node-progress-bar">
+            <view class="node-progress-fill node-progress-fill-{{node.status}}" style="width: {{node.useRatio}}%;"></view>
+          </view>
+          <text class="node-progress-label">{{node.count}}/{{node.MaxConnections}} · {{node.useRatioLabel}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{nodes.length === 0}}" class="empty">
+      <view class="empty-icon">🌐</view>
+      <view class="empty-text">暂无节点数据</view>
+    </view>
+  </view>
+
 </view>

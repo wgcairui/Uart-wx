@@ -1,8 +1,368 @@
 /* miniprogram/pages/admin/register/register.wxss */
-.container>view{
-  padding: 8px 0;
+/* 视觉规范见 docs/style-guide.md */
+
+page {
+  background: #f4f7fb;
 }
 
-.center{
-  margin-top: 6px;
+.page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding-bottom: 200rpx;
+}
+
+/* === Hero === */
+.hero {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  padding: 36rpx 28rpx 40rpx;
+  color: #ffffff;
+}
+
+.hero-row {
+  display: flex;
+  align-items: center;
+}
+
+.hero-info {
+  flex: 1;
+}
+
+.hero-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.hero-sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  opacity: 0.88;
+}
+
+/* === Card === */
+.card {
+  background: #ffffff;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 16rpx;
+  margin: 20rpx 20rpx 0;
+  padding: 20rpx 24rpx;
+  box-shadow: 0 2rpx 10rpx rgba(40, 60, 110, 0.05);
+}
+
+.card-title {
+  font-size: 22rpx;
+  color: #8a93a6;
+  text-transform: uppercase;
+  letter-spacing: 1rpx;
+  margin-bottom: 14rpx;
+  font-weight: 500;
+}
+
+/* === IMEI bar === */
+.imei-bar {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.imei-input-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f4f7fb;
+  border: 1rpx solid #e9ecf3;
+  border-radius: 12rpx;
+  padding: 0 16rpx;
+  height: 72rpx;
+}
+
+.imei-input {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  font-size: 28rpx;
+  color: #1f2533;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  letter-spacing: 1rpx;
+}
+
+.imei-input-placeholder {
+  color: #c0c5d2;
+  font-family: -apple-system, "Helvetica Neue", sans-serif;
+}
+
+.imei-scan {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  color: #487ed9;
+  margin-left: 8rpx;
+}
+
+.imei-hint {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  line-height: 1.4;
+}
+
+.imei-hint.is-error {
+  color: #e54545;
+}
+
+.imei-hint.is-info {
+  color: #8a93a6;
+}
+
+/* === 已录入列表 === */
+.dtus-list {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f2f7;
+}
+
+.dtus-list-title {
+  font-size: 22rpx;
+  color: #8a93a6;
+  margin-bottom: 12rpx;
+}
+
+.dtu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #f0f2f7;
+}
+
+.dtu-row-last {
+  border-bottom: none;
+  padding-bottom: 4rpx;
+}
+
+.dtu-mono {
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  font-size: 26rpx;
+  color: #1f2533;
+  font-weight: 500;
+}
+
+.dtu-remove {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e54545;
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+/* === 节点卡 === */
+.nodes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.node-card {
+  background: #f4f7fb;
+  border: 2rpx solid transparent;
+  border-radius: 14rpx;
+  padding: 20rpx;
+  margin-top: 16rpx;
+  transition: all 0.15s ease;
+}
+
+.node-card-first {
+  margin-top: 0;
+}
+
+.node-card.is-selected {
+  background: rgba(72, 126, 217, 0.06);
+  border-color: #487ed9;
+}
+
+.node-card.is-disabled {
+  opacity: 0.55;
+}
+
+.node-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14rpx;
+}
+
+.node-title {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.node-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 10rpx;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  flex-shrink: 0;
+}
+
+.node-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.node-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f2533;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.node-meta {
+  font-size: 22rpx;
+  color: #8a93a6;
+  margin-top: 4rpx;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+}
+
+.node-check {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #487ed9;
+  color: #ffffff;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+
+/* === 节点使用比例 === */
+.node-progress {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 12rpx 0;
+  border-top: 1rpx solid #e9ecf3;
+  border-bottom: 1rpx solid #e9ecf3;
+  margin-bottom: 12rpx;
+}
+
+.node-progress-bar {
+  flex: 1;
+  height: 12rpx;
+  background: #e9ecf3;
+  border-radius: 999rpx;
+  overflow: hidden;
+}
+
+.node-progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  border-radius: 999rpx;
+  transition: width 0.3s ease;
+}
+
+.node-progress-label {
+  font-size: 22rpx;
+  color: #3a4256;
+  font-weight: 500;
+  flex-shrink: 0;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+}
+
+.node-warn {
+  font-size: 22rpx;
+  color: #e54545;
+}
+
+/* === Footer action === */
+.footer-action {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20rpx 28rpx 32rpx;
+  background: linear-gradient(180deg, rgba(244,247,251,0) 0%, #f4f7fb 60%);
+}
+
+.footer-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.footer-btn {
+  flex: 1;
+}
+
+.btn {
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  text-align: center;
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+  transition: opacity 0.1s ease;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn:active {
+  opacity: 0.85;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #487ed9 0%, #3158b8 100%);
+  color: #ffffff;
+  box-shadow: 0 6rpx 20rpx rgba(72, 126, 217, 0.32);
+}
+
+.btn-secondary {
+  background: #eef3fb;
+  color: #3158b8;
+}
+
+.btn-danger {
+  background: rgba(229, 69, 69, 0.10);
+  color: #e54545;
+}
+
+.btn-sm {
+  height: 56rpx;
+  line-height: 56rpx;
+  font-size: 24rpx;
+  flex: 0 0 auto;
+  padding: 0 28rpx;
+}
+
+.btn-lg {
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 30rpx;
+}
+
+.btn[disabled] {
+  opacity: 0.5;
+  box-shadow: none;
 }

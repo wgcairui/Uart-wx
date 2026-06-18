@@ -1,42 +1,93 @@
 <!--miniprogram/pages/admin/register/register.wxml-->
-<view class="container">
-  <view>
-    <van-cell-group>
-      <van-field model:value="{{mac}}" required clearable label="IMEI" icon="scan" placeholder="输入或扫描DTU的编号" bind:click-icon="scanMac" />
+<page-meta>
+  <navigation-bar front-color="#ffffff" background-color="#487ed9" />
+</page-meta>
 
-      <!-- <van-field model:value="{{bind}}" required clearable label="设备ID" icon="scan" placeholder="输入或扫描设备编号"
-        bind:click-icon="scanBind" /> -->
-    </van-cell-group>
-    <view class="center" wx:if="mac.length===12">
-      <van-button round type="info" bind:click="scanRequst" disabled="{{!mac}}">添加设备</van-button>
+<view class="page">
+
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-row">
+      <view class="hero-info">
+        <view class="hero-title">批量登记 DTU</view>
+        <view class="hero-sub">先扫/输入 IMEI（12 位），再选挂载节点，一次性提交</view>
+      </view>
     </view>
   </view>
 
-  <view>
-    <van-cell-group title="设备列表/{{dtus.length}}">
-      <van-cell wx:for="{{dtus}}" wx:key="key" title="{{item.DevMac}}">
-        <van-button round type="info" size="small" bindtap="rmDtu" data-key="{{item.DevMac}}">删除设备</van-button>
-      </van-cell>
-    </van-cell-group>
-  </view>
-  <view>
-    <van-radio-group value="{{ radio }}" bind:change="changeNode">
-      <van-cell-group title="节点名称/最大挂载数/已挂载数:{{radio}}">
-        <van-cell wx:for="{{nodes}}" wx:key="key" title="{{item.Name}}/{{item.MaxConnections}}/{{item.count}}" clickable data-item="{{item}}" bind:click="selectNode">
-          <van-radio slot="right-icon" name="{{item.Name}}" disabled="{{item.MaxConnections <=item.count}}" />
-        </van-cell>
-      </van-cell-group>
-    </van-radio-group>
-  </view>
-  <view wx:if="{{dtus.length >0}}">
-    <van-row>
-      <van-col span="16">
-        <van-button round type="info" bind:click="submit" block>提交</van-button>
-      </van-col>
-      <van-col span="8">
-        <van-button round type="succedd" bind:click="copy" block>复制</van-button>
-      </van-col>
-    </van-row>
+  <!-- IMEI 输入 -->
+  <view class="card">
+    <view class="card-title">DTU IMEI（12 位）</view>
+    <view class="imei-bar">
+      <view class="imei-input-wrap">
+        <input
+          class="imei-input"
+          type="text"
+          value="{{mac}}"
+          placeholder="输入或扫描 DTU IMEI"
+          placeholder-class="imei-input-placeholder"
+          maxlength="12"
+          bindinput="onMacInput"
+          bindconfirm="onMacConfirm"
+        />
+        <view class="imei-scan" bindtap="scanMac">📷</view>
+      </view>
+      <button class="btn btn-primary btn-sm" bindtap="addDtus" disabled="{{!showAddBtn}}">加入列表</button>
+    </view>
+    <view wx:if="{{imeiHint}}" class="imei-hint {{imeiHintError ? 'is-error' : 'is-info'}}">{{imeiHint}}</view>
 
+    <view wx:if="{{dtus.length > 0}}" class="dtus-list">
+      <view class="dtus-list-title">已录入 {{dtus.length}} 个</view>
+      <view
+        wx:for="{{dtus}}"
+        wx:key="DevMac"
+        class="dtu-row {{index === dtus.length - 1 ? 'dtu-row-last' : ''}}"
+      >
+        <text class="dtu-mono">{{item.DevMac}}</text>
+        <view class="dtu-remove" data-key="{{item.DevMac}}" bindtap="rmDtu">✕</view>
+      </view>
+    </view>
   </view>
+
+  <!-- 节点选择 -->
+  <view wx:if="{{nodes.length > 0}}" class="card">
+    <view class="card-title">选择挂载节点</view>
+    <view class="nodes-list">
+      <view
+        wx:for="{{nodes}}"
+        wx:key="Name"
+        wx:for-item="node"
+        class="node-card {{node.selected ? 'is-selected' : ''}} {{item.disabled ? 'is-disabled' : ''}} {{index === nodes.length - 1 ? 'node-card-last' : ''}}"
+        data-item="{{node}}"
+        bindtap="selectNode"
+      >
+        <view class="node-head">
+          <view class="node-title">
+            <view class="node-icon">🌐</view>
+            <view class="node-info">
+              <view class="node-name">{{node.Name}}</view>
+              <view class="node-meta">{{node.IP}}:{{node.Port}}</view>
+            </view>
+          </view>
+          <view wx:if="{{node.selected}}" class="node-check">✓</view>
+        </view>
+        <view class="node-progress">
+          <view class="node-progress-bar">
+            <view class="node-progress-fill" style="width: {{node.useRatio}}%;"></view>
+          </view>
+          <text class="node-progress-label">{{node.count}}/{{node.MaxConnections}} · {{node.useRatioLabel}}</text>
+        </view>
+        <view wx:if="{{node.disabled}}" class="node-warn">容量不足（需 ≥ {{dtus.length}}，剩 {{node.available}}）</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view wx:if="{{dtus.length > 0}}" class="footer-action">
+    <view class="footer-row">
+      <button class="btn btn-secondary btn-lg footer-btn" bindtap="copy">复制 IMEI</button>
+      <button class="btn btn-primary btn-lg footer-btn" bindtap="submit" disabled="{{!isReady}}">提交 ({{dtus.length}})</button>
+    </view>
+  </view>
+
 </view>

@@ -1,170 +1,210 @@
-import api from "../../../utils/api";
+// miniprogram/pages/admin/register/register.ts
+// 管理员批量登记 DTU（IMEI + 选节点）
+// 视觉规范见 docs/style-guide.md
 
-// miniprogram/pages/admin/register/register.js
+import api from "../../../utils/api"
+
+interface NodeInfo {
+  Name: string
+  IP: string
+  Port: number
+  MaxConnections: number
+  count: number
+  useRatio: number       // 0-100
+  useRatioLabel: string  // 25%
+  available: number      // MaxConnections - count
+  disabled: boolean
+  selected: boolean
+}
+
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
+    // IMEI 输入
     mac: '',
-    bind: '',
+    showAddBtn: false,
+    imeiHint: '',  // 校验提示
+    imeiHintError: false,
+
+    // 已录入 IMEI 列表
     dtus: [] as Uart.RegisterTerminal[],
-    nodes: [] as Uart.NodeClient[],
-    radio: ''
+
+    // 节点列表
+    nodes: [] as NodeInfo[],
+    selectedNode: '' as string,
+
+    // 派生
+    isReady: false,
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad: function () {
     this.getNodes()
   },
 
-  // 调用微信api，扫描DTU条形码
+  // 扫 IMEI
   async scanMac() {
-    const scanResult = await wx.scanCode({})
-    //const { code, data } = await api.getTerminal(scanResult.result)
-    this.setData({
-      mac: scanResult.result
-    })
-    this.addDtus()
+    try {
+      const scanResult = await wx.scanCode({})
+      this.setData({ mac: scanResult.result })
+      this.addDtus()
+    } catch (e) {
+      // 用户取消
+    }
   },
 
-  /* async scanBind() {
-    const scanResult = await wx.scanCode({})
-    this.setData({
-      bind: scanResult.result
-    })
-    if (this.data.mac && this.data.bind) this.addDtus()
-  }, */
-
-  // 加入dtus
-  scanRequst() {
-    /* if (!this.data.bind) {
-      wx.showModal({
-        title: '参数不完整',
-        content: '设备ID还未填写,是否添加??',
-        success: (e) => {
-          if (e.confirm) this.addDtus()
-        }
-      })
-    } else */
-    this.addDtus()
-  },
-
-  // add
-  async addDtus() {
-    const { mac, bind, radio } = this.data
-
-    if(mac.length !== 12){
-      wx.showModal({
-        content:`${mac}长度异常,请核对是否正确??`
-      })
-    }
-    if (this.data.dtus.findIndex(el => el.DevMac === mac) !== -1) {
-      console.log('重复扫描');
-      return
-    }
-
+  onMacInput(e: WechatMiniprogram.Input) {
+    const mac = e.detail.value
     this.setData({
       mac,
-      dtus: [{ DevMac: mac, bindDev: bind, mountNode: radio }, ...this.data.dtus]
+      showAddBtn: mac.length > 0,
+      imeiHint: '',
+      imeiHintError: false,
     })
-    const dtulen = this.data.dtus.length
-    for (let node of this.data.nodes) {
-      if (node.MaxConnections - (node.count || 0) > dtulen) {
-        this.setData({
-          radio: node.Name
-        })
-        break
-      }
+  },
 
+  onMacConfirm() {
+    this.addDtus()
+  },
+
+  /**
+   * 校验 IMEI 长度必须是 12，加入已录入列表
+   */
+  addDtus() {
+    const { mac, dtus, selectedNode } = this.data
+    if (mac.length !== 12) {
+      this.setData({
+        imeiHint: `${mac} 长度异常，请核对是否正确`,
+        imeiHintError: true,
+      })
+      return
     }
+    if (dtus.findIndex(el => el.DevMac === mac) !== -1) {
+      this.setData({
+        imeiHint: '已存在，跳过',
+        imeiHintError: false,
+      })
+      return
+    }
+    const next: Uart.RegisterTerminal = { DevMac: mac, bindDev: '', mountNode: selectedNode }
+    this.setData({
+      dtus: [next, ...dtus],
+      mac: '',
+      showAddBtn: false,
+      imeiHint: '',
+      imeiHintError: false,
+    })
+    this.rebuildReady()
   },
 
-  // 选择节点
-  onChange_Node(event: vantEvent) {
-    console.log(event);
-
-  },
-
-  // 删除选择的DTU
-  rmDtu(event: vantEvent) {
-    const mac = event.currentTarget.dataset.key
+  // 删除已选 DTU
+  rmDtu(e: WechatMiniprogram.TouchEvent) {
+    const key = (e.currentTarget.dataset as any).key as string
     wx.showModal({
-      title: '删除dtu',
-      content: `确定删除dtu:${mac} ??`,
+      title: '删除 DTU',
+      content: `确定删除 DTU: ${key} ?`,
       success: (res) => {
         if (res.confirm) {
-          this.setData({
-            dtus: this.data.dtus.filter(el => el.DevMac !== mac)
-          })
+          this.setData({ dtus: this.data.dtus.filter(el => el.DevMac !== key) })
+          this.rebuildReady()
         }
-      }
+      },
     })
   },
 
   // 获取节点列表
   async getNodes() {
     const { data } = await api.Nodes()
-    this.setData({
-      nodes: data,
-      radio: data[0].Name
-    })
-  },
-  // 变更选择节点
-  changeNode(event: vantEvent) {
-    this.setData({
-      radio: event.detail,
-    });
+    this.rebuildNodes(data || [])
   },
 
-  // 选择节点
-  selectNode(event: vantEvent) {
-    const item: Uart.NodeClient = event.currentTarget.dataset.item
-    this.setData({
-      radio: item.Name
-    });
-  },
-  // 提交
-  submit() {
-    const { dtus, radio } = this.data
-    wx.showModal({
-      title: '提交核对',
-      content: `本次提交的dtu数目:${dtus.length},挂载的节点为:${radio},`,
-      success: async () => {
-        const all = await Promise.all(dtus.map(el => api.addRegisterTerminal(el.DevMac, el.mountNode)))
-        if (all.length === dtus.length) {
-          wx.showModal({
-            title: '提交成功',
-            content: `成功提交[${all.length}] 个设备`
-          })
-          this.getNodes()
-          this.setData({
-            dtus: [],
-            mac: ''
-          })
-        } else {
-          wx.showModal({
-            title: '提交错误',
-            content: '提交错误'
-          })
-        }
+  /**
+   * 派生节点卡片（每节点带 available / useRatio / selected / disabled）
+   */
+  rebuildNodes(rawNodes: Uart.NodeClient[]) {
+    const dtulen = this.data.dtus.length
+    const nodes: NodeInfo[] = rawNodes.map((el: any) => {
+      const max = el.MaxConnections || 0
+      const used = el.count || 0
+      const available = max - used
+      return {
+        Name: el.Name,
+        IP: el.IP,
+        Port: el.Port,
+        MaxConnections: max,
+        count: used,
+        useRatio: max > 0 ? Math.min(100, Math.round((used / max) * 100)) : 0,
+        useRatioLabel: max > 0 ? `${Math.round((used / max) * 100)}%` : '—',
+        available,
+        disabled: available <= dtulen,
+        selected: false,
       }
     })
+    // 默认选第一个可用节点
+    const firstAvailable = nodes.find(n => !n.disabled)
+    const selectedNode = firstAvailable ? firstAvailable.Name : ''
+    if (firstAvailable) firstAvailable.selected = true
+    this.setData({ nodes, selectedNode })
+    this.rebuildReady()
   },
 
+  /**
+   * 选择节点（点击卡片）
+   */
+  selectNode(e: WechatMiniprogram.TouchEvent) {
+    const item = (e.currentTarget.dataset as any).item as NodeInfo
+    if (item.disabled) {
+      wx.showToast({ title: '该节点容量不足', icon: 'none' })
+      return
+    }
+    const nodes = this.data.nodes.map(n => ({ ...n, selected: n.Name === item.Name }))
+    this.setData({ nodes, selectedNode: item.Name })
+    this.rebuildReady()
+  },
 
+  rebuildReady() {
+    this.setData({
+      isReady: this.data.dtus.length > 0 && Boolean(this.data.selectedNode),
+    })
+  },
+
+  // 提交
+  async submit() {
+    if (!this.data.isReady) return
+    const { dtus, selectedNode } = this.data
+    const { confirm } = await wx.showModal({
+      title: '提交核对',
+      content: `本次提交 DTU 数目: ${dtus.length}\n挂载的节点: ${selectedNode}`,
+    })
+    if (!confirm) return
+    wx.showLoading({ title: '正在提交' })
+    const all = await Promise.all(dtus.map(el => api.addRegisterTerminal(el.DevMac, selectedNode)))
+    wx.hideLoading()
+    const success = all.filter(r => r.code === 200).length
+    if (success === dtus.length) {
+      wx.showModal({
+        title: '提交成功',
+        content: `成功提交 [${success}] 个设备`,
+        showCancel: false,
+        success: () => {
+          this.setData({ dtus: [] })
+          this.getNodes()
+          this.rebuildReady()
+        },
+      })
+    } else {
+      wx.showModal({
+        title: '部分失败',
+        content: `成功 ${success} / ${dtus.length}，请检查失败项后重试`,
+        showCancel: false,
+      })
+    }
+  },
+
+  // 复制 IMEI 列表（加 866 前缀）
   copy() {
-    const mac = this.data.dtus.map(el => '866' + el.DevMac).join("\n")
+    const mac = this.data.dtus.map(el => '866' + el.DevMac).join('\n')
     wx.setClipboardData({
       data: mac,
-      success() {
-        wx.showToast({
-          title: 'success'
-        })
-      }
+      success: () => wx.showToast({ title: '已复制', icon: 'success' }),
     })
-  }
+  },
 })
