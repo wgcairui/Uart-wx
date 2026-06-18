@@ -19,7 +19,7 @@
       />
       <view class="search-scan" bindtap="scanMac">📷</view>
     </view>
-    <button class="search-btn" bindtap="scanRequst" disabled="{{!mac}}">查询 DTU</button>
+    <button class="search-btn" bindtap="scanRequst" disabled="{{!mac}}">查询</button>
   </view>
 
   <!-- === 历史查询记录 chip === -->

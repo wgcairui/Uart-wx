@@ -19,7 +19,7 @@
       />
       <view class="search-scan" bindtap="scanMac">📷</view>
     </view>
-    <button class="search-btn" bindtap="scanRequst" disabled="{{!id}}">查询设备</button>
+    <button class="search-btn" bindtap="scanRequst" disabled="{{!id}}">查询</button>
   </view>
 
   <!-- 设备信息卡（仅在有数据时） -->
