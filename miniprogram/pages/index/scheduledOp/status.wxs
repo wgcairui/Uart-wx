@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!-- 状态文案 wxs (wxml 中调用) -->
 <wxs module="status">
   // 状态码 → 中文
