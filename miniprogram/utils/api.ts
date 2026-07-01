@@ -614,7 +614,8 @@ class api {
   * @returns
   */
   SendProcotolInstructSet(query: Uart.instructQueryArg, item: Uart.OprateInstruct) {
-    return this.fetch<Uart.ApolloMongoResult>("v2/user/devices/" + query.DevMac + "/mount/" + query.pid + "/instruct", { item })
+    // 后端返回的是 ApolloMongoResult[]（数组），业务成败看 data[0].ok
+    return this.fetch<Uart.ApolloMongoResult[]>("v2/user/devices/" + query.DevMac + "/mount/" + query.pid + "/instruct", { item })
   }
 
   /**

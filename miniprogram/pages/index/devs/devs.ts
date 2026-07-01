@@ -317,9 +317,23 @@ Page({
     this.setData({ _oprateStat: false })
     wx.hideLoading()
 
-    if (resp.code) {
-      wx.showToast({ title: resp.data?.msg || '发送成功', icon: 'success', duration: 1500 })
+    if (resp.code === 200) {
+      // 后端业务响应是 ApolloMongoResult[]，业务成败要看 data[0].ok（1=成功 / 0=失败）
+      // 防御：data 偶尔可能不是数组（如后端直返单个对象），用 Array.isArray 兜底
+      const result: Uart.ApolloMongoResult | undefined = Array.isArray(resp.data) ? resp.data[0] : resp.data
+      if (result?.ok === 1) {
+        // 业务成功 → 轻量 toast，不阻塞用户
+        wx.showToast({ title: result.msg || '发送成功', icon: 'success', duration: 1500 })
+      } else {
+        // 业务失败（设备未上线 / 参数错误 等）→ 弹窗，msg → upserted → resp.msg 兜底
+        wx.showModal({
+          title: '发送失败',
+          content: result?.msg || result?.upserted || resp.msg || '指令未执行，请重试',
+          showCancel: false
+        })
+      }
     } else {
+      // HTTP / 网络异常 → 弹窗，msg 兜底
       wx.showModal({
         title: '发送失败',
         content: resp.msg || resp.data?.message || '指令未执行，请重试',

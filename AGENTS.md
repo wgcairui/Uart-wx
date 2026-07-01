@@ -100,6 +100,63 @@ if (code === 200) {
 
 ---
 
+### 写操作接口还要看 `data[0].ok`——`code === 200` 不等于业务成功
+
+**问题**：上节约定 `code === 200` 是业务成功，但这只够覆盖**纯查询接口**。某些**写操作接口**（mongo upsert / 设备指令下发）在 `code === 200` 时也会把"业务层失败"塞进 `data[0].ok === 0`，前端只看 code 就会**误报成功**。
+
+**真实案例**（2026-06-18 devs 页 `SendProcotolInstructSet`）：
+```json
+// 后端响应：设备未上线，指令其实没发出去
+{"code":200,"data":[{"msg":"操作失败","ok":0,"n":0,"nModified":0,"upserted":"设备未上线"}]}
+```
+
+前端原代码：
+```ts
+if (resp.code) {                                      // 200 truthy → 进 success 分支
+  wx.showToast({ title: resp.data?.msg || '发送成功' }) // data 是数组，.msg 永远 undefined → 落到 "发送成功"
+}
+```
+
+**判定规则**：
+- `code === 200` → 接口调用成功（HTTP / 参数层没问题）
+- **写操作接口**还要看 `data[0].ok === 1` 才算业务成功（`ok === 0` 才是业务失败）
+- 业务失败信息优先级：`data[0].msg` → `data[0].upserted` → `resp.msg` → 兜底文案
+- `data` 偶尔可能不是数组（防御性 `Array.isArray` 兜底取 `data[0]`）
+
+**正确写法**：
+```ts
+if (resp.code === 200) {
+  // 写操作类接口 data 是 ApolloMongoResult[]；查询类 data 直接是对象
+  const result: Uart.ApolloMongoResult | undefined = Array.isArray(resp.data) ? resp.data[0] : resp.data
+  if (result?.ok === 1) {
+    wx.showToast({ title: result.msg || '发送成功', icon: 'success' })
+  } else {
+    wx.showModal({
+      title: '发送失败',
+      content: result?.msg || result?.upserted || resp.msg || '指令未执行，请重试',
+      showCancel: false
+    })
+  }
+}
+```
+
+**涉及接口**（已知返 `ApolloMongoResult[]`）：
+- `api.SendProcotolInstructSet` → 设备指令下发
+- `api.saveLayout` → 保存布局
+- `api.sendATInstruct` → AT 指令下发
+
+**API 类型签名也要对**：`fetch<Uart.ApolloMongoResult>` 是错的（单个），要 `fetch<Uart.ApolloMongoResult[]>`。前端光改处理逻辑但类型签名没改，下次别人写同类型代码会被误导。
+
+**接新接口 checklist**：
+1. 跑一次 mock 看响应 `data` 是数组还是对象
+2. 看 `data` 里有没有 `ok` / `n` / `nModified` 字段（mongo 写操作响应特征）
+3. `fetch<T>` 的 `T` 跟实际返回一致
+4. 处理代码：先 `Array.isArray` 兜底取 `data[0]`，再判 `ok`
+
+参考修复：`pages/index/devs/devs.ts:285-307`（oprate 响应处理）。
+
+---
+
 ### DTU 协议互斥：232 和 485 不能混挂
 
 **业务规则**：一个 DTU 不能同时绑定 RS-232 和 RS-485 设备（硬件特性 —— RS-232 是点对点，RS-485 是总线，两者在物理层互斥）。
