@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<!--miniprogram/pages/index/scheduledOp/scheduledOp.wxml-->
 <wxs src="../../util/filter.wxs" module="filter" />
 <wxs src="./status.wxs" module="status" />
 
