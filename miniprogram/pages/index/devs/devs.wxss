@@ -371,3 +371,55 @@ page {
   width: 100rpx;
   height: 100rpx;
 }
+
+/* 2026-07-01 (决策 18): 定时任务入口卡片 */
+.scheduled-op-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin: 0 24rpx 16rpx;
+  padding: 24rpx 24rpx;
+  background: linear-gradient(135deg, #fff7e6 0%, #ffe7ba 100%);
+  border: 1rpx solid #ffb84d;
+  border-radius: 16rpx;
+}
+
+.scheduled-op-icon {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+.scheduled-op-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.scheduled-op-title {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #1f2329;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 4rpx;
+}
+
+.scheduled-op-title .beta-tag {
+  font-size: 20rpx;
+  background: #ffb84d;
+  color: #fff;
+  padding: 2rpx 10rpx;
+  border-radius: 6rpx;
+  font-weight: 500;
+}
+
+.scheduled-op-sub {
+  font-size: 22rpx;
+  color: #8a6300;
+}
+
+.scheduled-op-arrow {
+  font-size: 36rpx;
+  color: #c9cdd4;
+  font-weight: 300;
+}

@@ -609,12 +609,74 @@ class api {
 
   /**
   * 固定发送设备操作指令
-  * @param query 
-  * @param item 
-  * @returns 
+  * @param query
+  * @param item
+  * @returns
   */
   SendProcotolInstructSet(query: Uart.instructQueryArg, item: Uart.OprateInstruct) {
     return this.fetch<Uart.ApolloMongoResult>("v2/user/devices/" + query.DevMac + "/mount/" + query.pid + "/instruct", { item })
+  }
+
+  /**
+   * 2026-07-01: 创建定时操作 (一次性延迟, 决策 18)
+   * 配套后端 PR #63 (midwayuartserver feat/scheduled-op) + uart-site-v3 PR #21
+   * 测试版本: 走 user 端点
+   * @param mac 设备 mac
+   * @param pid mount dev pid
+   * @param req 包含 protocol / content / scheduledAt / remark
+   * @returns
+   */
+  createUserScheduledOp(
+    mac: string,
+    pid: number | string,
+    req: { protocol: string; content: string; scheduledAt: string; remark?: string }
+  ) {
+    return this.fetch<{ id: string; scheduledAt: number; status: string }>(
+      "v2/user/devices/" + mac + "/mount/" + pid + "/scheduled-op",
+      req
+    )
+  }
+
+  /**
+   * 列定时操作 (user 端点, 自动按 createdBy 过滤)
+   * @param query 分页 / 搜索 / 过滤
+   */
+  listUserScheduledOps(query: { page?: number; pageSize?: number; search?: any; filters?: any }) {
+    return this.fetch<Uart.V2ListResponse<Uart.ScheduledOperation>>(
+      "v2/user/scheduled-ops/list",
+      query
+    )
+  }
+
+  /**
+   * 取消定时操作 (user 端)
+   */
+  cancelUserScheduledOp(id: string) {
+    return this.fetch<{ id: string; status: string }>(
+      "v2/user/scheduled-ops/" + encodeURIComponent(id) + "/cancel",
+      {}
+    )
+  }
+
+  /**
+   * 立即触发定时操作 (dev 验证用)
+   */
+  triggerUserScheduledOp(id: string) {
+    return this.fetch<{ id: string; status: string }>(
+      "v2/user/scheduled-ops/" + encodeURIComponent(id) + "/trigger",
+      {}
+    )
+  }
+
+  /**
+   * 删除定时操作 (仅终态可删)
+   */
+  deleteUserScheduledOp(id: string) {
+    return this.fetch<{ id: string }>(
+      "v2/user/scheduled-ops/" + encodeURIComponent(id),
+      {},
+      "DELETE"
+    )
   }
 
   /**

@@ -42,4 +42,58 @@ namespace Uart {
     ip?: string             // 客户端 IP
     dropped?: 'rate_limit' | null  // 后端限流标记
   }
+
+  // ─── scheduled-op 定时操作指令 (2026-07-01 决策 18 第一阶段, 跟 uart-site-v3 类型对齐) ─
+  type ScheduledOpStatus = 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED' | 'CANCELED'
+  type ScheduledOpNotifyStatus = 'PENDING' | 'DISPATCHED' | 'SKIPPED'
+
+  /** 列表分页响应 (跟 uart-site-v3 lib/api/endpoints/* 对齐) */
+  interface PaginationRes {
+    page: number
+    pageSize: number
+    total: number
+    totalPages: number
+    hasNext: boolean
+    hasPrev: boolean
+  }
+
+  interface V2ListResponse<T> {
+    items: T[]
+    pagination: PaginationRes
+  }
+
+  /** 定时操作记录 (后端 model: mongo_entity/scheduled-operation.ts) */
+  interface ScheduledOperation {
+    _id: string
+    mac: string
+    pid: number
+    protocol: string
+    /** 已组装好的最终指令 (admin 端: instruct name; user 端: fillInstructTemplate 后 hex) */
+    content: string
+    /** 计划触发时间 (UTC ms) */
+    scheduledAt: number
+    createdBy: string
+    createdByGroup: 'admin' | 'root' | 'user'
+    status: ScheduledOpStatus
+    bullJobId?: string
+    executedAt?: number
+    result?: ApolloMongoResult
+    failReason?: string
+    notifyStatus: ScheduledOpNotifyStatus
+    notifiedChannels: string[]
+    remark?: string
+    createdAt?: string
+    updatedAt?: string
+  }
+
+  /** 创建定时操作请求体 (前后端共用, 走 endpoint 内部字段映射) */
+  interface CreateScheduledOpReq {
+    mac: string
+    pid: number
+    protocol: string
+    content: string
+    /** ISO 字符串 (前端 Date.toISOString()) */
+    scheduledAt: string
+    remark?: string
+  }
 }
