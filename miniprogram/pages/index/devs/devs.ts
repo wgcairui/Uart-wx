@@ -255,19 +255,37 @@ Page({
       })
       return
     }
+
+    // 2026-07-01 (决策 18): 选完指令后弹 立即发送 / 定时发送 选择
+    // 保留默认走原"立即发送"路径, 用户显式选"定时发送"才走定时任务流程
+    wx.showActionSheet({
+      itemList: ['立即发送 (现在执行)', '定时发送 (测试版) — 选未来时间'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          this.doSendNow(item)
+        } else if (res.tapIndex === 1) {
+          this.doScheduleOp(item)
+        }
+      },
+    })
+  },
+
+  /**
+   * 立即发送 (原 oprate 后续逻辑, 抽成方法)
+   * 兼容 dev / test 调用
+   */
+  async doSendNow(item: Uart.OprateInstruct) {
+    if (this.data._oprateStat) return
     // 2026-06-17: ActionSheet 关闭动画跟 showLoading 有竞争，
     // 延 1 帧再弹 loading，确保遮罩一定出现
     setTimeout(() => {
       wx.showLoading({ title: '正在处理', mask: true })
     }, 16)
-    this.setData({
-      _oprateStat: true
-    })
+    this.setData({ _oprateStat: true })
     let resp: { code?: number; data?: any; msg?: string }
     try {
       resp = await api.SendProcotolInstructSet({ mountDev: this.data.mountDev, pid: Number(this.data.pid), protocol: this.data.protocol, DevMac: this.data.mac } as any, item)
     } catch (err) {
-      // 网络层 / fetch 异常，api.ts 已 console.error 过
       this.setData({ _oprateStat: false })
       wx.hideLoading()
       wx.showModal({
@@ -277,22 +295,163 @@ Page({
       })
       return
     }
-    this.setData({
-      _oprateStat: false
-    })
+    this.setData({ _oprateStat: false })
     wx.hideLoading()
 
     if (resp.code) {
-      // 成功 → 轻量 toast，不阻塞用户
       wx.showToast({ title: resp.data?.msg || '发送成功', icon: 'success', duration: 1500 })
     } else {
-      // 业务失败 / server 抛错 → 弹窗，msg 兜底
       wx.showModal({
         title: '发送失败',
         content: resp.msg || resp.data?.message || '指令未执行，请重试',
         showCancel: false
       })
     }
+  },
+
+  /**
+   * 2026-07-01 (决策 18): 定时发送流程
+   * 1) wx.showActionSheet 选类型已经在外层oprate处理
+   * 2) 让用户选未来时间 (>= now+30s, server 端硬性校验)
+   * 3) 调 api.createUserScheduledOp → BullMQ 入队 delayed job
+   */
+  doScheduleOp(item: Uart.OprateInstruct) {
+    // wx picker mode=multiSelector 仅支持 y/m/d h/m 两段选择,
+    // 这里用 native picker mode=multiSelector, 列 [date, time] 两组
+    // 简化: 用两个 picker 分别选日期 + 时间
+    const now = new Date()
+
+    // 拼日期列
+    const dates: string[] = []
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(now.getTime() + i * 86400 * 1000)
+      const ymd = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`
+      dates.push(ymd)
+    }
+    // 拼时间列 (按 30 分钟间隔, 48 个)
+    const times: string[] = []
+    for (let h = 0; h < 24; h++) {
+      for (let m of [0, 30]) {
+        times.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`)
+      }
+    }
+    // 默认选离 now+30min 最近的可选项
+    const targetTs = Date.now() + 30 * 60 * 1000
+    const targetD = new Date(targetTs)
+    const defaultDateIdx = Math.max(0, dates.indexOf(
+      `${targetD.getFullYear()}-${(targetD.getMonth() + 1).toString().padStart(2, '0')}-${targetD.getDate().toString().padStart(2, '0')}`
+    ))
+
+    wx.showActionSheet({
+      itemList: ['今天 ' + (now.getMonth() + 1) + '/' + now.getDate() + ' (默认 +30min)', '手动选日期+时间'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          // 快速模式: now + 30 min
+          const ts = Date.now() + 30 * 60 * 1000
+          this.confirmAndCreate(item, ts)
+        } else {
+          // 手动模式: 弹两个 picker
+          this.pickDateTime(item, dates, defaultDateIdx, times)
+        }
+      },
+    })
+  },
+
+  pickDateTime(item: Uart.OprateInstruct, dates: string[], dateIdx: number, times: string[]) {
+    wx.showActionSheet({
+      itemList: dates.slice(dateIdx, dateIdx + 7).concat(['(取消)']),
+      success: (dRes) => {
+        if (dRes.tapIndex >= 7) return
+        const pickedDate = dates[dateIdx + dRes.tapIndex]
+        wx.showActionSheet({
+          itemList: times.concat(['(取消)']),
+          success: (tRes) => {
+            if (tRes.tapIndex >= times.length) return
+            const pickedTime = times[tRes.tapIndex]
+            const ts = new Date(pickedDate + ' ' + pickedTime + ':00').getTime()
+            if (isNaN(ts)) {
+              wx.showToast({ title: '时间格式错误', icon: 'none' })
+              return
+            }
+            if (ts <= Date.now() + 30 * 1000) {
+              wx.showModal({ title: '时间已过', content: '请选择晚于当前 30s 的时间', showCancel: false })
+              return
+            }
+            this.confirmAndCreate(item, ts)
+          },
+        })
+      },
+    })
+  },
+
+  async confirmAndCreate(item: Uart.OprateInstruct, scheduledTsMs: number) {
+    const date = new Date(scheduledTsMs)
+    const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
+
+    // admin 端 content 走原始指令名, user 端 content 是已组装 (item.value 含 %i)
+    // 这里 server 端 fillInstructTemplate 已经在 item.value 渲染过 (前端组装)
+    // 但 dev 这里没有 fillInstructTemplate, 直接传 item.value 让 server 端处理
+    // 跟 uart-site-v3 lib/utils/sendInstruct.ts fillInstructTemplate 一致逻辑
+    let content = item.value
+    if (item.value.includes('%i')) {
+      // 简单 1-byte hex 替换 (跟 server ParseCoefficient 一致)
+      // 这里 bl 系数简单按 bl=1 处理 (1*val)
+      const val = item.val || 0
+      if (item.value.includes('%i%i')) {
+        const num = Number(val)
+        content = item.value.replace('%i%i', ((num >> 8) & 0xff).toString(16).padStart(2, '0') + (num & 0xff).toString(16).padStart(2, '0'))
+      } else {
+        const hex = Number(val).toString(16)
+        content = item.value.replace('%i', hex.length < 2 ? hex.padStart(2, '0') : hex)
+      }
+    }
+
+    wx.showModal({
+      title: '确认定时操作',
+      content: `指令: ${item.name}\n设备: ${this.data.mac} pid=${this.data.pid}\n协议: ${this.data.protocol}\n计划时间: ${dateStr}\n\n点击确认创建 (后端 BullMQ 到点自动触发)`,
+      confirmText: '确认创建',
+      success: async (r) => {
+        if (!r.confirm) return
+        wx.showLoading({ title: '创建中' })
+        try {
+          const resp = await api.createUserScheduledOp(
+            this.data.mac,
+            Number(this.data.pid),
+            {
+              protocol: this.data.protocol,
+              content,
+              scheduledAt: new Date(scheduledTsMs).toISOString(),
+            }
+          )
+          wx.hideLoading()
+          if (resp.code === 200) {
+            wx.showModal({
+              title: '创建成功',
+              content: `定时任务已创建\nID: ${resp.data?.id}\n\ndev 模式 worker 不启动, 可到「定时操作」列表页点「立即触发」验证`,
+              confirmText: '去看列表',
+              cancelText: '留在原地',
+              success: (mr) => {
+                if (mr.confirm) {
+                  wx.navigateTo({ url: '/pages/index/scheduledOp/scheduledOp' })
+                }
+              },
+            })
+          } else {
+            wx.showModal({ title: '创建失败', content: resp.message || '请稍后再试', showCancel: false })
+          }
+        } catch (err) {
+          wx.hideLoading()
+          wx.showToast({ title: '网络异常', icon: 'none' })
+        }
+      },
+    })
+  },
+
+  /**
+   * 2026-07-01 (决策 18): 跳转到定时任务列表
+   */
+  goScheduledOpList() {
+    wx.navigateTo({ url: '/pages/index/scheduledOp/scheduledOp' })
   },
   // 跳转告警设置（直接进主页，不弹菜单）
   alarm(_e: vantEvent) {

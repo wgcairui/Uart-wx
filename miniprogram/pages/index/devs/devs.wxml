@@ -58,6 +58,16 @@
       </view>
     </view>
 
+    <!-- 2026-07-01 (决策 18): 定时任务入口 (测试版) -->
+    <view class="scheduled-op-card" bindtap="goScheduledOpList">
+      <view class="scheduled-op-icon">⏰</view>
+      <view class="scheduled-op-body">
+        <view class="scheduled-op-title">定时任务列表 <text class="beta-tag">测试版</text></view>
+        <view class="scheduled-op-sub">查看/管理本账号下所有定时操作任务</view>
+      </view>
+      <view class="scheduled-op-arrow">›</view>
+    </view>
+
     <!-- 参数列表 -->
     <view class="param-section-head">
       <text class="param-section-title">运行参数</text>

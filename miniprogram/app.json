@@ -10,6 +10,7 @@
     "pages/index/dtu/dtu",
     "pages/index/devs/devs",
     "pages/index/userinfo/userinfo",
+    "pages/index/scheduledOp/scheduledOp",
     "pages/index/manageDev/manageDev",
     "pages/index/alarmSetting/alarmSetting",
     "pages/index/alarmSetting/index",

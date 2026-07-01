@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 状态文案 wxs (wxml 中调用) -->
+<wxs module="status">
+  // 状态码 → 中文
+  var text = function(s) {
+    if (s === 'PENDING') return '待执行';
+    if (s === 'RUNNING') return '执行中';
+    if (s === 'SUCCESS') return '已成功';
+    if (s === 'FAILED') return '已失败';
+    if (s === 'CANCELED') return '已取消';
+    return s;
+  };
+
+  // 通知通道 → 中文
+  var channels = function(arr) {
+    if (!arr || arr.length === 0) return '未发送';
+    var map = { wx: '微信', mail: '邮件', sms: '短信' };
+    var out = [];
+    for (var i = 0; i < arr.length; i++) {
+      out.push(map[arr[i]] || arr[i]);
+    }
+    return out.join(' / ');
+  };
+
+  module.exports = {
+    text: text,
+    channels: channels
+  };
+</wxs>

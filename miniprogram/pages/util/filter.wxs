@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 通用时间格式化 wxs -->
+<wxs module="filter">
+  var pad = function(n) {
+    return n < 10 ? '0' + n : '' + n;
+  };
+
+  var formatTime = function(ts) {
+    if (!ts) return '-';
+    var d = getDate(ts);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  };
+
+  module.exports = {
+    formatTime: formatTime
+  };
+</wxs>
