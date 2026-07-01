@@ -28,12 +28,7 @@
     "types": [
       "miniprogram-api-typings",
       "types-uart"
-    ],
-    "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
-    "paths": {
-      "@vant/weapp/*": ["./path/to/node_modules/@vant/weapp/dist/*"]
-    }
+    ]
   },
   "include": [
     "miniprogram/**/*.ts",
