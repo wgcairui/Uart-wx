@@ -101,11 +101,20 @@ Page({
     }
   },
 
-  /** 创建入口: 跳首页, 让用户选设备再走定时流程 */
+  /** 创建入口: 跳到设备列表 (tabBar "设备"页), 让用户选设备再走定时流程 */
   onCreateTap() {
+    // 2026-07-01: cairui 报告 "新建定时操作点击不了". 加 console.log 验证 tap 是否真的触发.
+    // 如果 console 看到这行 → 事件触发 OK, 问题在 modal 行为或后续跳转;
+    // 如果 console 看不到 → 事件根本没到 (IDE compile stale / page-meta 拦截 / 别的)
+    console.log('[scheduledOp] onCreateTap triggered', new Date().toISOString())
     wx.showModal({
-      title: '创建定时操作',
-      content: '请到设备详情页 → 点击「操作指令」→ 选「定时发送」, 完成创建',
+      title: '创建定时操作 (测试版)',
+      content:
+        '当前是测试版, 完整的"创建定时操作"流程还没接入.\n\n' +
+        '临时使用方式:\n' +
+        '1. 确认跳转到"设备列表"\n' +
+        '2. 进入任一设备详情\n' +
+        '3. 点「操作指令」→ 选「定时发送」完成创建',
       confirmText: '去设备列表',
       cancelText: '取消',
       success: (r) => {
