@@ -90,12 +90,13 @@ Page({
         try {
           const resp = await api.cancelUserScheduledOp(id)
           wx.hideLoading()
-          // resp 是 universalResult shape: { code, data, message, status }
-          if (resp.code === 200) {
+          // 2026-07-01: 改 `if (resp.code)` truthy check 跟 codebase 一致 (server success=200, error=0)
+          if (resp.code) {
             wx.showToast({ title: '已取消', icon: 'success' })
             this.loadList()
           } else {
-            wx.showModal({ title: '取消失败', content: resp.message || '请稍后再试', showCancel: false })
+            const errMsg = resp.message || resp.msg || '请稍后再试'
+            wx.showModal({ title: '取消失败', content: errMsg, showCancel: false })
           }
         } catch (err) {
           wx.hideLoading()
@@ -118,11 +119,12 @@ Page({
         try {
           const resp = await api.triggerUserScheduledOp(id)
           wx.hideLoading()
-          if (resp.code === 200) {
+          if (resp.code) {
             wx.showToast({ title: '已入队, 等待 worker 执行', icon: 'success', duration: 2000 })
             this.loadList()
           } else {
-            wx.showModal({ title: '触发失败', content: resp.message || '请稍后再试', showCancel: false })
+            const errMsg = resp.message || resp.msg || '请稍后再试'
+            wx.showModal({ title: '触发失败', content: errMsg, showCancel: false })
           }
         } catch (err) {
           wx.hideLoading()
@@ -146,11 +148,12 @@ Page({
         try {
           const resp = await api.deleteUserScheduledOp(id)
           wx.hideLoading()
-          if (resp.code === 200) {
+          if (resp.code) {
             wx.showToast({ title: '已删除', icon: 'success' })
             this.loadList()
           } else {
-            wx.showModal({ title: '删除失败', content: resp.message || '请稍后再试', showCancel: false })
+            const errMsg = resp.message || resp.msg || '请稍后再试'
+            wx.showModal({ title: '删除失败', content: errMsg, showCancel: false })
           }
         } catch (err) {
           wx.hideLoading()
