@@ -257,7 +257,10 @@ Page({
     }
 
     // 2026-07-01 (决策 18): 选完指令后弹 立即发送 / 定时发送 选择
-    // 保留默认走原"立即发送"路径, 用户显式选"定时发送"才走定时任务流程
+    // - 用户选 "立即发送" → 走原 doSendNow (同步发指令)
+    // - 用户选 "定时发送" → 走 doScheduleOp (弹日期时间 → createUserScheduledOp)
+    // - 用户取消 → 不动 (跟原"点了就发"不一致, 但符合"测试版"明确选择原则)
+    console.log('[oprate] 弹立即/定时选择, item=', item.name, 'value=', item.value)
     wx.showActionSheet({
       itemList: ['立即发送 (现在执行)', '定时发送 (测试版) — 选未来时间'],
       success: (res) => {
@@ -267,6 +270,10 @@ Page({
           this.doScheduleOp(item)
         }
       },
+      fail: () => {
+        // 用户取消, 不动 — 跟"测试版"显式选择原则一致
+        console.log('[oprate] ActionSheet cancelled')
+      }
     })
   },
 
