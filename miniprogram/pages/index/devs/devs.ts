@@ -128,6 +128,7 @@ Page({
     const { code, data, msg } = await api.getTerminalData(mac, pid)
     // 2026-07-01: 加 `data &&` 守护, 防止 server 在 code=200 但 data=null 时 (设备离线 / 协议未注册)
     // 抛 "Cannot read property 'result' of null" (pre-existing bug, 实测在 UPS Pesiv 设备偶现)
+    console.log('[GetDevsRunInfo] code=', code, 'data=', data ? 'present' : 'null', 'msg=', msg)
     if (code && data && data.result) {
       // 预处理：枚举型数据 (issimulate=true 且 unit 是 {k:v,k:v} 形式) → 解析成 options
       // 注意：服务端给的 unit 形如 {0:停止,1:运行} 是非标 JSON（key 无引号），JSON.parse 会失败
@@ -198,9 +199,18 @@ Page({
       // clearInterval(this.data.interval)
       api.offWs('MacDateUpdate' + this.options.DevMac + this.options.pid)
 
+      // 2026-07-01: 区分 code=200 但 data=null (设备暂无数据) vs 真错误
+      if (code && !data) {
+        // server 返 200 + data=null (设备刚上线 / 协议没注册 / 设备离线但走 default branch)
+        // 不弹 Error, 静默 setData 空 result, 让页面显示「暂无数据」placeholder
+        console.log('[GetDevsRunInfo] 200 but data=null, 设备暂无运行数据')
+        this.setData({ result: { result: [], time: '', timeStamp: 0 } as any })
+        return
+      }
+
       wx.showModal({
         title: 'Error',
-        content: msg,
+        content: msg || '获取设备数据失败',
         success: () => {
           // clearInterval(this.data.interval)
           api.offWs('MacDateUpdate' + this.options.DevMac + this.options.pid)
