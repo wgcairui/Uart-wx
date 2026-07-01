@@ -126,7 +126,9 @@ Page({
   async GetDevsRunInfo() {
     const { mac, pid, filter } = this.data
     const { code, data, msg } = await api.getTerminalData(mac, pid)
-    if (code && data.result) {
+    // 2026-07-01: 加 `data &&` 守护, 防止 server 在 code=200 但 data=null 时 (设备离线 / 协议未注册)
+    // 抛 "Cannot read property 'result' of null" (pre-existing bug, 实测在 UPS Pesiv 设备偶现)
+    if (code && data && data.result) {
       // 预处理：枚举型数据 (issimulate=true 且 unit 是 {k:v,k:v} 形式) → 解析成 options
       // 注意：服务端给的 unit 形如 {0:停止,1:运行} 是非标 JSON（key 无引号），JSON.parse 会失败
       // 用正则自己解析
@@ -431,7 +433,9 @@ Page({
             }
           )
           wx.hideLoading()
-          if (resp.code === 200) {
+          // 2026-07-01: 改 `if (resp.code)` truthy check, 跟 codebase 现有 doSendNow 模式一致
+          // server error-handle middleware 返回 code:0 (falsy), result-serialization 成功返 code:200 (truthy)
+          if (resp.code) {
             wx.showModal({
               title: '创建成功',
               content: `定时任务已创建\nID: ${resp.data?.id}\n\ndev 模式 worker 不启动, 可到「定时操作」列表页点「立即触发」验证`,
@@ -444,7 +448,10 @@ Page({
               },
             })
           } else {
-            wx.showModal({ title: '创建失败', content: resp.message || '请稍后再试', showCancel: false })
+            // 2026-07-01: server 错误格式是 `{code:0, status:4xx/5xx, message: '...'}`
+            // 兜底加 resp.msg 兼容可能的旧 controller
+            const errMsg = resp.message || resp.msg || '请稍后再试'
+            wx.showModal({ title: '创建失败', content: errMsg, showCancel: false })
           }
         } catch (err) {
           wx.hideLoading()
