@@ -1,6 +1,57 @@
 // miniprogram/pages/index/scheduledOp/scheduledOp.ts
 import api from "../../../utils/api"
 
+// ─── 模块顶层 helpers (AGENTS.md: 不放 Page options sibling) ──
+
+/** 状态码 → 中文 (状态徽章文案, 跟 status.wxs 行为一致) */
+const STATUS_TEXT: Record<Uart.ScheduledOpStatus, string> = {
+  PENDING: '待执行',
+  RUNNING: '执行中',
+  SUCCESS: '已成功',
+  FAILED: '已失败',
+  CANCELED: '已取消',
+}
+
+/** 通知通道 → 中文 (跟 status.wxs 行为一致) */
+const CHANNEL_TEXT: Record<string, string> = {
+  wx: '微信',
+  mail: '邮件',
+  sms: '短信',
+}
+
+/** 时间戳(ms 或 ISO 字符串) → 'YYYY-MM-DD HH:mm:ss' (无值时 fallback '-') */
+function formatTime(ts?: number | string, fallback = '-'): string {
+  if (!ts) return fallback
+  const d = typeof ts === 'number' ? new Date(ts) : new Date(ts)
+  if (isNaN(d.getTime())) return fallback
+  const pad = (n: number) => (n < 10 ? '0' + n : '' + n)
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
+
+/** 通道数组 → '微信 / 邮件' 字符串 */
+function formatChannels(arr?: string[] | null): string {
+  if (!arr || arr.length === 0) return '未发送'
+  return arr.map(c => CHANNEL_TEXT[c] || c).join(' / ')
+}
+
+/** 列表项展示字段 (派生到 data 数组, 模板里直接 {{item.displayXxx}} 读, 见 AGENTS.md rebuildXxxItems 约定) */
+type DisplayJob = Uart.ScheduledOperation & {
+  displayStatus: string
+  displayScheduledAt: string
+  displayExecutedAt?: string
+  displayChannels: string
+}
+
+function buildDisplayItems(items: Uart.ScheduledOperation[]): DisplayJob[] {
+  return items.map(it => ({
+    ...it,
+    displayStatus: STATUS_TEXT[it.status] ?? it.status,
+    displayScheduledAt: formatTime(it.scheduledAt),
+    displayExecutedAt: it.executedAt ? formatTime(it.executedAt) : undefined,
+    displayChannels: formatChannels(it.notifiedChannels),
+  }))
+}
+
 // miniprogram/pages/index/scheduledOp/scheduledOp.js
 Page({
 
@@ -8,7 +59,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    items: [] as Uart.ScheduledOperation[],
+    items: [] as DisplayJob[],
     loading: true,
     page: 1,
     pageSize: 20,
@@ -36,7 +87,7 @@ Page({
       // 按 scheduledAt 升序 (越接近执行的排前)
       items.sort((a, b) => a.scheduledAt - b.scheduledAt)
       this.setData({
-        items,
+        items: buildDisplayItems(items),
         page: pagination.page,
         pageSize: pagination.pageSize,
         total: pagination.total,

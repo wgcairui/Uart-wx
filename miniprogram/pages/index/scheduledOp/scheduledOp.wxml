@@ -1,6 +1,10 @@
 <!--miniprogram/pages/index/scheduledOp/scheduledOp.wxml-->
-<wxs src="../../util/filter.wxs" module="filter" />
-<wxs src="./status.wxs" module="status" />
+<!--
+  2026-07-01: 移除 <wxs src="../../util/filter.wxs"> 和 ./status.wxs 引用
+  全部展示字段改用 page ts 派生的 {{item.displayXxx}} (见 scheduledOp.ts buildDisplayItems)
+  理由: .wxs 文件导致 IDE wxml Language Server stale 状态报红 (lib 3.15.2 / cache / dir cache 多路径)
+  + 项目本来 .ts 主业, 不需要 WXML Script 这种中间语言。
+-->
 
 <page-meta>
   <navigation-bar front-color="#ffffff" background-color="#487ed9" title="定时操作 (测试版)" />
@@ -37,17 +41,17 @@
             <text class="proto-name">{{item.protocol}}</text>
             <text class="pid">pid={{item.pid}}</text>
           </view>
-          <view class="status-tag status-{{item.status}}">{{status.text(item.status)}}</view>
+          <view class="status-tag status-{{item.status}}">{{item.displayStatus}}</view>
         </view>
 
         <view class="item-meta">
           <view class="meta-row">
             <text class="meta-label">计划时间</text>
-            <text class="meta-value">{{filter.formatTime(item.scheduledAt)}}</text>
+            <text class="meta-value">{{item.displayScheduledAt}}</text>
           </view>
           <view class="meta-row" wx:if="{{item.executedAt}}">
             <text class="meta-label">实际执行</text>
-            <text class="meta-value">{{filter.formatTime(item.executedAt)}}</text>
+            <text class="meta-value">{{item.displayExecutedAt}}</text>
           </view>
           <view class="meta-row">
             <text class="meta-label">指令内容</text>
@@ -59,7 +63,7 @@
           </view>
           <view class="meta-row" wx:if="{{item.notifiedChannels && item.notifiedChannels.length > 0}}">
             <text class="meta-label">通知通道</text>
-            <text class="meta-value">{{status.channels(item.notifiedChannels)}}</text>
+            <text class="meta-value">{{item.displayChannels}}</text>
           </view>
           <view class="meta-row" wx:if="{{item.remark}}">
             <text class="meta-label">备注</text>
@@ -77,7 +81,7 @@
             <view class="action-btn action-danger" data-id="{{item._id}}" bindtap="onDelete">删除</view>
           </block>
           <block wx:else>
-            <view class="action-text">任务{{status.text(item.status)}}中, 暂不可操作</view>
+            <view class="action-text">任务{{item.displayStatus}}中, 暂不可操作</view>
           </block>
         </view>
       </view>
